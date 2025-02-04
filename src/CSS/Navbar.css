@@ -1,0 +1,236 @@
+/* General Navbar Styling */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1050;
+    background-color: transparent; /* Fully transparent */
+    box-shadow: none; /* Remove shadow */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.navbar.scrolled {
+    background-color: rgba(255, 255, 255, 0.9); /* Slight white tint when scrolled */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-toggler {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.navbar-toggler-icon {
+    width: 25px;
+    height: 3px;
+    background: black;
+    position: relative;
+}
+
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after {
+    content: "";
+    width: 25px;
+    height: 3px;
+    background: black;
+    position: absolute;
+    left: 0;
+}
+
+.navbar-toggler-icon::before {
+    top: -7px;
+}
+
+.navbar-toggler-icon::after {
+    top: 7px;
+}
+
+.navbar-nav {
+    margin-left: auto;
+}
+
+.navbar-nav .nav-link {
+    color: black; /* Ensure links are visible */
+    font-weight: 500;
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #007aff; /* Blue color on hover */
+}
+
+.navbar-nav .nav-link.active {
+    color: #007aff;
+    font-weight: bold;
+}
+
+/* Dropdown Menu for Desktop */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 10px 15px;
+    z-index: 1051;
+    top: 100%;
+    left: 0;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+    color: #007aff;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+/* Mobile Menu Styling */
+@media (max-width: 768px) {
+    .navbar-toggler {
+        display: block;
+        margin-left: auto;
+    }
+
+    .collapse {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 80%; /* Adjust the width for a cleaner look */
+        background-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+
+    .collapse.show {
+        display: block;
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .navbar-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px 10px;
+    }
+
+    .nav-item {
+        width: 100%;
+    }
+
+    .nav-link {
+        display: block;
+        width: 100%;
+        padding: 10px 15px;
+        color: black;
+        text-align: left;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-link:last-child {
+        border-bottom: none;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: #007aff;
+    }
+
+    /* Dropdown Menu for Mobile */
+    .dropdown-menu {
+        position: static;
+        background: none;
+        box-shadow: none;
+        padding: 0;
+        margin-top: 10px;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+        color: #007aff;
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+}
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 20px rgba(0, 122, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 122, 255, 0);
+    }
+}
+
+.chatbot-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: #007aff; /* Primary blue color */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Make it circular */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add shadow for elevation */
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    z-index: 1051; /* Ensure it appears above other elements */
+    animation: pulse 2s infinite; /* Add pulsing animation */
+}
+
+.chatbot-toggle:hover {
+    background: #0056b3; /* Darker blue on hover */
+    transform: scale(1.1); /* Slightly enlarge the button on hover */
+}
+
+.chatbot-toggle svg {
+    font-size: 1.8rem; /* Size of the icon */
+}
+
+/* Responsive Adjustments for Smaller Screens */
+@media (max-width: 768px) {
+    .chatbot-toggle {
+        width: 50px;
+        height: 50px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .chatbot-toggle svg {
+        font-size: 1.5rem;
+    }
+}
+

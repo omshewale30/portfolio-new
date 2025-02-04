@@ -1,0 +1,56 @@
+/* Skills Section */
+.skills-section {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 20px;
+}
+
+.skills-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+}
+.skills-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.skills-card h3 {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.skills-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.skill-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: #555;
+}
+
+.progress-ring {
+    transform: rotate(-90deg); /* Rotate to start the circle at the top */
+}
+
+.progress-ring-circle-bg {
+    opacity: 0.3; /* Background circle transparency */
+}
+
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.3s ease-in-out;
+}
