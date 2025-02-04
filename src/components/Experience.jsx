@@ -13,7 +13,7 @@ const experienceDetails = [
             "Developed an authoring tool to enable faculty to customize clinical content, supporting adaptable and scalable teaching methods across institutions.",
         ],
         technologies: ["Flutter", "Dart", "Web Development"],
-        image: "src/assets/UNC_Pharmacy.jpg",
+        image: "../assets/UNC_Pharmacy.jpg",
     },
     {
         title: "Software Developer",
@@ -26,7 +26,7 @@ const experienceDetails = [
             "Delivered the project ahead of schedule, receiving positive feedback from NASA sponsors.",
         ],
         technologies: ["Unity", "Game Development", "C#"],
-        image: "src/assets/Pysche_logo.png",
+        image: "assets/ASN.png",
         report: "reports/nasa_project.pdf",
     },
     {
@@ -40,7 +40,7 @@ const experienceDetails = [
         ],
         technologies: ["Mathematics", "Chemistry", "Python", "C++"],
 
-        image: "src/assets/ASN.png",
+        image: "../assets/ASN.png",
     },
     {
         title: "Teaching Assistant",
@@ -52,7 +52,7 @@ const experienceDetails = [
             "Delivered calculus concepts effectively, leveraging clear communication and hands-on problem-solving exercises.",
         ],
         technologies: ["Mentoring, Teaching, Calculus", "Engineering"],
-        image: "src/assets/ASU.png",
+        image: "../assets/ASU.png",
     },
 
 ];

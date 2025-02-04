@@ -49,9 +49,9 @@ const HeroSection = () => {
                 <Card className="hero-card shadow-lg" >
                     <Card.Body>
                         <div className="card-image-wrapper" style={{transform: `scale(${1-scroll/1000}`}}>
-                            <img src="/src/assets/OMI_8044.jpeg" alt=""
-                            className='card-image'
-                             style={{
+                            <img src="/assets/OMI_8044.jpeg" alt=""
+                                 className='card-image'
+                                 style={{
                                  transform: `scale(${0.5 + (scroll * 0.5)})`, // Scales from 0.5 to 1
                                  opacity: scroll, // Fades in from 0 to 1
                                  transition: 'all 0.3s ease-out'
