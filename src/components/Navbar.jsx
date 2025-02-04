@@ -200,16 +200,6 @@ const Header = () => {
                                 Projects
                             </a>
                         </li>
-
-                        <li className="nav-item">
-                            <a
-                                className={`nav-link ${location.pathname === "/wildlife-gallery" ? "active" : ""}`}
-                                href="#"
-                                onClick={() => handleNavigation("/wildlife-gallery")}
-                            >
-                                Gallery
-                            </a>
-                        </li>
                     </ul>
                 </div>
 

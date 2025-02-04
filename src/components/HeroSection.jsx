@@ -68,7 +68,6 @@ const HeroSection = () => {
                 </Card>
             </div>
 
-
             <div id="education" className="education-section">
                 <h3 className="education-title">Education</h3>
                 <div className="education-grid">

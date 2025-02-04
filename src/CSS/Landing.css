@@ -4,8 +4,26 @@
     width: 100%;
     background-color: #0f172a;
     overflow: hidden;
+}
+/* Social Icons */
+.social-icons {
 
+    position: absolute;
+    top: 5rem;
+    right: 2rem;
+    display: flex;
+    gap: 1.5rem;
+    z-index: 10;
+}
 
+.social-icons a {
+    color: #3b82f6;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.social-icons a:hover {
+    color: #60a5fa;
+    transform: translateY(-3px);
 }
 h3{
     color: white;

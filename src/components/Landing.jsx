@@ -2,10 +2,12 @@ import React, {useEffect, useState} from "react";
 
 import { Grid, Code, Cpu } from 'lucide-react';
 import '/src/CSS/Landing.css';
+import { Github, Instagram, Linkedin } from 'lucide-react';
 
 const LandingPage = () => {
     const gridSize = 20;
     const dots = Array(gridSize).fill(null);
+
     const scrollToNextSection = () => {
         const nextSection = document.querySelector('.hero'); // or whatever your next section's class is
         if (nextSection) {
@@ -48,9 +50,19 @@ const LandingPage = () => {
 
 
     return (
-
         <div className="landing-container">
             {/* Animated Background Grid */}
+            <div className="social-icons">
+                <a href="https://github.com/omshewale30" target="_blank" rel="noopener noreferrer">
+                    <Github size={30} color="#3b82f6" />
+                </a>
+                <a href="https://instagram.com/omshewale3000" target="_blank" rel="noopener noreferrer">
+                    <Instagram size={30} color="#3b82f6" />
+                </a>
+                <a href="https://www.linkedin.com/in/omshewale/" target="_blank" rel="noopener noreferrer">
+                    <Linkedin size={30} color="#3b82f6" />
+                </a>
+            </div>
             <div className="background-grid">
                 <div className="grid-container">
                     {dots.map((_, i) => (
