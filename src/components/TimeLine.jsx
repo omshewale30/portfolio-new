@@ -50,6 +50,18 @@ const Timeline = () => {
                     description: `Enrolled in UNC to deepen my understanding of AI , opening a new chapter in my academic journey.`,
                     icon: "🚀",
                 },
+                {
+                    title: "Joined the UNC Finance Operations Team",
+                    description: `Took on the role of Deposit Specialist, processing around $3 million in deposits and payments weekly.`,
+                    icon: "💼",
+                },
+
+                {
+
+                    title: "Joined UNC Eshelman School of Pharmacy",
+                    description: `Became a Lead Software Developer, working on an innovative project to enhance healthcare education and research.`,
+                    icon: "💊",
+                },
             ],
         },
     ];

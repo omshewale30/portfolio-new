@@ -12,6 +12,7 @@ import Experience from "./components/Experience.jsx";
 import SkillSection from "./components/SkillsSection.jsx";
 import ContactSection from "./components/ContactSection.jsx";
 import LandingPage from "./components/Landing.jsx";
+import EducationSection from "./components/EducationSection.jsx";
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
                             <main>
                                 <LandingPage />
                                 <HeroSection />
+                                <EducationSection />
                                 <Timeline />
                                 <SkillSection/>
                                 <ContactSection />
