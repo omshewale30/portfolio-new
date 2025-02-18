@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "/src/CSS/Chatbot.css";
+
 import OpenAI from 'openai';
+import "../CSS/Chatbot.css";
 
 
 
