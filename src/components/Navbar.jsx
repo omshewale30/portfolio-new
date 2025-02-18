@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import ChatBot from "./ChatBot.jsx";
+
 
 
 import '/src/CSS/Navbar.css';
@@ -209,8 +211,8 @@ const Header = () => {
                     onClick={() => setIsChatbotOpen(!isChatbotOpen)}
                     title="Chat with me"
                 >
-
                 </button>
+                {isChatbotOpen && <ChatBot onClose={() => setIsChatbotOpen(false)} />}
             </div>
         </nav>
     );

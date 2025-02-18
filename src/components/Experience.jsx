@@ -6,7 +6,7 @@ const experienceDetails = [
         title: "Lead Software Developer",
         company: "UNC Eshelman School of Pharmacy",
         location: "Chapel Hill, NC",
-        duration: "10/2024 – Present",
+        duration: "10/2024 – 01/2025",
         contributions: [
             "Designed and developed a web-based 2D escape room game to enhance clinical education through interactive, puzzle-based learning.",
             "Led a team to implement core functionality using Flutter, laying the foundation for an engaging user experience.",
@@ -15,6 +15,21 @@ const experienceDetails = [
         technologies: ["Flutter", "Dart", "Web Development"],
         image: "../assets/UNC_Pharmacy.jpg",
     },
+    {
+        "title": "Deposit Specialist",
+        "company": "University of North Carolina - Chapel Hill",
+        "location": "Chapel Hill, NC, USA",
+        "duration": "09/2024 – Present",
+        "contributions": [
+            "Manage daily deposits and process university payments, ensuring compliance with financial regulations.",
+            "Track and reconcile transactions, handling approximately $5 million in deposits weekly.",
+            "Provide support to the banking team, assisting with customer inquiries and financial record maintenance.",
+            "Ensure adherence to the Daily Deposits Act and contribute to the university’s financial operations."
+        ],
+        "technologies": ["Excel", "Financial Reporting", "Data Reconciliation"],
+        "image": "../assets/UNC_FO.jpeg"
+    },
+
     {
         title: "Software Developer",
         company: "NASA Psyche Mission",
@@ -26,7 +41,7 @@ const experienceDetails = [
             "Delivered the project ahead of schedule, receiving positive feedback from NASA sponsors.",
         ],
         technologies: ["Unity", "Game Development", "C#"],
-        image: "assets/ASN.png",
+        image: "assets/Pysche_logo.png",
         report: "reports/nasa_project.pdf",
     },
     {

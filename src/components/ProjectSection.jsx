@@ -33,11 +33,32 @@ const ProjectsSection = () => {
             linkText: "Try it out",
         },
         {
+            title: "PharmAlliance Clinical Escape Room",
+            description: "Leading the development of a web-based 2D escape room game designed to enhance clinical education. The game, set in a virtual exam room, engages players with interactive puzzles focused on pharmacist decision-making. Built using Dart and Flutter, the project includes an authoring tool that enables faculty to customize scenarios, ensuring scalable and adaptable learning experiences. Initially tailored for diabetes care and pharmacist prescribing, this platform aims to revolutionize clinical training across institutions.",
+            tags: ["Dart", "Flutter", "Game Development", "Education Technology"],
+            link: "https://yourprojectlink.com",  // Replace with actual link if available
+            linkText: "Try it out",
+        },
+        {
             title: "PumpPal - Macro Tracking App 🍎",
             description: "PumpPal is a sleek and intuitive iOS app designed to help users track macronutrient intake and achieve their fitness goals. Built with Swift and SwiftUI, 🚀",
             tags: ["Swift", "SwiftUI", "CoreML", "MapKit", "Mobile App Development"],
             link: "https://github.com",
             linkText: "GitHub",
+        },
+        {
+            title: "Game Application for Mental Health Patients",
+            description: "Led the development of 5 diverse games in Unity, specifically designed to enhance fine motor skills for mental health patients. Implemented an interactive user interface, resulting in improved accessibility and ease of navigation for patients. Received positive feedback from users, with a measured increase in fine motor skill improvement among patients.",
+            tags: ["Unity", "Game Development", "UI/UX Design", "C#"],
+            link: "#", // Add a link if available
+            linkText: "View Project", // Update link text if applicable
+        },
+        {
+            title: "Shopping Web Application",
+            description: "Led a team of 5 in developing a full-stack shopping application in Java, similar to Amazon.com. Implemented a robust database system to manage customer information and correlate it with order numbers, improving data retrieval processes. Leveraged SQL and GUI features to create a highly user-oriented and intuitive shopping experience.",
+            tags: ["Java", "JavaFX", "SQL", "HTML", "CSS", "Full-Stack Development"],
+            link: "#", // Add a link if available
+            linkText: "View Project", // Update link text if applicable
         }
     ];
 

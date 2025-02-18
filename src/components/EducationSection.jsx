@@ -8,7 +8,7 @@ const educationDetails = [
         institution: "Arizona State University",
         years: "08/2020 - 05/2024",
         gpa: "4.0/4.0",
-        transcriptLink: "transcripts/ASU_FinalTranscript.pdf",
+        transcriptLink: "../transcripts/ASU_Transcript.pdf",
         description: "Graduated Summa Cum Laude with the prestigious Moeur Award.",
     },
     {
@@ -16,7 +16,7 @@ const educationDetails = [
         institution: "University of North Carolina at Chapel Hill",
         years: "08/2024 - 05/2026",
         gpa: "4.0/4.0",
-        transcriptLink: "/transcripts/",
+        transcriptLink: "../transcripts/UNC_Transcript.pdf",
         description: "Focusing on LLMs and computer vision.",
     },
 ];

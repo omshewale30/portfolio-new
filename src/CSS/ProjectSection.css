@@ -42,21 +42,32 @@
 /* Grid Layout */
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
-    gap: 50px;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Wider cards */
+    gap: 100px; /* Reduced gap for a denser look */
     justify-content: center;
-    padding: 50px;
+    padding: 80px; /* More padding to add visual weight */
 }
 
 /* Project Cards */
 .project-card {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    padding: 25px;
+    border-radius: 20px; /* Slightly larger rounding */
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3); /* Stronger shadow for depth */
+    padding: 35px; /* Increased padding for a larger feel */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+}
+
+/* Enlarge text and spacing inside project cards */
+.project-card h3 {
+    font-size: 1.8rem; /* Larger title */
+    margin-bottom: 15px;
+}
+
+.project-card p {
+    font-size: 1.2rem; /* Slightly larger description */
+    line-height: 1.6;
 }
 
 .project-card:hover {
@@ -64,7 +75,6 @@
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
-
 
 /* Fade-in Animation */
 @keyframes fadeIn {
