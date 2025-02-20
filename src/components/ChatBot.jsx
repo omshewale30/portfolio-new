@@ -10,6 +10,7 @@ import '../CSS/ChatBot.css';
 import {GoogleGenerativeAI} from "@google/generative-ai";
 
 const Chatbot = ({ onClose }) => {
+    const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
 
     const sampleQuestions = [
