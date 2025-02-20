@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ChatBot from "./ChatBot.jsx";
+import { GiIronMask } from "react-icons/gi";
 
 
 
@@ -211,6 +212,7 @@ const Header = () => {
                     onClick={() => setIsChatbotOpen(!isChatbotOpen)}
                     title="Chat with me"
                 >
+                    <GiIronMask />
                 </button>
                 {isChatbotOpen && <ChatBot onClose={() => setIsChatbotOpen(false)} />}
             </div>

@@ -4,9 +4,6 @@ import axios from "axios";
 import OpenAI from 'openai';
 import '../CSS/ChatBot.css';
 
-
-
-
 import {GoogleGenerativeAI} from "@google/generative-ai";
 
 const Chatbot = ({ onClose }) => {

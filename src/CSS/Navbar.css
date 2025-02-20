@@ -217,9 +217,9 @@
 }
 
 .chatbot-toggle svg {
-    font-size: 1.8rem; /* Size of the icon */
-}
+    font-size: 2rem; /* Size of the icon */
 
+}
 /* Responsive Adjustments for Smaller Screens */
 @media (max-width: 768px) {
     .chatbot-toggle {
