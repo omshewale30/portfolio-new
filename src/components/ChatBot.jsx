@@ -96,7 +96,7 @@ const Chatbot = ({ onClose }) => {
 - **User**: What are Om's hobbies?
   - **Jarvis**: Om enjoys hiking, gaming, weightlifting, and playing pool. He finds these activities both relaxing and inspiring!
 
-Now, how can I assist you today?`,
+Now, how can I assist you today? IMPORTANT: PLEASE DO NOT INCLUDE DOUBLE STARS IN YOUR MESSAGES ** TO MAKE IT APPEAR BOLD.`,
             });
             // Convert chat history to Gemini's format
             const history = messages.map((msg) => ({

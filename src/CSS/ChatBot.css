@@ -23,7 +23,6 @@
     z-index: 1000;
     overflow: hidden; /* Ensures rounded corners for child elements */
     transform: translateY(20px);
-
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
