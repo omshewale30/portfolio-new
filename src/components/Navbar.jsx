@@ -227,6 +227,16 @@ const Header = () => {
                                 Projects
                             </a>
                         </li>
+                        <li className="nav-item">
+                            <a
+                                className="nav-link"
+                                href ="/Docs/Om_Shewale.pdf"
+                                target="_blank" // Optional: Opens in a new tab
+                                rel="noopener noreferrer" // Security best practice for target="_blank"
+                            >
+                                Resume
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
