@@ -43,8 +43,15 @@ const ProjectsSection = () => {
             title: "PumpPal - Macro Tracking App 🍎",
             description: "PumpPal is a sleek and intuitive iOS app designed to help users track macronutrient intake and achieve their fitness goals. Built with Swift and SwiftUI, 🚀",
             tags: ["Swift", "SwiftUI", "CoreML", "MapKit", "Mobile App Development"],
-            link: "https://github.com",
+            link: "https://github.com/omshewale30/PumpPal",
             linkText: "GitHub",
+        },
+        {
+            title: "SynapseMD - AI Medical Assistant",
+            description: "Developed a web-based AI medical assistant to provide personalized health assessments based on user-input symptoms and biographical data. Leveraging Google’s MedPaLM model which is fine tuned on health data, the app delivers structured diagnoses with probable causes and actionable advice through an intuitive interface. Built with Vite, React, and shadcn/ui, it features interactive components like accordions and tabs for result exploration, aiming to enhance user understanding of health conditions while emphasizing professional consultation.",
+            tags: ["Vite", "React", "LLM", "tailwind", "Healthcare"],
+            link: "https://synapsemd.vercel.app/",  // Replace with your actual deployed link or GitHub repo
+            linkText: "Explore the App",
         },
         {
             title: "Game Application for Mental Health Patients",
