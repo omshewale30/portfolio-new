@@ -54,6 +54,13 @@ const ProjectsSection = () => {
             linkText: "Explore the App",
         },
         {
+            title: "smArtbIte",
+            description: "Developed an AI-powered web application to generate healthy recipes from user-provided ingredients or fridge images. Built a React frontend with Chakra UI and an Express backend leveraging Google Cloud’s Vertex AI for text and image recognition. Implemented features like dietary restriction filters, image previews, and step-by-step recipe displays, delivering a user-friendly tool for personalized cooking.",
+            tags: ["React", "Chakra UI", "Express", "Google Cloud Vertex AI"],
+            link: "https://smartbite.vercel.app/", // Replace with your deployed URL if available
+            linkText: "Try it out"
+        },
+        {
             title: "Game Application for Mental Health Patients",
             description: "Led the development of 5 diverse games in Unity, specifically designed to enhance fine motor skills for mental health patients. Implemented an interactive user interface, resulting in improved accessibility and ease of navigation for patients. Received positive feedback from users, with a measured increase in fine motor skill improvement among patients.",
             tags: ["Unity", "Game Development", "UI/UX Design", "C#"],
