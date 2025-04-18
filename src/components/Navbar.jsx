@@ -23,30 +23,6 @@ const Header = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Hide hint after 5 seconds
-    // useEffect(() => {
-    //     let timeout;
-    //     if (showChatHint) {
-    //         timeout = setTimeout(() => {
-    //             const hint = document.querySelector('.chatbot-hint');
-    //             if (hint) {
-    //                 hint.classList.add('visible');
-    //             }
-    //         }, 50); // Small delay to ensure DOM rendering
-    //     }
-    //     const timer = setTimeout(() => {
-    //         setShowChatHint(false);
-    //         const hint = document.querySelector('.chatbot-hint');
-    //         if (hint) {
-    //             hint.classList.remove('visible');
-    //         }
-    //     }, 5000);
-    //     return () => {
-    //         clearTimeout(timeout);
-    //         clearTimeout(timer);
-    //     };
-    // }, [showChatHint]);
-    // Detect scroll to change navbar background
     useEffect(() => {
         const handleScroll = () => {
             const navbar = document.querySelector(".navbar");
@@ -231,7 +207,7 @@ const Header = () => {
                                 target="_blank" // Optional: Opens in a new tab
                                 rel="noopener noreferrer" // Security best practice for target="_blank"
                             >
-                                Resumep
+                                Resume
                             </a>
                         </li>
 

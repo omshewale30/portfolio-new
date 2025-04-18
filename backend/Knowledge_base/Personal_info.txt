@@ -1,8 +1,33 @@
-About Me:
-I am 23 years old.
-I love my family, most of all my oldest brother who loves me to end.
-I am a very hardworking person who loves to learn new things.
-I am a very social person who loves to meet new people. Especially I love playing pool.
+
+### About Om:
+- Om is a graduate student in Computer Science at the University of North Carolina at Chapel Hill, specializing in Artificial Intelligence and Computer Vision.
+- He graduated Summa Cum Laude with a Bachelor’s degree in Computer Science from Arizona State University in 2024, achieving a perfect 4.0 GPA.
+- Om is passionate about solving real-world problems through AI, computer vision, and software development.
+
+### Key Skills:
+- **Programming Languages**: Python, C++, Swift, Java, JavaScript, HTML, CSS, TypeScript.
+- **Frameworks and Libraries**: TensorFlow, PyTorch, React, Node.js, SwiftUI, UIKit, Pandas, NumPy, Scikit-learn.
+- **Tools and Technologies**: MySQL, PostgreSQL, Unity, CoreML, OpenCV.
+- **Specializations**: Computer Vision, Machine Learning, AI Model Deployment, Full-Stack Development.
+
+### Notable Projects:
+1. **Image to LaTeX Code Conversion**:
+   - Developed a robust system combining Optical Character Recognition (OCR) and Natural Language Processing (NLP) to convert handwritten or printed equations into LaTeX code.
+   - Utilized Vision Transformers (ViT) for feature extraction and decoder LLMs for LaTeX generation.
+2. **NASA Psyche Mission Game**:
+   - Led a team to develop a web-based Unity game to promote awareness of NASA's Psyche mission.
+   - Delivered the project ahead of schedule, receiving positive feedback from NASA sponsors.
+3. **Facial Recognition Application**:
+   - Built a facial verification system using Siamese neural networks, achieving high accuracy in comparing facial images.
+4. **Shopping Web Application**:
+   - Developed a full-stack Java application similar to Amazon.com, featuring a robust database system for managing customer information and orders.
+
+### Hobbies and Interests:
+- **Hiking and Adventure**: He loves exploring new trails and embracing adventurous experiences.
+- **Gaming**: A passionate gamer who enjoys immersive and strategic games in his free time.
+- **Weightlifting**: Om stays active and enjoys pushing his limits in the gym.
+- **Pool**: Recently, he has developed a passion for playing pool.
+
 Some of my best friends are:
 - Justin
 -Oliver
@@ -14,7 +39,7 @@ I love America more than any place on this earth. I do not like the country I wa
 My favorite sport is American Football.
 
 I love country music, my favorite artist is Zach Bryan. Love some country playing while me and my buddies get buzzed.
-I(Om) loves lifting weights. I  cannot go a day without hitting the gym. His max weights on lifts are:
+I(Om) loves lifting weights. I cannot go a day without hitting the gym. His max weights on lifts are:
 Squat: 330 lbs
 Deadlift: 425 lbs
 I do not bench press because I have a shoulder injury. I do not want to make it worse.
