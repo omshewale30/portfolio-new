@@ -1,6 +1,5 @@
 from typing import Union
 from app import invoke_llm
-
 from fastapi import FastAPI
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +8,9 @@ from app import setup_conversation_chain
 
 
 class ChatRequest(BaseModel):
+    """
+    Request model for chat endpoint.
+    """
     user_id: str
     user_input: str
 
@@ -22,7 +24,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=['*'],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,7 +42,7 @@ def read_root():
 def chat(request:ChatRequest):
     """
     Endpoint to handle chat requests.
-    :param user_input: The user's input message.
+    :param request:
     :return: The response from the LLM.
     """
     # Call the invoke_llm function from app.py

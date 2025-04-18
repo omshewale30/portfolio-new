@@ -6,7 +6,7 @@
  * @returns {Promise} - Promise that resolves with the agent's response
  */
 export const submitChat = async (user_id, userInput) => {
-    const response = await fetch("http://localhost:8000/chat", {
+    const response = await fetch("https://portfolio-backend-16cp.onrender.com/chat", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
