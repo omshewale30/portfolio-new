@@ -27,6 +27,9 @@ from langchain.chains import (
     create_retrieval_chain,
 )
 
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+
+
 # --- Configuration ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -194,9 +197,16 @@ def setup_conversation_chain():
     question_generator = LLMChain(llm=llm, prompt=question_prompt)
 
     # Document combining chain
-    combine_prompt = PromptTemplate.from_template(
-        "You are Jarvis, a virtual assistant designed to help users learn more about Om Shewale, a software developer specializing in AI/ML and computer vision. Your goal is to provide accurate, concise, and engaging responses to user queries about Om's background, skills, projects, hobbies, and other relevant topics. Use the following information to assist users effectively:\n{context}\nQuestion: {question}"
-        "Be concise in your answers. Use the retreived documents to find relevant answer to the question\n")
+    combine_prompt = ChatPromptTemplate.from_messages([
+        SystemMessagePromptTemplate.from_template(
+            "You are Jarvis, a virtual assistant designed to help users learn more about Om Shewale, a software developer specializing in AI/ML and computer vision. "
+            "Your goal is to provide accurate, concise, and engaging responses to user queries about Om's background, skills, projects, hobbies, and other relevant topics."),
+        HumanMessagePromptTemplate.from_template(
+            "Use the following information to assist users effectively:\n{context}\nQuestion: {question}\n"
+            "Be concise in your answers. Use the retrieved documents to find a relevant answer.")
+    ])
+
+
     combine_docs_chain = StuffDocumentsChain(
         llm_chain=LLMChain(llm=llm, prompt=combine_prompt),
         document_variable_name="context"
