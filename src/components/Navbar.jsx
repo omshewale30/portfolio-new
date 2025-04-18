@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import ChatBot from "./ChatBot.jsx";
-import { GiIronMask } from "react-icons/gi";
+
 
 
 
@@ -13,8 +12,6 @@ const Header = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMobileView, setIsMobileView] = useState(false);
-    const [isChatbotOpen, setIsChatbotOpen] = useState(false); // Chatbot state
-    const [showChatHint, setShowChatHint] = useState(true); // Hint state
 
     // Detect if the device is in mobile view
     useEffect(() => {
@@ -27,28 +24,28 @@ const Header = () => {
     }, []);
 
     // Hide hint after 5 seconds
-    useEffect(() => {
-        let timeout;
-        if (showChatHint) {
-            timeout = setTimeout(() => {
-                const hint = document.querySelector('.chatbot-hint');
-                if (hint) {
-                    hint.classList.add('visible');
-                }
-            }, 50); // Small delay to ensure DOM rendering
-        }
-        const timer = setTimeout(() => {
-            setShowChatHint(false);
-            const hint = document.querySelector('.chatbot-hint');
-            if (hint) {
-                hint.classList.remove('visible');
-            }
-        }, 5000);
-        return () => {
-            clearTimeout(timeout);
-            clearTimeout(timer);
-        };
-    }, [showChatHint]);
+    // useEffect(() => {
+    //     let timeout;
+    //     if (showChatHint) {
+    //         timeout = setTimeout(() => {
+    //             const hint = document.querySelector('.chatbot-hint');
+    //             if (hint) {
+    //                 hint.classList.add('visible');
+    //             }
+    //         }, 50); // Small delay to ensure DOM rendering
+    //     }
+    //     const timer = setTimeout(() => {
+    //         setShowChatHint(false);
+    //         const hint = document.querySelector('.chatbot-hint');
+    //         if (hint) {
+    //             hint.classList.remove('visible');
+    //         }
+    //     }, 5000);
+    //     return () => {
+    //         clearTimeout(timeout);
+    //         clearTimeout(timer);
+    //     };
+    // }, [showChatHint]);
     // Detect scroll to change navbar background
     useEffect(() => {
         const handleScroll = () => {
@@ -234,28 +231,13 @@ const Header = () => {
                                 target="_blank" // Optional: Opens in a new tab
                                 rel="noopener noreferrer" // Security best practice for target="_blank"
                             >
-                                Resume
+                                Resumep
                             </a>
                         </li>
+
                     </ul>
                 </div>
 
-                {/* Chatbot Floating Button */}
-                <div className="nav-chatbot-container">
-                    {showChatHint && (
-                        <div className="chatbot-hint">
-                            Try chatting with me to learn more about Om!
-                        </div>
-                    )}
-                    <button
-                        className="chatbot-toggle"
-                        onClick={() => setIsChatbotOpen(!isChatbotOpen)}
-                        title="Chat with me"
-                    >
-                        <GiIronMask />
-                    </button>
-                    {isChatbotOpen && <ChatBot onClose={() => setIsChatbotOpen(false)} />}
-                </div>
             </div>
         </nav>
     );
