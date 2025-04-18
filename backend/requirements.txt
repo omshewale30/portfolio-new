@@ -1,0 +1,11 @@
+click~=8.1.8
+dotenv~=0.9.9
+python-dotenv~=1.1.0
+langchain~=0.3.23
+langchain-community~=0.3.21
+langchain-openai~=0.3.13
+langchain-core~=0.3.52
+uvicorn~=0.34.1
+MyApplication~=0.1.0
+fastapi~=0.115.12
+pydantic~=2.10.6
