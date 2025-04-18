@@ -210,6 +210,20 @@ const Header = () => {
                                 Resume
                             </a>
                         </li>
+                        <li className="nav-item">
+                            <a
+                                className="nav-link"
+                                href="#"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    window.location.assign("https://jarvis-interface-c0ragd5ze-omshewale30s-projects.vercel.app/");
+                                }}
+                            >
+                                Jarvis
+                            </a>
+                        </li>
+
+
 
                     </ul>
                 </div>
