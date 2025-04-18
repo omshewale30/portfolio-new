@@ -216,7 +216,7 @@ const Header = () => {
                                 href="#"
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    window.location.assign("https://jarvis-interface-c0ragd5ze-omshewale30s-projects.vercel.app/");
+                                    window.location.assign("https://jarvis-interface.vercel.app/");
                                 }}
                             >
                                 Jarvis
