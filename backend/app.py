@@ -15,7 +15,6 @@ from langchain_community.document_loaders import (
     PyPDFLoader,
     UnstructuredURLLoader, # Use UnstructuredURLLoader for URLs
 )
-from langchain_unstructured import UnstructuredLoader # Keep for potential future use if URLLoader fails
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.schema import Document
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
