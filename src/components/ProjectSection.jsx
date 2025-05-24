@@ -19,6 +19,13 @@ const ProjectsSection = () => {
             linkText: "Report",
         },
         {
+            title: "Career Copilot AI",
+            description: "Engineered Career Copilot AI, a full-stack intelligent platform providing personalized career advice, resume analysis, and job search assistance. Leveraged React for the frontend and FastAPI with LangChain/OpenAI for backend AI capabilities, featuring an interactive chat interface and Stripe integration for premium services.",
+            tags: ["React", "FastAPI", "LangChain", "OpenAI", "Supabase", "Full-Stack", "AI/ML"],
+            link: "https://career-copilot-nu.vercel.app/", // Replace with your actual GitHub repo link or deployed app link
+            linkText: "Try it out", // Or "Explore App" / "GitHub" depending on the link
+        },
+        {
             title: "Facial Recognition",
             description: "This application utilizes a Siamese network to perform facial verification based on L1Distance. The Siamese network architecture is designed for finding the similarity between two comparable things, in this case, facial images. This project implements a facial verification system that can determine if two given images are of the same person.",
             tags: ["Machine Learning", "Python", "OpenCV", "Computer Vision"],
