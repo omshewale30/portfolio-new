@@ -30,6 +30,24 @@ const ProjectsSection = () => {
       featured: true,
     },
     {
+      title: "Jarvis - RAG Chatbot",
+      description:
+        "Developed Jarvis, a RAG-based chatbot that uses LangChain and OpenAI to provide personalized responses to user queries about me. It uses a vector database to store the data like my resume, projects, github, certifications, linkedin, etc and a chat interface to interact with the bot.",
+      tags: ["React", "FastAPI", "LangChain", "OpenAI", "Full-Stack", "AI/ML"],
+      link: "https://jarvis-interface.vercel.app/",
+      linkText: "Chat with Jarvis",
+      featured: true,
+    },
+    {
+      title: "TaskFlow AI",
+      description:
+        "Developed TaskFlow AI, a full-stack intelligent platform providing personalized task management, scheduling, and productivity tips. Leveraged Next.js for the frontend and FastAPI with LangChain/OpenAI for backend AI capabilities",
+      tags: ["Next.js", "FastAPI", "LangChain", "OpenAI", "Supabase", "Full-Stack", "AI/ML"],
+      link: "https://taskflow-ai-rose.vercel.app/",
+      linkText: "Try it out",
+      featured: true,
+    },
+    {
       title: "Facial Recognition",
       description:
         "This application utilizes a Siamese network to perform facial verification based on L1Distance. The Siamese network architecture is designed for finding the similarity between two comparable things, in this case, facial images. This project implements a facial verification system that can determine if two given images are of the same person.",
