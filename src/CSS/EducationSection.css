@@ -1,78 +1,227 @@
 /* Education Section */
 .education-section {
-    margin-top: 60px;
-    padding: 40px 20px;
-    background: #ffffff;
-    text-align: center;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #ffffff 100%);
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.education-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.03) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .education-title {
-    font-size: 2rem;
-    color: #0071e3;
-    font-weight: bold;
-    margin-bottom: 40px;
+    font-size: 3.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #8b5cf6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 60px;
+    letter-spacing: -0.02em;
+    text-align: center;
 }
 
 .education-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 30px;
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 24px;
 }
 
 .education-card {
-    background: linear-gradient(135deg, #ffffff, #f9f9f9);
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 25px;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    padding: 40px;
+    padding-top: 50px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: visible;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.education-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .education-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.education-card:hover::before {
+    opacity: 1;
 }
 
 .education-degree {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 10px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 16px;
 }
 
 .education-institution {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 5px;
+    font-size: 1.25rem;
+    color: #3b82f6;
+    font-weight: 500;
+    margin-bottom: 12px;
 }
 
 .education-years {
-    font-size: 0.9rem;
-    color: #888;
-    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #64748b;
+    margin-bottom: 16px;
+}
+
+.education-gpa {
+    font-size: 1.1rem;
+    color: #1e293b;
+    margin-bottom: 16px;
+    padding: 8px 16px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    display: inline-block;
 }
 
 .education-description {
-    font-size: 0.9rem;
-    color: #666;
-    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 24px;
 }
 
 .transcript-link {
     display: inline-block;
-    margin-top: 10px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    background-color: #0078d4;
-    color: white;
-    border-radius: 6px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border-radius: 12px;
     text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
 }
 
 .transcript-link:hover {
-    background-color: #005bb5;
     transform: translateY(-2px);
+    box-shadow: 0 8px 12px -1px rgba(59, 130, 246, 0.3);
+}
+
+.education-icon {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    font-size: 1.5rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: transform 0.3s ease;
+    z-index: 1;
+}
+
+.education-card:hover .education-icon {
+    transform: translateX(-50%) scale(1.1) rotate(5deg);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .education-section {
+        padding: 60px 0;
+    }
+
+    .education-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .education-section {
+        padding: 40px 0;
+    }
+
+    .education-title {
+        font-size: 2.5rem;
+        margin-bottom: 40px;
+    }
+
+    .education-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 0 16px;
+    }
+
+    .education-card {
+        padding: 32px 24px;
+    }
+
+    .education-degree {
+        font-size: 1.25rem;
+    }
+
+    .education-institution {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .education-section {
+        padding: 32px 0;
+    }
+
+    .education-title {
+        font-size: 2rem;
+        margin-bottom: 32px;
+    }
+
+    .education-card {
+        padding: 24px 20px;
+    }
+
+    .education-degree {
+        font-size: 1.1rem;
+    }
+
+    .education-institution {
+        font-size: 1rem;
+    }
+
+    .education-description {
+        font-size: 0.95rem;
+    }
+
+    .transcript-link {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+    }
 }

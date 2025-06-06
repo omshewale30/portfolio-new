@@ -1,61 +1,176 @@
 /* src/components/HeroSection.css */
 /* Hero Section */
 .hero {
-    padding: 60px 20px;
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2); /* Gradient background */
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #ffffff 100%);
+    padding: 120px 0 80px;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.03) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .hero-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-    margin-bottom: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
 }
 
 .hero-card {
-    width: 90%; /* Responsive width */
-    max-width: 800px; /* Limit maximum width */
-    background: rgba(255, 255, 255, 0.95); /* Semi-transparent background */
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 24px !important;
+    padding: 40px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .hero-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.hero-card:hover::before {
+    opacity: 1;
 }
 
 .card-image-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 30px;
+    position: relative;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    border: 4px solid rgba(255, 255, 255, 0.8);
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    padding: 4px;
 }
 
 .card-image {
-    width: 150px; /* Fixed size for better control */
-    height: 150px;
-    border-radius: 50%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border: 5px solid white;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    border-radius: 50%;
+    transition: all 0.3s ease;
 }
 
 .card-title {
-    font-size: 2.5rem; /* Use rem for scalability */
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: #333;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #8b5cf6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 24px;
+    text-align: center;
+    letter-spacing: -0.02em;
 }
 
 .hero-text {
     font-size: 1.1rem;
-    color: #555;
-    line-height: 1.6;
-    margin-bottom: 20px;
+    color: #64748b;
+    line-height: 1.8;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .hero {
+        padding: 100px 0 60px;
+    }
+
+    .hero-content {
+        padding: 0 20px;
+    }
+
+    .hero-card {
+        padding: 32px;
+    }
+
+    .card-title {
+        font-size: 2.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        padding: 80px 0 40px;
+    }
+
+    .hero-card {
+        padding: 24px;
+    }
+
+    .card-image-wrapper {
+        width: 160px;
+        height: 160px;
+        margin-bottom: 24px;
+    }
+
+    .card-title {
+        font-size: 2rem;
+    }
+
+    .hero-text {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 60px 0 32px;
+    }
+
+    .hero-card {
+        padding: 20px;
+    }
+
+    .card-image-wrapper {
+        width: 140px;
+        height: 140px;
+        margin-bottom: 20px;
+    }
+
+    .card-title {
+        font-size: 1.75rem;
+    }
+
+    .hero-text {
+        font-size: 0.95rem;
+    }
 }
 
 .hero-button {

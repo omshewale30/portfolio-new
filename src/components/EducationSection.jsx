@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import '/src/CSS/EducationSection.css';
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const educationDetails = [
     {
@@ -10,6 +12,7 @@ const educationDetails = [
         gpa: "4.0/4.0",
         transcriptLink: "../transcripts/ASU_Transcript.pdf",
         description: "Graduated Summa Cum Laude with the prestigious Moeur Award.",
+        icon: "🎓"
     },
     {
         degree: "M.S in Computer Science",
@@ -18,18 +21,29 @@ const educationDetails = [
         gpa: "4.0/4.0",
         transcriptLink: "../transcripts/UNC_Transcript.pdf",
         description: "Focusing on LLMs and computer vision.",
+        icon: "🚀"
     },
 ];
 
 const EducationSection = () => {
+    useEffect(() => {
+        AOS.init({ duration: 1000, once: true });
+    }, []);
+
     return (
         <div id="education" className="education-section">
-            <h3 className="education-title">Education</h3>
+            <h2 className="education-title">Education</h2>
             <div className="education-grid">
                 {educationDetails.map((edu, index) => (
-                    <div key={index} className="education-card">
-                        <h4 className="education-degree">{edu.degree}</h4>
-                        <p className="education-institution">{edu.institution}</p>
+                    <div 
+                        key={index} 
+                        className="education-card"
+                        data-aos="fade-up"
+                        data-aos-delay={`${index * 200}`}
+                    >
+                        <div className="education-icon">{edu.icon}</div>
+                        <h3 className="education-degree">{edu.degree}</h3>
+                        <h4 className="education-institution">{edu.institution}</h4>
                         <p className="education-years">{edu.years}</p>
                         <p className="education-gpa">
                             <strong>GPA:</strong> {edu.gpa}
