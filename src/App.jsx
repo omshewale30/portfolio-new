@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar.jsx";
 import ProjectSection from "./components/ProjectSection.jsx";
 import Timeline from "./components/TimeLine.jsx";
 import Experience from "./components/Experience.jsx";
+import ProjectPreview from "./components/ProjectPreview.jsx";
 
 import SkillSection from "./components/SkillsSection.jsx";
 import ContactSection from "./components/ContactSection.jsx";
@@ -44,6 +45,7 @@ function App() {
                                 <LandingPage />
                                 <HeroSection />
                                 <EducationSection />
+                                <ProjectPreview />
                                 <Timeline />
                                 <SkillSection/>
                                 <ContactSection />
