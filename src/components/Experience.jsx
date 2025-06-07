@@ -164,7 +164,7 @@ const experienceDetails = [
     duration: "09/2024 – Present",
     contributions: [
       "Manage daily deposits and process university payments, ensuring compliance with financial regulations.",
-      "Track and reconcile transactions, handling approximately $5 million in deposits weekly.",
+      "Track and reconcile transactions, handling approximately $3 million in deposits weekly.",
       "Provide support to the banking team, assisting with customer inquiries and financial record maintenance.",
       "Ensure adherence to the Daily Deposits Act and contribute to the university's financial operations.",
     ],
