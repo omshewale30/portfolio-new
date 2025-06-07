@@ -48,7 +48,7 @@ const categoryColors = {
 
 const SkillsSection = () => {
     return (
-        <section className="skills-section">
+        <section id="skills" className="skills-section">
             <div className="skills-header">
                 <h2 className="skills-title">Technical Skills</h2>
                 <p className="skills-subtitle">Expertise across languages, frameworks, and development tools</p>

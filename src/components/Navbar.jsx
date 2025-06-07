@@ -41,28 +41,11 @@ const Header = () => {
         setIsMobileMenuOpen(false);
         setIsDropdownOpen(false);
 
-        if (path === "/") {
+        if (path.startsWith('#')) {
+            // If we're not on the home page, navigate there first
             if (location.pathname !== "/") {
                 navigate("/");
-                setTimeout(() => {
-                    const homeSection = document.getElementById("home");
-                    if (homeSection) {
-                        const navbarHeight = document.querySelector(".navbar").offsetHeight;
-                        const scrollPosition = homeSection.offsetTop - navbarHeight;
-                        window.scrollTo({ top: scrollPosition, behavior: "smooth" });
-                    }
-                }, 500);
-            } else {
-                const homeSection = document.getElementById("home");
-                if (homeSection) {
-                    const navbarHeight = document.querySelector(".navbar").offsetHeight;
-                    const scrollPosition = homeSection.offsetTop - navbarHeight;
-                    window.scrollTo({ top: scrollPosition, behavior: "smooth" });
-                }
-            }
-        } else if (path.startsWith("#")) {
-            if (location.pathname !== "/") {
-                navigate("/");
+                // Add a delay to ensure the page has loaded before scrolling
                 setTimeout(() => {
                     const sectionId = path.slice(1);
                     const section = document.getElementById(sectionId);
@@ -71,8 +54,9 @@ const Header = () => {
                         const scrollPosition = section.offsetTop - navbarHeight;
                         window.scrollTo({ top: scrollPosition, behavior: "smooth" });
                     }
-                }, 500);
+                }, 100);
             } else {
+                // If we're already on home page, just scroll to the section
                 const sectionId = path.slice(1);
                 const section = document.getElementById(sectionId);
                 if (section) {
@@ -81,14 +65,16 @@ const Header = () => {
                     window.scrollTo({ top: scrollPosition, behavior: "smooth" });
                 }
             }
+        } else if (path === "/") {
+            // Handle home navigation
+            if (location.pathname !== "/") {
+                navigate("/");
+            }
+            window.scrollTo({ top: 0, behavior: "smooth" });
         } else {
+            // Handle other routes
             if (location.pathname !== path) {
                 navigate(path);
-                setTimeout(() => {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                }, 100);
-            } else {
-                window.scrollTo({ top: 0, behavior: "smooth" });
             }
         }
     };
@@ -172,10 +158,10 @@ const Header = () => {
                                 </a>
                                 <a
                                     className="dropdown-item"
-                                    href="#footer"
+                                    href="#contact"
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        handleNavigation("#footer");
+                                        handleNavigation("#contact");
                                     }}
                                 >
                                     Contact

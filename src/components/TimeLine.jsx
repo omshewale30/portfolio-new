@@ -116,7 +116,18 @@ const Timeline = () => {
             <div className="timeline-cta">
                 <button 
                     className="see-experience-button"
-                    onClick={() => navigate('/experience')}
+                    onClick={() => {
+                        navigate('/experience');
+                        // Add a small delay to ensure the page has loaded before scrolling
+                        setTimeout(() => {
+                            const experienceSection = document.getElementById('experience');
+                            if (experienceSection) {
+                                const navbarHeight = document.querySelector(".navbar").offsetHeight;
+                                const scrollPosition = experienceSection.offsetTop - navbarHeight;
+                                window.scrollTo({ top: scrollPosition, behavior: "smooth" });
+                            }
+                        }, 100);
+                    }}
                 >
                     View Full Experience
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,4 +1,3 @@
-
 "use client"
 import "../CSS/ProjectSection.css"
 import AOS from "aos"
@@ -114,7 +113,7 @@ const ProjectsSection = () => {
   ]
 
   return (
-    <div className="projects-section">
+    <div id="projects" className="projects-section">
       <div className="projects-container">
         <div className="projects-header">
           <h2 className="projects-title">Featured Projects</h2>

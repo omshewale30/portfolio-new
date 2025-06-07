@@ -24,7 +24,7 @@ const HeroSection = () => {
     }, []);
 
     return (
-        <section className="hero">
+        <section id="about" className="hero-section">
             <div className="hero-content">
                 <Card 
                     className="hero-card shadow-lg"
