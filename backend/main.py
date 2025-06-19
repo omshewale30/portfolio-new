@@ -37,12 +37,6 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
-origins = [
-    "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
-    "http://localhost",
-    "http://localhost:5173",
-]
 
 app.add_middleware(
     CORSMiddleware,
@@ -165,6 +159,8 @@ def chat(request:ChatRequest):
             latest_response = assistant_messages[-1].content[0].text.value if assistant_messages[-1].content else "No response generated"
         else:
             latest_response = "No response generated"
+        
+        print(f"this is the latest response: {latest_response}")
         
         return {"response": latest_response}
 
