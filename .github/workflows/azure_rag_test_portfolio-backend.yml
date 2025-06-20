@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -30,12 +30,19 @@ jobs:
           source venv/bin/activate
       
       - name: Install dependencies
+        # CHANGE: Specify the working directory for this step
+        working-directory: ./backend
         run: pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+      # Remember to set the working-directory for your test runner as well!
+      # working-directory: ./backend
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        # CHANGE: Change directory into backend and zip its contents
+        run: |
+          cd backend
+          zip ../release.zip . -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -50,8 +57,8 @@ jobs:
     needs: build
     
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
@@ -62,13 +69,12 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3872639EA21D4A21AD4E7B60D3E8DA5C }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B725431CBBD74526A1708BEC037F4A4B }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A06FF954CE304420AD82AF27583FEC4F }}
+          client-id: ${{ secrets.__clientidsecretname__ }}
+          tenant-id: ${{ secrets.__tenantidsecretname__ }}
+          subscription-id: ${{ secrets.__subscriptionidsecretname__ }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -76,4 +82,3 @@ jobs:
         with:
           app-name: 'portfolio-backend'
           slot-name: 'Production'
-          
