@@ -5,7 +5,8 @@
  * @param {string} userInput - The user's message text
  * @returns {Promise} - Promise that resolves with the agent's response
  */
-const API_URL = "https://portfolio-backend-16cp.onrender.com/chat"
+// const API_URL = "https://portfolio-backend-16cp.onrender.com/chat"
+const API_URL = "https://portfolio-backend-htewggd9bjdyaegf.eastus-01.azurewebsites.net/chat"
 export const submitChat = async (user_id, userInput) => {
     const response = await fetch(API_URL, {
         method: "POST",
