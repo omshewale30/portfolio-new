@@ -4,6 +4,8 @@ import '../CSS/ChatBot.css';
 import PropTypes from "prop-types";
 import {submitChat} from "../chat.js";
 import {v4 as uuidv4} from 'uuid';
+import {parseResponseWithSources} from "../utils/responseParser.js";
+import SourceDetails from "./SourceDetails.jsx";
 
 
 const Chatbot = ({ onClose }) => {
@@ -13,6 +15,7 @@ const Chatbot = ({ onClose }) => {
     const sessionId = localStorage.getItem('sessionId')
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
+    const [selectedSource, setSelectedSource] = useState(null);
     const bottomRef = useRef(null); //
     const sampleQuestions = [
         "What is Om's educational background?",
@@ -28,36 +31,47 @@ const Chatbot = ({ onClose }) => {
     }, [messages]);
 
 
-    const handleSendMessage = async (message) => {
-        console.log(message);
-        if (!input.trim() && !message.trim()) return;
+    const handleSendMessage = async () => {
+        if (!input.trim()) return;
 
-
-        const userMessage = { role: "user", content: message || input };
+        const userMessage = { role: "user", content: input };
         setMessages((prev) => [...prev, userMessage]);
         setInput("");
 
         try {
           const response = await submitChat(sessionId, input);
 
-          const modelMessage = { role: "model", content: response['response'] };
+          // Parse the response to extract sources
+          const parsedResponse = parseResponseWithSources(response['response']);
+          
+          const modelMessage = { 
+            role: "model", 
+            content: parsedResponse.text,
+            sources: parsedResponse.sources,
+            rawContent: response['response']
+          };
           setMessages((prev) => [...prev, modelMessage]);
         } catch (error) {
           console.error("Error sending message:", error);
         }
-
-
     };
 
     const handleSampleQuestionClick = (question) => {
-        console.log(question);
-        handleSendMessage(question);
+        setInput(question);
     };
 
     const handleKeyPress = (e) => {
         if (e.key === "Enter") {
             handleSendMessage();
         }
+    };
+
+    const handleSourceClick = (source) => {
+        setSelectedSource(source);
+    };
+
+    const closeSourceDetails = () => {
+        setSelectedSource(null);
     };
 
     return (
@@ -74,6 +88,22 @@ const Chatbot = ({ onClose }) => {
                         key={index}
                         className={`message ${msg.role === "user" ? "user" : "model"}`} >
                         <p>{msg.content}</p>
+                        {msg.sources && msg.sources.length > 0 && (
+                            <div className="message-sources">
+                                <small>
+                                    Sources: {msg.sources.map(source => 
+                                        <span 
+                                            key={source.id} 
+                                            className="source-reference"
+                                            onClick={() => handleSourceClick(source)}
+                                            title="Click for source details"
+                                        >
+                                            {source.label}
+                                        </span>
+                                    ).join(', ')}
+                                </small>
+                            </div>
+                        )}
                     </div>
                 ))}
                 <div ref={bottomRef} /> {/* Empty div to scroll into view */}
@@ -100,6 +130,13 @@ const Chatbot = ({ onClose }) => {
                     </button>
                 ))}
             </div>
+            
+            {selectedSource && (
+                <SourceDetails 
+                    source={selectedSource} 
+                    onClose={closeSourceDetails} 
+                />
+            )}
         </div>
     );
 };
