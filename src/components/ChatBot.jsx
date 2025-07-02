@@ -16,6 +16,7 @@ const Chatbot = ({ onClose }) => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [selectedSource, setSelectedSource] = useState(null);
+    const [showSuggestions, setShowSuggestions] = useState(true);
     const bottomRef = useRef(null); //
     const sampleQuestions = [
         "What is Om's educational background?",
@@ -37,6 +38,7 @@ const Chatbot = ({ onClose }) => {
         const userMessage = { role: "user", content: input };
         setMessages((prev) => [...prev, userMessage]);
         setInput("");
+        if (showSuggestions) setShowSuggestions(false);
 
         try {
           const response = await submitChat(sessionId, input);
@@ -118,18 +120,20 @@ const Chatbot = ({ onClose }) => {
                 />
                 <button onClick={() => handleSendMessage()}>Send</button>
             </div>
-            <div className="chatbot-sample-questions">
-                <p>Try asking:</p>
-                {sampleQuestions.map((question, index) => (
-                    <button
-                        key={index}
-                        className="sample-question-button"
-                        onClick={() => handleSampleQuestionClick(question)}
-                    >
-                        {question}
-                    </button>
-                ))}
-            </div>
+            {showSuggestions && (
+                <div className="chatbot-sample-questions">
+                    <p>Try asking:</p>
+                    {sampleQuestions.map((question, index) => (
+                        <button
+                            key={index}
+                            className="sample-question-button"
+                            onClick={() => handleSampleQuestionClick(question)}
+                        >
+                            {question}
+                        </button>
+                    ))}
+                </div>
+            )}
             
             {selectedSource && (
                 <SourceDetails 

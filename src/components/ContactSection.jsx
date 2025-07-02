@@ -2,6 +2,7 @@
 import { useRef, useState } from "react"
 import emailjs from "@emailjs/browser"
 import "../CSS/ContactSection.css"
+import ScheduleCallButton from "./ScheduleCallButton"
 
 const ContactSection = () => {
   const form = useRef()
@@ -238,6 +239,7 @@ const ContactSection = () => {
           </div>
         </div>
       </div>
+      <ScheduleCallButton />
     </footer>
   )
 }
