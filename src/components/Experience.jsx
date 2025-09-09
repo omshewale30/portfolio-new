@@ -5,20 +5,30 @@ import { useEffect } from "react"
 const experienceDetails = [
 
   {
-    title: "Deposit Specialist",
-    company: "University of North Carolina - Chapel Hill",
-    location: "Chapel Hill, NC, USA",
-    duration: "09/2024 – Present",
-    contributions: [
-      "Manage daily deposits and process university payments, ensuring compliance with financial regulations.",
-      "Track and reconcile transactions, handling approximately $3 million in deposits weekly.",
-      "Provide support to the banking team, assisting with customer inquiries and financial record maintenance.",
-      "Ensure adherence to the Daily Deposits Act and contribute to the university's financial operations.",
+    "title": "Business Analyst",
+    "company": "University of North Carolina - Chapel Hill",
+    "location": "Chapel Hill, NC, USA",
+    "duration": "09/2024 – Present",
+    "contributions": [
+      "Pioneered an AI-driven transformation by developing an enterprise RAG (Retrieval Augmented Generation) chatbot using LangChain and Azure OpenAI, projected to eliminate hundreds of hours of manual research annually by providing instant answers from ~600-page policy manuals.",
+      "Drove a 35% boost in departmental efficiency by developing a Python automation tool to track pharmacy insurance payments and optimizing deposit workflows, increasing overall office productivity by 20%.",
+      "Analyzed and streamlined core financial processes, such as payment tracking and deposit recording, by consolidating EDI reports and leveraging vector indexing for rapid transaction lookups.",
+      "Managed and reconciled over $3M in weekly university deposits, ensuring 100% accuracy and strict compliance with financial policies to safeguard university operations."
     ],
-    technologies: ["Excel", "Financial Reporting", "Data Reconciliation"],
-    image: "../assets/UNC_FO.jpeg",
-    type: "finance",
+    "technologies": [
+      "Python", 
+      "LangChain", 
+      "Azure OpenAI", 
+      "Excel", 
+      "EDI", 
+      "Business Process Improvement", 
+      "Financial Reporting", 
+      "Data Reconciliation"
+    ],
+    "image": "../assets/UNC_FO.jpeg",
+    "type": "finance"
   },
+  
   {
     title: "Lead Software Developer",
     company: "UNC Eshelman School of Pharmacy",
