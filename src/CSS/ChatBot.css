@@ -113,15 +113,14 @@
 
 /* === MESSAGES === */
 .chatbot-messages {
-    flex: 1 1 70%;
+    flex: 1 1 auto;
     overflow-y: auto;
     padding: 18px 16px 10px 16px;
     background: #f8fafc;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    min-height: 320px;
-    max-height: 420px;
+    min-height: 200px;
 }
 
 .message {
@@ -234,24 +233,22 @@
 
 /* === SAMPLE QUESTIONS === */
 .chatbot-sample-questions {
-    padding: 6px 8px;
+    padding: 12px 16px;
     background: #f3f4f6;
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    gap: 6px;
+    gap: 8px;
     justify-content: flex-start;
     border-top: 2px solid #8b5cf6;
     font-size: 0.92rem;
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: 38px;
-    min-height: 0;
+    height: 30%;
+    min-height: 180px;
     scrollbar-width: thin;
     scrollbar-color: #8b5cf6 #f3f4f6;
     -webkit-overflow-scrolling: touch;
-    transition: max-height 0.3s;
-    margin-top: 12px;
     box-shadow: 0 -2px 12px 0 rgba(139, 92, 246, 0.08);
     border-radius: 0 0 16px 16px;
     position: relative;
@@ -273,9 +270,6 @@
     pointer-events: none;
 }
 
-.chatbot-sample-questions:hover, .chatbot-sample-questions:focus-within {
-    max-height: 120px;
-}
 
 .chatbot-sample-questions::-webkit-scrollbar {
     width: 6px;
@@ -433,6 +427,131 @@
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
+    }
+}
+
+/* === MOBILE RESPONSIVE === */
+@media (max-width: 768px) {
+    .global-chatbot-container {
+        width: 100%;
+    }
+    
+    .chatbot-container {
+        position: fixed;
+        bottom: 100px;
+        left: 10px;
+        right: 10px;
+        width: calc(100vw - 20px);
+        max-width: none;
+        height: 70vh;
+        max-height: 600px;
+    }
+    
+    .chatbot-toggle {
+        bottom: 15px;
+        right: 15px;
+        width: 60px;
+        height: 60px;
+        font-size: 20px;
+    }
+    
+    .chatbot-hint {
+        bottom: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+        max-width: 250px;
+        font-size: 13px;
+    }
+    
+    .chatbot-messages {
+        min-height: 200px;
+    }
+    
+    .chatbot-sample-questions {
+        height: 30%;
+        min-height: 150px;
+        padding: 10px 14px;
+        gap: 6px;
+    }
+    
+    .message {
+        max-width: 90%;
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
+    
+    .chatbot-input input {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 10px;
+    }
+    
+    .chatbot-input button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .sample-question-button {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        margin-bottom: 3px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chatbot-container {
+        left: 5px;
+        right: 5px;
+        width: calc(100vw - 10px);
+        height: 75vh;
+    }
+    
+    .chatbot-toggle {
+        width: 55px;
+        height: 55px;
+        font-size: 18px;
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .chatbot-hint {
+        bottom: 65px;
+        max-width: 200px;
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    .chatbot-header {
+        padding: 12px 15px;
+        font-size: 1rem;
+    }
+    
+    .message {
+        max-width: 95%;
+        font-size: 0.85rem;
+        padding: 8px 12px;
+    }
+    
+    .chatbot-input {
+        padding: 10px;
+        gap: 8px;
+    }
+    
+    .chatbot-input input {
+        padding: 8px 10px;
+        font-size: 16px;
+    }
+    
+    .chatbot-input button {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .chatbot-sample-questions {
+        height: 30%;
+        min-height: 120px;
+        padding: 8px 12px;
+        gap: 5px;
     }
 }
 

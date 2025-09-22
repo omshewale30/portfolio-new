@@ -38,7 +38,7 @@ const Chatbot = ({ onClose }) => {
         const userMessage = { role: "user", content: input };
         setMessages((prev) => [...prev, userMessage]);
         setInput("");
-        if (showSuggestions) setShowSuggestions(false);
+        setShowSuggestions(false);
 
         try {
           const response = await submitChat(sessionId, input);
@@ -60,6 +60,7 @@ const Chatbot = ({ onClose }) => {
 
     const handleSampleQuestionClick = (question) => {
         setInput(question);
+        setShowSuggestions(false);
     };
 
     const handleKeyPress = (e) => {
