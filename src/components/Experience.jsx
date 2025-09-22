@@ -3,6 +3,28 @@ import "../CSS/Experience.css"
 import { useEffect } from "react"
 
 const experienceDetails = [
+  {
+    "title": "AI Intern",
+    "company": "yAI",
+    "location": "Remote - NYC, NY",
+    "duration": "07/2025 – Present",
+    "contributions": [
+      "Engineered and optimized a proprietary Retrieval Augmented Generation (RAG) based AI tool for comprehensive financial analysis, significantly reducing the manual research time for investment banking and private equity firms from hundreds of hours to a matter of minutes.",
+      "Spearheaded the design and deployment of the entire Azure cloud infrastructure, including implementing robust on-premises deployment solutions to ensure high availability, data security, and seamless integration for enterprise clients.",
+      "Developed a novel, multi-faceted 5-way scoring system to provide a quantifiable quality assessment of AI-generated responses, enhancing model trustworthiness and accuracy by meticulously evaluating citation reliability and relevance.",
+      "Collaborated with the founder to iterate on core product features, utilizing user feedback from financial analysts to improve the tool's performance and ensure its alignment with industry-specific needs and workflows."
+    ],
+    "technologies": [
+      "Azure Cloud",
+      "Python",
+      "LangChain",
+      "Retrieval Augmented Generation (RAG)",
+      "Financial Technology (FinTech)",
+      "Large Language Models (LLMs)"
+    ],
+    "image": "../assets/yAI.png", // Replace with actual image path
+    "type": "AI/development"
+  },
 
   {
     "title": "Business Analyst",
