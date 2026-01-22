@@ -86,8 +86,8 @@ const Header = () => {
     };
 
     return (
-        <nav className="navbar navbar-expand-lg bg-light fixed-top shadow-sm">
-            <div className="container-fluid">
+        <nav className="navbar">
+            <div className="navbar-inner">
                 <button
                     className="navbar-toggler"
                     type="button"
@@ -213,7 +213,6 @@ const Header = () => {
 
                     </ul>
                 </div>
-
             </div>
         </nav>
     );

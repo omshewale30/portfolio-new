@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Grid, Code, Cpu, Github, Instagram, Linkedin } from 'lucide-react';
 import '/src/CSS/Landing.css';
+import ScheduleCallButton from './ScheduleCallButton';
 
 const LandingPage = () => {
     const gridSize = 50;
@@ -49,6 +50,9 @@ const LandingPage = () => {
 
     return (
         <div className="landing-container">
+            {/* Schedule Call Button */}
+            <ScheduleCallButton />
+            
             {/* Animated Background Grid */}
             <div className="social-icons">
                 <a href="https://github.com/omshewale30" target="_blank" rel="noopener noreferrer">

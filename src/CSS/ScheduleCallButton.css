@@ -1,53 +1,67 @@
 .schedule-call-btn {
-  position: fixed;
-  bottom: 32px;
-  left: 32px;
-  right: unset;
-  z-index: 2000;
+  position: absolute;
+  top: 5.5rem;
+  left: 2rem;
+  z-index: 1000;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: #fff;
-  padding: 16px 28px;
-  border-radius: 999px;
-  font-size: 1.1rem;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 0.95rem;
   font-weight: 600;
-  box-shadow: 0 8px 24px rgba(59,130,246,0.18);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
   text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
-  animation: shake 2.5s infinite;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .schedule-call-btn .icon {
   display: flex;
   align-items: center;
-  font-size: 1.3em;
+  color: #fff;
+}
+
+.schedule-call-btn .icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 .schedule-call-btn .label {
-  margin-left: 4px;
+  color: #fff;
 }
 
-.schedule-call-btn:hover, .schedule-call-btn:focus {
-  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
-  box-shadow: 0 12px 32px rgba(59,130,246,0.28);
-  transform: scale(1.06) rotate(-2deg);
-  outline: none;
+.schedule-call-btn:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px) scale(1.02);
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0) rotate(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px) rotate(-2deg); }
-  20%, 40%, 60%, 80% { transform: translateX(2px) rotate(2deg); }
-}
-
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .schedule-call-btn {
-    bottom: 16px;
-    left: 16px;
-    right: unset;
-    padding: 12px 18px;
-    font-size: 1rem;
+    top: 4.5rem;
+    left: 1rem;
+    padding: 10px 16px;
+    font-size: 0.85rem;
   }
-} 
+
+  .schedule-call-btn .icon svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .schedule-call-btn {
+    top: auto;
+    bottom: 6rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .schedule-call-btn:hover {
+    transform: translateX(-50%) translateY(-2px);
+  }
+}
