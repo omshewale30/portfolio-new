@@ -65,8 +65,8 @@
 }
 
 .card-image-wrapper {
-    width: 200px;
-    height: 200px;
+    width: 350px;
+    height: 350px;
     margin: 0 auto 30px;
     position: relative;
     border-radius: 50%;
@@ -75,12 +75,16 @@
     border: 4px solid rgba(255, 255, 255, 0.8);
     background: linear-gradient(135deg, #3b82f6, #8b5cf6);
     padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .card-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center top;
     border-radius: 50%;
     transition: all 0.3s ease;
 }
@@ -135,8 +139,8 @@
     }
 
     .card-image-wrapper {
-        width: 160px;
-        height: 160px;
+        width: 250px;
+        height: 250px;
         margin-bottom: 24px;
     }
 
@@ -159,8 +163,8 @@
     }
 
     .card-image-wrapper {
-        width: 140px;
-        height: 140px;
+        width: 200px;
+        height: 200px;
         margin-bottom: 20px;
     }
 

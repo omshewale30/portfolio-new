@@ -38,7 +38,7 @@ const HeroSection = () => {
                             data-aos-delay="400"
                         >
                             <img
-                                src="/assets/OMI_8044.jpeg"
+                                src="/assets/Hero.jpeg"
                                 alt="Om Shewale"
                                 className="card-image"
                                 style={{

@@ -1,11 +1,9 @@
-import React, {useEffect, useState} from "react";
-
-import { Grid, Code, Cpu } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { Grid, Code, Cpu, Github, Instagram, Linkedin } from 'lucide-react';
 import '/src/CSS/Landing.css';
-import { Github, Instagram, Linkedin } from 'lucide-react';
 
 const LandingPage = () => {
-    const gridSize = 20;
+    const gridSize = 50;
     const dots = Array(gridSize).fill(null);
 
     const scrollToNextSection = () => {
@@ -18,10 +16,10 @@ const LandingPage = () => {
 
     const [text, setText] = useState("");
     const phrases = [
+        "solving business problems with AI💼",
         "designing intelligent systems with neural networks🧠",
-        "building facial recognition solutions👁️",
-        "transforming complex algorithms into seamless code💻",
-        "unlocking insights through AI and computer vision🤖"
+        "building AI agents🤖",
+        "critical problem solving🤔"
     ];
 
     const [isDeleting, setIsDeleting] = useState(false);
@@ -54,22 +52,23 @@ const LandingPage = () => {
             {/* Animated Background Grid */}
             <div className="social-icons">
                 <a href="https://github.com/omshewale30" target="_blank" rel="noopener noreferrer">
-                    <Github size={30} color="#3b82f6" />
+                    <Github size={20} />
                 </a>
                 <a href="https://instagram.com/omshewale3000" target="_blank" rel="noopener noreferrer">
-                    <Instagram size={30} color="#3b82f6" />
+                    <Instagram size={20} />
                 </a>
                 <a href="https://www.linkedin.com/in/omshewale/" target="_blank" rel="noopener noreferrer">
-                    <Linkedin size={30} color="#3b82f6" />
+                    <Linkedin size={20} />
                 </a>
             </div>
             <div className="background-grid">
                 <div className="grid-container">
                     {dots.map((_, i) => (
                         <div key={i} className="grid-item">
-                            <div className="grid-dot"
-                                 style={{ animationDelay: `${i * 200}ms` }}>
-                            </div>
+                            <div 
+                                className="grid-dot"
+                                style={{ animationDelay: `${(i % 10) * 400 + Math.floor(i / 10) * 200}ms` }}
+                            />
                         </div>
                     ))}
                 </div>
@@ -77,13 +76,13 @@ const LandingPage = () => {
 
             {/* Floating Icons */}
             <div className="floating-icon icon-1">
-                <Grid size={48} />
+                <Grid size={32} strokeWidth={1.5} />
             </div>
             <div className="floating-icon icon-2">
-                <Code size={48} />
+                <Code size={32} strokeWidth={1.5} />
             </div>
             <div className="floating-icon icon-3">
-                <Cpu size={48} />
+                <Cpu size={32} strokeWidth={1.5} />
             </div>
 
             {/* Main Content */}
@@ -91,7 +90,7 @@ const LandingPage = () => {
 
                 <h1 className="title">Om Shewale</h1>
                 <div className="divider"></div>
-                <h2 className="subtitle">AI & Computer Vision Engineer</h2>
+                <h2 className="subtitle">AI Engineer</h2>
                 <h3>
                     I like <span className="dynamic-text">{text}</span>.
                 </h3>
