@@ -55,13 +55,14 @@
 
 @media (max-width: 480px) {
   .schedule-call-btn {
-    top: auto;
-    bottom: 6rem;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 4.5rem;
+    left: 1rem;
+    padding: 8px 14px;
+    font-size: 0.8rem;
   }
 
-  .schedule-call-btn:hover {
-    transform: translateX(-50%) translateY(-2px);
+  .schedule-call-btn .icon svg {
+    width: 16px;
+    height: 16px;
   }
 }
