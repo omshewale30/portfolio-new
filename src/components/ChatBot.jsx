@@ -1,17 +1,11 @@
-import {useRef, useEffect, useState} from "react";
-
-import '../CSS/ChatBot.css';
+import { useRef, useEffect, useState, Fragment } from "react";
 import PropTypes from "prop-types";
 import {submitChat} from "../chat.js";
-import {v4 as uuidv4} from 'uuid';
 import {parseResponseWithSources} from "../utils/responseParser.js";
 import SourceDetails from "./SourceDetails.jsx";
 
 
 const Chatbot = ({ onClose }) => {
-    Chatbot.propTypes = {
-        onClose: PropTypes.func.isRequired,
-    };
     const sessionId = localStorage.getItem('sessionId')
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
@@ -78,32 +72,40 @@ const Chatbot = ({ onClose }) => {
     };
 
     return (
-        <div className="chatbot-container">
-            <div className="chatbot-header">
-                <h3>Jarvis</h3>
-                <button className="close-button" onClick={onClose}>
-                    X
+        <div className="fixed bottom-24 right-4 z-[1100] flex h-[70vh] w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-glass-strong)] sm:right-5 sm:h-[600px] sm:w-[400px]">
+            <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-3 text-[var(--color-text-primary)]">
+                <h3 className="m-0 font-display text-[1.3rem] italic">Jarvis</h3>
+                <button className="text-2xl text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)]" onClick={onClose}>
+                    ×
                 </button>
             </div>
-            <div className="chatbot-messages">
+            <div className="flex min-h-[200px] flex-1 flex-col gap-3 overflow-y-auto bg-[var(--color-bg-base)] px-4 pb-2 pt-4">
                 {messages.map((msg, index) => (
                     <div
                         key={index}
-                        className={`message ${msg.role === "user" ? "user" : "model"}`} >
-                        <p>{msg.content}</p>
+                        className={`my-1 max-w-[90%] rounded-3xl border px-4 py-3 text-sm shadow-sm ${
+                          msg.role === "user"
+                            ? "self-end border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-bg-base)]"
+                            : "self-start border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]"
+                        }`}
+                    >
+                        <p className="m-0">{msg.content}</p>
                         {msg.sources && msg.sources.length > 0 && (
-                            <div className="message-sources">
-                                <small>
-                                    Sources: {msg.sources.map(source => 
-                                        <span 
-                                            key={source.id} 
-                                            className="source-reference"
-                                            onClick={() => handleSourceClick(source)}
-                                            title="Click for source details"
+                            <div className="mt-2 border-t border-[var(--color-border-muted)] pt-2 text-xs text-[var(--color-text-subtle)]">
+                                <small className="block leading-snug">
+                                    Sources:{" "}
+                                    {msg.sources.map((source, sourceIndex) => (
+                                      <Fragment key={source.id}>
+                                        <button
+                                          className="mx-0.5 rounded-md border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2 py-0.5 font-mono text-[11px] font-medium uppercase tracking-[0.05em] text-[var(--color-primary)] transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-primary-hover)]"
+                                          onClick={() => handleSourceClick(source)}
+                                          title="Click for source details"
                                         >
-                                            {source.label}
-                                        </span>
-                                    ).join(', ')}
+                                          {source.label}
+                                        </button>
+                                        {sourceIndex < msg.sources.length - 1 ? ", " : null}
+                                      </Fragment>
+                                    ))}
                                 </small>
                             </div>
                         )}
@@ -111,23 +113,29 @@ const Chatbot = ({ onClose }) => {
                 ))}
                 <div ref={bottomRef} /> {/* Empty div to scroll into view */}
             </div>
-            <div className="chatbot-input">
+            <div className="flex gap-2 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-3">
                 <input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyPress}
                     placeholder="Ask me anything about Om.."
+                    className="flex-1 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none transition focus:border-[var(--color-border-focus)] focus:ring-2 focus:ring-[rgba(200,168,130,0.2)]"
                 />
-                <button onClick={() => handleSendMessage()}>Send</button>
+                <button
+                  onClick={() => handleSendMessage()}
+                  className="rounded-xl bg-[var(--color-primary)] px-4 py-2 font-mono text-sm font-medium uppercase tracking-[0.06em] text-[var(--color-bg-base)] shadow-[var(--shadow-button)] transition hover:-translate-y-0.5 hover:bg-[var(--color-primary-hover)]"
+                >
+                  Send
+                </button>
             </div>
             {showSuggestions && (
-                <div className="chatbot-sample-questions">
-                    <p>Try asking:</p>
+                <div className="relative flex h-[30%] min-h-[120px] flex-col gap-1 overflow-y-auto border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-3 shadow-[0_-2px_12px_rgba(0,0,0,0.25)] sm:min-h-[150px]">
+                    <p className="m-0 font-mono text-sm uppercase tracking-[0.08em] text-[var(--color-text-meta)]">Try asking:</p>
                     {sampleQuestions.map((question, index) => (
                         <button
                             key={index}
-                            className="sample-question-button"
+                            className="w-fit rounded-xl border border-[var(--color-border-muted)] bg-[var(--color-bg-surface)] px-3 py-1 text-left text-xs text-[var(--color-text-muted)] transition-all hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                             onClick={() => handleSampleQuestionClick(question)}
                         >
                             {question}
@@ -144,6 +152,10 @@ const Chatbot = ({ onClose }) => {
             )}
         </div>
     );
+};
+
+Chatbot.propTypes = {
+    onClose: PropTypes.func.isRequired,
 };
 
 export default Chatbot;

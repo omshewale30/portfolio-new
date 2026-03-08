@@ -1,5 +1,4 @@
 "use client"
-import "../CSS/ProjectSection.css"
 import AOS from "aos"
 import "aos/dist/aos.css"
 import { useEffect } from "react"
@@ -113,41 +112,72 @@ const ProjectsSection = () => {
   ]
 
   return (
-    <div id="projects" className="projects-section">
-      <div className="projects-container">
-        <div className="projects-header">
-          <h2 className="projects-title">Featured Projects</h2>
-          <p className="projects-subtitle">
+    <section
+      id="projects"
+      className="relative overflow-hidden bg-[linear-gradient(135deg,#ffffff_0%,#f8fafc_50%,#ffffff_100%)] py-16 sm:py-20"
+    >
+      <div
+        className="pointer-events-none absolute inset-0"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.05) 0%, transparent 50%), radial-gradient(circle at 40% 60%, rgba(14, 165, 233, 0.03) 0%, transparent 50%)",
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6">
+        <div className="mb-14 text-center sm:mb-20">
+          <h2 className="mb-4 bg-gradient-to-r from-slate-800 via-blue-500 to-violet-500 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
+            Featured Projects
+          </h2>
+          <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-500 sm:text-xl">
             A collection of innovative solutions spanning AI, web development, and emerging technologies
           </p>
         </div>
 
-        <div className="projects-grid">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:gap-8">
           {projects.map((project, index) => (
             <div
               key={index}
-              className={`project-card ${project.featured ? "featured" : ""}`}
+              className={`group relative overflow-hidden rounded-3xl border bg-white/80 p-6 shadow-md backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-2xl md:p-8 ${
+                project.featured
+                  ? "border-blue-200 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.10),0_10px_10px_-5px_rgba(0,0,0,0.04),0_0_0_1px_rgba(59,130,246,0.05)]"
+                  : "border-white/20"
+              }`}
               data-aos="fade-up"
               data-aos-delay={index * 100}
             >
-              <div className="project-content">
-                <div className="project-header">
-                  <h3 className="project-title">{project.title}</h3>
-                  {project.featured && <span className="featured-badge">Featured</span>}
+              <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-violet-500 to-pink-500 ${project.featured ? "opacity-100" : "opacity-0 transition-opacity duration-300 group-hover:opacity-100"}`} />
+              <div className="relative z-[1]">
+                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <h3 className="flex-1 text-2xl font-semibold leading-snug text-slate-800">{project.title}</h3>
+                  {project.featured && (
+                    <span className="inline-flex w-fit shrink-0 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white">
+                      Featured
+                    </span>
+                  )}
                 </div>
 
-                <p className="project-description">{project.description}</p>
+                <p className="mb-6 text-sm leading-7 text-slate-600">{project.description}</p>
 
-                <div className="project-tags">
+                <div className="mb-6 flex flex-wrap gap-2">
                   {project.tags.map((tag, i) => (
-                    <span key={i} className="tag">
+                    <span
+                      key={i}
+                      className="rounded-2xl border border-slate-300/40 bg-gradient-to-r from-slate-100 to-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-to-r hover:from-blue-500 hover:to-violet-500 hover:text-white"
+                    >
                       {tag}
                     </span>
                   ))}
                 </div>
 
-                <div className="project-footer">
-                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="project-link">
+                <div className="flex justify-end">
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-500/10 to-violet-500/10 px-5 py-3 text-sm font-semibold text-blue-500 transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-to-r hover:from-blue-500 hover:to-violet-500 hover:text-white hover:shadow-[0_8px_25px_rgba(59,130,246,0.3)]"
+                  >
                     <span>{project.linkText}</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path
@@ -165,7 +195,7 @@ const ProjectsSection = () => {
           ))}
         </div>
       </div>
-    </div>
+    </section>
   )
 }
 

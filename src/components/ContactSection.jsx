@@ -1,7 +1,6 @@
 "use client"
 import { useRef, useState } from "react"
 import emailjs from "@emailjs/browser"
-import "../CSS/ContactSection.css"
 import ScheduleCallButton from "./ScheduleCallButton"
 
 const ContactSection = () => {
@@ -88,39 +87,59 @@ const ContactSection = () => {
   ]
 
   return (
-    <footer className="contact-section" id="contact">
-      <div className="contact-container">
-        <div className="contact-header">
-          <h2 className="contact-title">Let's Connect</h2>
-          <p className="contact-subtitle">
-            Ready to collaborate on your next project? I'd love to hear from you and discuss how we can work together.
+    <footer
+      className="relative overflow-hidden bg-[var(--color-bg-base)]"
+      id="contact"
+    >
+      <div className="section-shell relative z-10">
+        <div className="mb-12">
+          <p className="eyebrow-label mb-3">// Contact</p>
+          <h2 className="font-display mb-4 text-4xl italic tracking-[-0.01em] text-[var(--color-text-primary)] max-md:text-[2.5rem] max-[480px]:text-[2rem]">
+            Let&apos;s build something worth remembering.
+          </h2>
+          <p className="max-w-[760px] text-xl leading-relaxed text-[var(--color-text-muted)] max-md:text-[1.1rem]">
+            Ready to collaborate on your next project? I&apos;d love to hear from you and discuss how we can work together.
           </p>
         </div>
 
-        <div className="contact-content">
+        <div className="grid grid-cols-2 items-start gap-[60px] max-md:grid-cols-1 max-md:gap-10">
           {/* Contact Information */}
-          <div className="contact-info-card">
-            <h3 className="info-card-title">Get in Touch</h3>
-            <p className="info-card-description">
+          <div className="surface-card relative overflow-hidden p-10 max-md:px-6 max-md:py-8 max-[480px]:px-5 max-[480px]:py-6">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-primary-muted)] to-transparent" />
+            <h3 className="font-display mb-3 text-[1.75rem] text-[var(--color-text-primary)] max-[480px]:text-2xl">Get in Touch</h3>
+            <p className="mb-8 leading-relaxed text-[var(--color-text-muted)]">
               Feel free to reach out through any of these channels. I typically respond within 24 hours.
             </p>
 
-            <div className="contact-info">
+            <div className="mb-10 flex flex-col gap-5">
               {contactInfo.map((item, index) => (
-                <a key={index} href={item.href} className="contact-item" target="_blank" rel="noopener noreferrer">
-                  <div className="contact-icon">{item.icon}</div>
-                  <div className="contact-details">
-                    <span className="contact-label">{item.label}</span>
-                    <span className="contact-value">{item.value}</span>
+                <a
+                  key={index}
+                  href={item.href}
+                  className="flex items-center gap-4 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-4 text-inherit transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary-muted)] focus:outline-2 focus:outline-[var(--color-primary)] focus:outline-offset-2 max-[480px]:p-3"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-border-muted)] text-[var(--color-primary)] max-[480px]:h-10 max-[480px]:w-10">
+                    {item.icon}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">{item.label}</span>
+                    <span className="text-base font-semibold text-[var(--color-text-primary)]">{item.value}</span>
                   </div>
                 </a>
               ))}
             </div>
 
-            <div className="social-links">
-              <h4>Follow Me</h4>
-              <div className="contact-social-icons">
-                <a href="https://www.linkedin.com/in/omshewale/" target="_blank" rel="noopener noreferrer" className="contact-social-link">
+            <div className="border-t border-[var(--color-border-muted)] pt-8">
+              <h4 className="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">Follow Me</h4>
+              <div className="flex justify-start gap-3 max-md:justify-center">
+                <a
+                  href="https://www.linkedin.com/in/omshewale/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-text-subtle)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] focus:outline-2 focus:outline-[var(--color-primary)] focus:outline-offset-2 max-[480px]:h-10 max-[480px]:w-10"
+                >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M16 8C17.5913 8 19.1174 8.63214 20.2426 9.75736C21.3679 10.8826 22 12.4087 22 14V21H18V14C18 13.4696 17.7893 12.9609 17.4142 12.5858C17.0391 12.2107 16.5304 12 16 12C15.4696 12 14.9609 12.2107 14.5858 12.5858C14.2107 12.9609 14 13.4696 14 14V21H10V14C10 12.4087 10.6321 10.8826 11.7574 9.75736C12.8826 8.63214 14.4087 8 16 8V8Z"
@@ -133,7 +152,12 @@ const ContactSection = () => {
                     <circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </a>
-                <a href="https://github.com/omshewale" target="_blank" rel="noopener noreferrer" className="contact-social-link">
+                <a
+                  href="https://github.com/omshewale"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-text-subtle)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] focus:outline-2 focus:outline-[var(--color-primary)] focus:outline-offset-2 max-[480px]:h-10 max-[480px]:w-10"
+                >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M9 19C4 20.5 4 16.5 2 16M22 16V19C22 19.5304 21.7893 20.0391 21.4142 20.4142C21.0391 20.7893 20.5304 21 20 21H16C15.4696 21 14.9609 20.7893 14.5858 20.4142C14.2107 20.0391 14 19.5304 14 19V16.13C14.0375 15.6532 13.9731 15.1738 13.811 14.7238C13.6489 14.2738 13.3929 13.8634 13.06 13.52C16.2 13.17 19.5 11.98 19.5 6.52C19.4997 5.12383 18.9627 3.7812 18 2.77C18.4559 1.54851 18.4236 0.196583 17.91 -0.999996C17.91 -0.999996 16.73 -1.35 14 0.499996C11.708 -0.0596719 9.29196 -0.0596719 7 0.499996C4.27 -1.35 3.09 -0.999996 3.09 -0.999996C2.57638 0.196583 2.54414 1.54851 3 2.77C2.03013 3.78866 1.49252 5.1434 1.5 6.55C1.5 11.97 4.8 13.16 7.94 13.53C7.611 13.8714 7.35726 14.2769 7.19531 14.7224C7.03335 15.1679 6.96681 15.6441 7 16.12V19"
@@ -149,36 +173,69 @@ const ContactSection = () => {
           </div>
 
           {/* Contact Form */}
-          <div className="contact-form-card">
-            <h3 className="form-card-title">Send a Message</h3>
-            <p className="form-card-description">Have a project in mind? Let's discuss how we can bring your ideas to life.</p>
+          <div className="surface-card relative overflow-hidden p-10 max-md:px-6 max-md:py-8 max-[480px]:px-5 max-[480px]:py-6">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-primary-muted)] to-transparent" />
+            <h3 className="font-display mb-3 text-[1.75rem] text-[var(--color-text-primary)] max-[480px]:text-2xl">Send a Message</h3>
+            <p className="mb-8 leading-relaxed text-[var(--color-text-muted)]">Have a project in mind? Let&apos;s discuss how we can bring your ideas to life.</p>
 
-            <form ref={form} onSubmit={sendEmail} className="contact-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="from_name">Name</label>
-                  <input type="text" id="from_name" name="from_name" placeholder="Your full name" required />
+            <form ref={form} onSubmit={sendEmail} className="flex flex-col gap-6">
+              <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1 max-md:gap-4">
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="from_name" className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">Name</label>
+                  <input
+                    type="text"
+                    id="from_name"
+                    name="from_name"
+                    placeholder="Your full name"
+                    required
+                    className="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
+                  />
                 </div>
-                <div className="form-group">
-                  <label htmlFor="from_email">Email</label>
-                  <input type="email" id="from_email" name="from_email" placeholder="your.email@example.com" required />
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="from_email" className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">Email</label>
+                  <input
+                    type="email"
+                    id="from_email"
+                    name="from_email"
+                    placeholder="your.email@example.com"
+                    required
+                    className="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
+                  />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="subject">Subject</label>
-                <input type="text" id="subject" name="subject" placeholder="What's this about?" required />
+              <div className="flex flex-col gap-2">
+                <label htmlFor="subject" className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">Subject</label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  placeholder="What's this about?"
+                  required
+                  className="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
+                />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="message">Message</label>
-                <textarea id="message" name="message" placeholder="Tell me about your project..." rows="5" required></textarea>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="message" className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">Message</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  placeholder="Tell me about your project..."
+                  rows="5"
+                  required
+                  className="min-h-[120px] resize-y rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
+                />
               </div>
 
-              <button type="submit" className="submit-button" disabled={isSubmitting}>
+              <button
+                type="submit"
+                className="btn-primary group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl px-8 py-4 text-base disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? (
                   <>
-                    <svg className="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path
                         d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
                         stroke="currentColor"
@@ -209,7 +266,13 @@ const ContactSection = () => {
               </button>
 
               {submitStatus && (
-                <div className={`status-message ${submitStatus}`}>
+                <div
+                  className={`animate-[slide-in_0.3s_ease-out] flex items-center gap-2 rounded-xl border p-4 font-medium ${
+                    submitStatus === "success"
+                      ? "border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.15)] text-[var(--color-primary)]"
+                      : "border-[var(--color-border-subtle)] bg-[rgba(130,82,58,0.18)] text-[#f1c2a0]"
+                  }`}
+                >
                   {submitStatus === "success" ? (
                     <>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

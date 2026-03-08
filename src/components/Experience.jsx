@@ -1,5 +1,4 @@
 "use client"
-import "../CSS/Experience.css"
 import { useEffect } from "react"
 
 const experienceDetails = [
@@ -178,64 +177,90 @@ const Experience = () => {
   }
 
   return (
-    <section id="experience" className="experience-section">
-      <div className="experience-container">
-        <div className="experience-header">
-          <h2 className="experience-title">Professional Experience</h2>
-          <p className="experience-subtitle">A journey through diverse roles in technology, education, and finance</p>
+    <section
+      id="experience"
+      className="relative overflow-hidden bg-[var(--color-bg-base)] py-16 sm:py-20"
+    >
+      <div className="relative z-10 mx-auto max-w-[1200px] px-4 sm:px-6">
+        <div className="mb-14 text-center sm:mb-20">
+          <p className="eyebrow-label mb-3">// Experience</p>
+          <h2 className="font-display mb-4 text-4xl tracking-tight text-[var(--color-text-primary)] sm:text-5xl md:text-6xl">
+            Professional Experience
+          </h2>
+          <p className="mx-auto max-w-2xl text-base leading-relaxed text-[var(--color-text-muted)] sm:text-xl">
+            A journey through diverse roles in technology, education, and finance
+          </p>
         </div>
 
-        <div className="timeline">
+        <div className="relative mx-auto max-w-[1000px]">
+          <div className="absolute bottom-0 left-5 top-0 w-px rounded sm:left-1/2 sm:-translate-x-1/2 bg-[var(--color-border-subtle)]" />
           {experienceDetails.map((exp, index) => (
-            <div key={index} className={`timeline-item ${index % 2 === 0 ? "left" : "right"}`}>
-              <div className="timeline-marker">
-                <div className="timeline-icon">{getTypeIcon(exp.type)}</div>
+            <div
+              key={index}
+              className={`relative mb-10 w-full pl-16 sm:mb-14 sm:w-1/2 sm:pl-0 ${
+                index % 2 === 0 ? "sm:pr-10" : "sm:left-1/2 sm:pl-10"
+              }`}
+            >
+              <div
+                className={`absolute top-8 z-[2] flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-primary)] sm:h-14 sm:w-14 ${
+                  index % 2 === 0 ? "left-0 sm:-right-7 sm:left-auto" : "left-0 sm:-left-7"
+                }`}
+              >
+                <div className="flex items-center justify-center">{getTypeIcon(exp.type)}</div>
               </div>
 
-              <div className="experience-card">
-                <div className="card-header">
-                  <div className="company-logo">
+              <div className="experience-card relative overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 opacity-0 transition-all duration-500 ease-out hover:-translate-y-1 sm:p-8 translate-y-8">
+                <div className="mb-6 flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:gap-5 sm:text-left">
+                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] sm:h-20 sm:w-20">
                     <img src={exp.image || "/placeholder.svg"} alt={`${exp.company} logo`} />
                   </div>
-                  <div className="position-info">
-                    <h3 className="experience-role">{exp.title}</h3>
-                    <h4 className="experience-company">{exp.company}</h4>
-                    <div className="experience-meta">
-                      <span className="experience-duration">{exp.duration}</span>
-                      <span className="experience-location">{exp.location}</span>
+                  <div className="flex-1">
+                    <h3 className="font-display mb-2 text-2xl leading-tight text-[var(--color-text-primary)]">{exp.title}</h3>
+                    <h4 className="mb-3 text-xl font-medium text-[var(--color-primary)]">{exp.company}</h4>
+                    <div className="flex flex-col gap-1">
+                      <span className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">{exp.duration}</span>
+                      <span className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">📍 {exp.location}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="card-content">
-                  <ul className="experience-contributions">
+                <div>
+                  <ul className="mb-6 space-y-3">
                     {exp.contributions.map((contribution, i) => (
-                      <li key={i}>
+                      <li key={i} className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-muted)]">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path
                             d="M20 6L9 17L4 12"
-                            stroke="currentColor"
+                            stroke="#c8a882"
                             strokeWidth="2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
                         </svg>
-                        {contribution}
+                        <span>{contribution}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <div className="card-footer">
-                    <div className="experience-technologies">
+                  <div className="flex flex-col gap-5">
+                    <div className="flex flex-wrap gap-2">
                       {exp.technologies.map((tech, i) => (
-                        <span key={i} className="tech-tag">
+                        <span
+                          key={i}
+                          className="rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--color-text-subtle)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                        >
                           {tech}
                         </span>
                       ))}
                     </div>
 
                     {exp.report && (
-                      <a href={exp.report} target="_blank" rel="noopener noreferrer" className="report-link">
+                      <a
+                        href={exp.report}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-ghost inline-flex w-fit items-center gap-2 px-5 py-3 text-sm"
+                      >
                         <span>View Report</span>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path
