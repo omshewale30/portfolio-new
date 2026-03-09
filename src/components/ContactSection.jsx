@@ -103,10 +103,10 @@ const ContactSection = () => {
         >
           <p className="eyebrow-label mb-3">// Contact</p>
           <h2 className="font-display mb-4 text-4xl italic tracking-[-0.01em] text-[var(--color-text-primary)] max-md:text-[2.5rem] max-[480px]:text-[2rem]">
-            Ready to ship AI? Let&apos;s talk.
+            Philosophy, Fitness, Technology, or Life? Let&apos;s talk.
           </h2>
           <p className="max-w-[760px] text-xl leading-relaxed text-[var(--color-text-muted)] max-md:text-[1.1rem]">
-            I partner with teams to design and deliver intelligent products, from prototype to production.
+            I love to chat about anything and everything.
           </p>
         </motion.div>
 
@@ -202,7 +202,7 @@ const ContactSection = () => {
           >
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-primary-muted)] to-transparent" />
             <h3 className="font-display mb-3 text-[1.75rem] text-[var(--color-text-primary)] max-[480px]:text-2xl">Send a Message</h3>
-            <p className="mb-8 leading-relaxed text-[var(--color-text-muted)]">Share your AI use case, timeline, and goals. I&apos;ll help map the fastest path to a working solution.</p>
+            <p className="mb-8 leading-relaxed text-[var(--color-text-muted)]">I&apos;ll respond within 24 hours.</p>
 
             <form ref={form} onSubmit={sendEmail} className="flex flex-col gap-6">
               <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1 max-md:gap-4">
@@ -212,7 +212,7 @@ const ContactSection = () => {
                     type="text"
                     id="from_name"
                     name="from_name"
-                    placeholder="Your full name"
+                    placeholder="Your name"
                     required
                     className="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
                   />
@@ -236,7 +236,7 @@ const ContactSection = () => {
                   type="text"
                   id="subject"
                   name="subject"
-                  placeholder="What's this about?"
+                  placeholder="Subject of your message"
                   required
                   className="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
                 />
@@ -247,7 +247,7 @@ const ContactSection = () => {
                 <textarea
                   id="message"
                   name="message"
-                  placeholder="Tell me about your project..."
+                  placeholder="What do you want to chat about?"
                   rows="5"
                   required
                   className="min-h-[120px] resize-y rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
