@@ -2,19 +2,16 @@ import { useState, useEffect } from 'react'
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 
 import './App.css'
-import HeroSection from "./components/HeroSection.jsx";
+import Hero from "./components/Hero.jsx";
 import Navbar from "./components/Navbar.jsx";
 import ProjectSection from "./components/ProjectSection.jsx";
-import Timeline from "./components/TimeLine.jsx";
 import Experience from "./components/Experience.jsx";
 import ProjectPreview from "./components/ProjectPreview.jsx";
 import TechMarquee from "./components/TechMarquee.jsx";
 
 import SkillSection from "./components/SkillsSection.jsx";
 import ContactSection from "./components/ContactSection.jsx";
-import LandingPage from "./components/Landing.jsx";
 import EducationSection from "./components/EducationSection.jsx";
-import GlobalChatbot from "./components/GlobalChatbot.jsx";
 
 
 function App() {
@@ -41,10 +38,7 @@ function App() {
                         path="/"
                         element={
                             <main>
-                                <LandingPage />
-                                <div className="section-transition">
-                                    <HeroSection />
-                                </div>
+                                <Hero />
                                 <TechMarquee />
                                 <div className="section-transition section-transition-delay-1">
                                     <EducationSection />
@@ -53,9 +47,6 @@ function App() {
                                     <ProjectPreview />
                                 </div>
                                 <TechMarquee />
-                                <div className="section-transition section-transition-delay-2">
-                                    <Timeline />
-                                </div>
                                 <div className="section-transition section-transition-delay-3">
                                     <SkillSection/>
                                 </div>
@@ -72,7 +63,6 @@ function App() {
 
 
                 </Routes>
-                <GlobalChatbot />
             </div>
         </Router>
 

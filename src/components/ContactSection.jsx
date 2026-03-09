@@ -1,7 +1,9 @@
 "use client"
 import { useRef, useState } from "react"
 import emailjs from "@emailjs/browser"
+import { motion } from "framer-motion"
 import ScheduleCallButton from "./ScheduleCallButton"
+import { cardReveal, fadeInUp, staggerContainer } from "../utils/animations"
 
 const ContactSection = () => {
   const form = useRef()
@@ -92,19 +94,34 @@ const ContactSection = () => {
       id="contact"
     >
       <div className="section-shell relative z-10">
-        <div className="mb-12">
+        <motion.div
+          className="mb-12"
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+        >
           <p className="eyebrow-label mb-3">// Contact</p>
           <h2 className="font-display mb-4 text-4xl italic tracking-[-0.01em] text-[var(--color-text-primary)] max-md:text-[2.5rem] max-[480px]:text-[2rem]">
-            Let&apos;s build something worth remembering.
+            Ready to ship AI? Let&apos;s talk.
           </h2>
           <p className="max-w-[760px] text-xl leading-relaxed text-[var(--color-text-muted)] max-md:text-[1.1rem]">
-            Ready to collaborate on your next project? I&apos;d love to hear from you and discuss how we can work together.
+            I partner with teams to design and deliver intelligent products, from prototype to production.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-2 items-start gap-[60px] max-md:grid-cols-1 max-md:gap-10">
+        <motion.div
+          className="grid grid-cols-2 items-start gap-[60px] max-md:grid-cols-1 max-md:gap-10"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
           {/* Contact Information */}
-          <div className="surface-card relative overflow-hidden p-10 max-md:px-6 max-md:py-8 max-[480px]:px-5 max-[480px]:py-6">
+          <motion.div
+            className="surface-card relative overflow-hidden p-10 max-md:px-6 max-md:py-8 max-[480px]:px-5 max-[480px]:py-6"
+            variants={cardReveal}
+          >
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-primary-muted)] to-transparent" />
             <h3 className="font-display mb-3 text-[1.75rem] text-[var(--color-text-primary)] max-[480px]:text-2xl">Get in Touch</h3>
             <p className="mb-8 leading-relaxed text-[var(--color-text-muted)]">
@@ -170,13 +187,16 @@ const ContactSection = () => {
                 </a>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Contact Form */}
-          <div className="surface-card relative overflow-hidden p-10 max-md:px-6 max-md:py-8 max-[480px]:px-5 max-[480px]:py-6">
+          <motion.div
+            className="surface-card relative overflow-hidden p-10 max-md:px-6 max-md:py-8 max-[480px]:px-5 max-[480px]:py-6"
+            variants={cardReveal}
+          >
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-primary-muted)] to-transparent" />
             <h3 className="font-display mb-3 text-[1.75rem] text-[var(--color-text-primary)] max-[480px]:text-2xl">Send a Message</h3>
-            <p className="mb-8 leading-relaxed text-[var(--color-text-muted)]">Have a project in mind? Let&apos;s discuss how we can bring your ideas to life.</p>
+            <p className="mb-8 leading-relaxed text-[var(--color-text-muted)]">Share your AI use case, timeline, and goals. I&apos;ll help map the fastest path to a working solution.</p>
 
             <form ref={form} onSubmit={sendEmail} className="flex flex-col gap-6">
               <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1 max-md:gap-4">
@@ -299,7 +319,18 @@ const ContactSection = () => {
                 </div>
               )}
             </form>
-          </div>
+          </motion.div>
+        </motion.div>
+      </div>
+      <div className="border-t border-[var(--color-border-muted)] bg-[var(--color-bg-surface)]/60">
+        <div className="mx-auto flex max-w-[72rem] flex-wrap items-center justify-between gap-4 px-6 py-5 text-sm text-[var(--color-text-subtle)]">
+          <p className="font-mono tracking-[0.04em]">Om Shewale | AI Engineer | 2026</p>
+          <nav className="flex items-center gap-5">
+            <a href="#home" className="transition-colors duration-300 hover:text-[var(--color-primary)]">Home</a>
+            <a href="#projects" className="transition-colors duration-300 hover:text-[var(--color-primary)]">Projects</a>
+            <a href="#experience" className="transition-colors duration-300 hover:text-[var(--color-primary)]">Experience</a>
+            <a href="#contact" className="transition-colors duration-300 hover:text-[var(--color-primary)]">Contact</a>
+          </nav>
         </div>
       </div>
       <ScheduleCallButton />

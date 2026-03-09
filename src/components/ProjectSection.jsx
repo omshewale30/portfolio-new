@@ -1,12 +1,17 @@
 "use client"
-import AOS from "aos"
-import "aos/dist/aos.css"
-import { useEffect } from "react"
+import { motion } from "framer-motion"
+import { cardReveal, fadeInUp, staggerContainer } from "../utils/animations"
 
 const ProjectsSection = () => {
-  useEffect(() => {
-    AOS.init({ duration: 1000 })
-  }, [])
+  const getAiBadgeClass = (badge) => {
+    const key = badge.toLowerCase()
+    if (key.includes("gpt-4")) return "ai-badge-gpt4"
+    if (key.includes("rag")) return "ai-badge-rag"
+    if (key.includes("langchain")) return "ai-badge-langchain"
+    if (key.includes("azure")) return "ai-badge-azure"
+    if (key.includes("multi-agent")) return "ai-badge-multi-agent"
+    return "ai-badge-default"
+  }
 
   const projects = [
     {
@@ -14,6 +19,7 @@ const ProjectsSection = () => {
       description:
         "Developed a robust equation-to-LaTeX conversion system combining Optical Character Recognition (OCR) with Natural Language Processing (NLP) to accurately transcribe mathematical expressions. Leveraged Vision Transformers (ViT) for visual feature extraction and decoder LLMs for LaTeX generation, improving performance on low-quality and handwritten equations.",
       tags: ["Machine Learning", "TensorFlow", "OCR", "NLP"],
+      aiBadges: ["Vision Transformer", "OCR Pipeline"],
       link: "https://adminliveunc-my.sharepoint.com/:b:/r/personal/gtbachel_ad_unc_edu/Documents/Attachments/755_Final_Report.pdf?csf=1&web=1&e=X7q1Rs",
       linkText: "Report",
       featured: true,
@@ -23,6 +29,7 @@ const ProjectsSection = () => {
       description:
         "Engineered Career Copilot AI, a full-stack intelligent platform providing personalized career advice, resume analysis, and job search assistance. Leveraged React for the frontend and FastAPI with LangChain/OpenAI for backend AI capabilities, featuring an interactive chat interface and Stripe integration for premium services.",
       tags: ["React", "FastAPI", "LangChain", "OpenAI", "Supabase", "Full-Stack", "AI/ML"],
+      aiBadges: ["GPT-4", "LangChain", "Multi-Agent"],
       link: "https://career-copilot-nu.vercel.app/",
       linkText: "Try it out",
       featured: true,
@@ -32,6 +39,7 @@ const ProjectsSection = () => {
       description:
         "Developed Jarvis, a RAG-based chatbot that uses LangChain and OpenAI to provide personalized responses to user queries about me. It uses a vector database to store the data like my resume, projects, github, certifications, linkedin, etc and a chat interface to interact with the bot.",
       tags: ["React", "FastAPI", "LangChain", "OpenAI", "Full-Stack", "AI/ML"],
+      aiBadges: ["RAG", "GPT-4", "LangChain"],
       link: "https://jarvis-interface.vercel.app/",
       linkText: "Chat with Jarvis",
       featured: true,
@@ -41,6 +49,7 @@ const ProjectsSection = () => {
       description:
         "Developed TaskFlow AI, a full-stack intelligent platform providing personalized task management, scheduling, and productivity tips. Leveraged Next.js for the frontend and FastAPI with LangChain/OpenAI for backend AI capabilities",
       tags: ["Next.js", "FastAPI", "LangChain", "OpenAI", "Supabase", "Full-Stack", "AI/ML"],
+      aiBadges: ["GPT-4", "LangChain"],
       link: "https://taskflow-ai-rose.vercel.app/",
       linkText: "Try it out",
       featured: true,
@@ -82,6 +91,7 @@ const ProjectsSection = () => {
       description:
         "Developed a web-based AI medical assistant to provide personalized health assessments based on user-input symptoms and biographical data. Leveraging Google's MedPaLM model which is fine tuned on health data, the app delivers structured diagnoses with probable causes and actionable advice through an intuitive interface. Built with Vite, React, and shadcn/ui, it features interactive components like accordions and tabs for result exploration, aiming to enhance user understanding of health conditions while emphasizing professional consultation.",
       tags: ["Vite", "React", "LLM", "tailwind", "Healthcare"],
+      aiBadges: ["MedPaLM", "LLM"],
       link: "https://synapsemd.vercel.app/",
       linkText: "Explore the App",
     },
@@ -90,6 +100,7 @@ const ProjectsSection = () => {
       description:
         "Developed an AI-powered web application to generate healthy recipes from user-provided ingredients or fridge images. Built a React frontend with Chakra UI and an Express backend leveraging Google Cloud's Vertex AI for text and image recognition. Implemented features like dietary restriction filters, image previews, and step-by-step recipe displays, delivering a user-friendly tool for personalized cooking.",
       tags: ["React", "Chakra UI", "Express", "Google Cloud Vertex AI"],
+      aiBadges: ["Vertex AI", "Computer Vision"],
       link: "https://smartbite.vercel.app/",
       linkText: "Try it out",
     },
@@ -114,57 +125,77 @@ const ProjectsSection = () => {
   return (
     <section
       id="projects"
-      className="relative overflow-hidden bg-[linear-gradient(135deg,#ffffff_0%,#f8fafc_50%,#ffffff_100%)] py-16 sm:py-20"
+      className="relative overflow-hidden bg-[var(--color-bg-base)]"
     >
       <div
         className="pointer-events-none absolute inset-0"
         aria-hidden="true"
         style={{
           background:
-            "radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.05) 0%, transparent 50%), radial-gradient(circle at 40% 60%, rgba(14, 165, 233, 0.03) 0%, transparent 50%)",
+            "radial-gradient(circle at 18% 18%, rgba(200, 168, 130, 0.08) 0%, transparent 44%), radial-gradient(circle at 80% 76%, rgba(200, 168, 130, 0.06) 0%, transparent 46%), radial-gradient(circle at 45% 56%, rgba(200, 168, 130, 0.04) 0%, transparent 52%)",
         }}
       />
 
-      <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6">
-        <div className="mb-14 text-center sm:mb-20">
-          <h2 className="mb-4 bg-gradient-to-r from-slate-800 via-blue-500 to-violet-500 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
-            Featured Projects
+      <div className="section-shell relative z-10">
+        <motion.div
+          className="mb-14 text-center sm:mb-20"
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+        >
+          <p className="eyebrow-label mb-3">// Projects</p>
+          <h2 className="font-display mb-4 text-4xl italic tracking-tight text-[var(--color-text-primary)] sm:text-5xl md:text-6xl">
+            What I've Built
           </h2>
-          <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-500 sm:text-xl">
-            A collection of innovative solutions spanning AI, web development, and emerging technologies
-          </p>
-        </div>
+          <div className="divider-warm w-full max-w-3xl mt-8 my-8 mx-auto" />
+        </motion.div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:gap-8">
-          {projects.map((project, index) => (
-            <div
-              key={index}
-              className={`group relative overflow-hidden rounded-3xl border bg-white/80 p-6 shadow-md backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-2xl md:p-8 ${
+        <motion.div
+          className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:gap-8"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          {projects.map((project) => (
+            <motion.div
+              key={project.title}
+              className={`project-spotlight-card group relative overflow-hidden rounded-3xl border p-6 shadow-[var(--shadow-glass)] transition-all duration-300 hover:-translate-y-1 hover:bg-[var(--color-bg-elevated)] md:p-8 ${
                 project.featured
-                  ? "border-blue-200 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.10),0_10px_10px_-5px_rgba(0,0,0,0.04),0_0_0_1px_rgba(59,130,246,0.05)]"
-                  : "border-white/20"
+                  ? "border-[var(--color-border-focus)] bg-[var(--color-bg-surface)]"
+                  : "border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]"
               }`}
-              data-aos="fade-up"
-              data-aos-delay={index * 100}
+              variants={cardReveal}
             >
-              <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-violet-500 to-pink-500 ${project.featured ? "opacity-100" : "opacity-0 transition-opacity duration-300 group-hover:opacity-100"}`} />
+              <div className={`absolute inset-x-0 top-0 h-1 bg-[var(--color-primary)] ${project.featured ? "opacity-100" : "opacity-0 transition-opacity duration-300 group-hover:opacity-100"}`} />
               <div className="relative z-[1]">
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <h3 className="flex-1 text-2xl font-semibold leading-snug text-slate-800">{project.title}</h3>
+                  <h3 className="font-display flex-1 text-2xl leading-snug text-[var(--color-text-primary)]">{project.title}</h3>
                   {project.featured && (
-                    <span className="inline-flex w-fit shrink-0 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white">
+                    <span className="font-mono inline-flex w-fit shrink-0 rounded-xl border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.12)] px-3 py-1 text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-primary)]">
                       Featured
                     </span>
                   )}
                 </div>
 
-                <p className="mb-6 text-sm leading-7 text-slate-600">{project.description}</p>
+                {project.aiBadges?.length ? (
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {project.aiBadges.map((badge) => (
+                      <span key={`${project.title}-${badge}`} className={`ai-badge ${getAiBadgeClass(badge)}`}>
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+
+                <p className="mb-6 text-sm leading-7 text-[var(--color-text-muted)]">{project.description}</p>
 
                 <div className="mb-6 flex flex-wrap gap-2">
                   {project.tags.map((tag, i) => (
                     <span
                       key={i}
-                      className="rounded-2xl border border-slate-300/40 bg-gradient-to-r from-slate-100 to-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-to-r hover:from-blue-500 hover:to-violet-500 hover:text-white"
+                      className="font-mono rounded-2xl border border-[var(--color-border-muted)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-xs uppercase tracking-[0.05em] text-[var(--color-text-subtle)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--color-border-focus)] hover:text-[var(--color-primary)]"
                     >
                       {tag}
                     </span>
@@ -176,7 +207,7 @@ const ProjectsSection = () => {
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-500/10 to-violet-500/10 px-5 py-3 text-sm font-semibold text-blue-500 transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-to-r hover:from-blue-500 hover:to-violet-500 hover:text-white hover:shadow-[0_8px_25px_rgba(59,130,246,0.3)]"
+                    className="font-mono inline-flex items-center gap-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-5 py-3 text-sm font-medium uppercase tracking-[0.08em] text-[var(--color-primary)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-[var(--color-bg-base)] hover:shadow-[var(--shadow-button)]"
                   >
                     <span>{project.linkText}</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -191,9 +222,9 @@ const ProjectsSection = () => {
                   </a>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

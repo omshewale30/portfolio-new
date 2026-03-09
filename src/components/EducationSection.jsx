@@ -1,5 +1,7 @@
 import React from "react";
 import { GraduationCap, Rocket, Calendar, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
+import { cardReveal, fadeInUp, staggerContainer } from "../utils/animations";
 
 const educationDetails = [
   {
@@ -26,21 +28,35 @@ const EducationSection = () => {
   return (
     <section id="education" className="relative overflow-hidden bg-[var(--color-bg-base)]">
       <div className="section-shell relative">
-        <p className="eyebrow-label mb-3">// Education</p>
-        <h2 className="font-display mb-4 text-4xl text-[var(--color-text-primary)] md:text-5xl max-[480px]:text-3xl">
-          Education
-        </h2>
-        <p className="mb-10 max-w-[30rem] text-[var(--color-text-muted)] md:mb-12">
-          Academic background and focus areas
-        </p>
+        <motion.div
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+        >
+          <p className="eyebrow-label mb-3">// Education</p>
+          <h2 className="font-display mb-4 text-4xl text-[var(--color-text-primary)] md:text-5xl max-[480px]:text-3xl">
+            Education
+          </h2>
+          <p className="mb-10 max-w-[30rem] text-[var(--color-text-muted)] md:mb-12">
+            Academic background and focus areas
+          </p>
+        </motion.div>
 
-        <div className="grid gap-8 md:grid-cols-2 md:gap-10">
+        <motion.div
+          className="grid gap-8 md:grid-cols-2 md:gap-10"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
           {educationDetails.map((edu, index) => {
             const Icon = edu.icon;
             return (
-              <div
+              <motion.div
                 key={index}
                 className="surface-card group relative flex min-h-[320px] flex-col overflow-hidden p-8 md:p-10 max-md:min-h-0 max-[480px]:p-6"
+                variants={cardReveal}
               >
                 <div className="mb-8 flex items-start justify-between gap-4 max-md:mb-6">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-primary)] transition-transform duration-300 group-hover:scale-105 md:h-16 md:w-16">
@@ -78,10 +94,10 @@ const EducationSection = () => {
                   <ExternalLink size={18} strokeWidth={2} />
                   View transcript
                 </a>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -92,6 +92,8 @@
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: 0.5rem;
+  padding: 0.5rem;
+ 
 }
 
 /* Eyebrow label: // LABEL in mono */
@@ -115,7 +117,7 @@
     var(--color-border-subtle) 85%,
     transparent 100%
   );
-  margin: var(--space-8) 0;
+
 }
 
 /* Primary button – warm fill */
@@ -156,10 +158,71 @@
   color: var(--color-primary-hover);
 }
 
+/* Navbar – enforced vertical size so it stays visibly tall */
+/* .navbar-bar {
+  min-height: px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  width: 100%;
+} */
+@media (min-width: 768px) {
+  .navbar-bar {
+    min-height: 50px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
 /* Nav link hover – fade to amber */
 .nav-link-warm:hover {
   color: var(--color-primary);
   transition: color var(--duration-fast) var(--ease-out-smooth);
+}
+
+/* Glassmorphism nav link effects */
+.nav-link-glass {
+  position: relative;
+  transition: all var(--duration-normal) var(--ease-out-smooth);
+}
+
+.nav-link-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(200, 168, 130, 0.15) 0%,
+    transparent 70%
+  );
+  transition: opacity var(--duration-normal) var(--ease-out-smooth);
+  pointer-events: none;
+}
+
+.nav-link-glass:hover::before {
+  opacity: 1;
+}
+
+/* Navbar glassmorphism shimmer effect on scroll */
+.navbar-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-out-smooth);
+  pointer-events: none;
+}
+
+.navbar-bar:hover::before {
+  opacity: 1;
 }
 
 /* Project row hover: title to amber + translateX(4px) */
@@ -179,6 +242,65 @@
 .project-preview-row:hover {
   border-color: var(--color-border-subtle);
   background-color: rgba(200, 168, 130, 0.03);
+}
+
+.project-spotlight-card {
+  transition: transform var(--duration-normal) var(--ease-out-smooth),
+    border-color var(--duration-normal) var(--ease-out-smooth),
+    box-shadow var(--duration-normal) var(--ease-out-smooth);
+  padding: 1rem;
+}
+
+.project-spotlight-card:hover {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 30px rgba(200, 168, 130, 0.3), var(--shadow-glass-strong);
+}
+
+.ai-badge {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.28rem 0.62rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.ai-badge-default {
+  background: rgba(200, 168, 130, 0.14);
+  border-color: rgba(200, 168, 130, 0.32);
+  color: #f0deca;
+}
+
+.ai-badge-gpt4 {
+  background: rgba(34, 197, 94, 0.14);
+  border-color: rgba(74, 222, 128, 0.42);
+  color: #b7f7cd;
+}
+
+.ai-badge-rag {
+  background: rgba(59, 130, 246, 0.14);
+  border-color: rgba(96, 165, 250, 0.4);
+  color: #c6deff;
+}
+
+.ai-badge-langchain {
+  background: rgba(249, 115, 22, 0.14);
+  border-color: rgba(251, 146, 60, 0.45);
+  color: #ffd2a3;
+}
+
+.ai-badge-azure {
+  background: rgba(14, 165, 233, 0.14);
+  border-color: rgba(56, 189, 248, 0.42);
+  color: #bdefff;
+}
+
+.ai-badge-multi-agent {
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(192, 132, 252, 0.42);
+  color: #e4ccff;
 }
 
 .schedule-call-btn {

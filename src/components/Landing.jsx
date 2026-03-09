@@ -104,9 +104,6 @@ const LandingPage = () => {
             </div>
 
             <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-6 text-center">
-                <p className="landing-reveal landing-reveal-delay-300 mb-4 font-mono text-xs uppercase tracking-[0.16em] text-[var(--color-text-meta)]">
-                    // AI ENGINEER
-                </p>
                 <h1 className="landing-reveal font-display text-5xl italic tracking-[-0.02em] text-[var(--color-text-primary)] md:text-7xl">
                     Om Shewale
                 </h1>
@@ -132,8 +129,8 @@ const LandingPage = () => {
                         Scroll Down
                     </span>
                     <span className="relative h-6 w-6">
-                        <span className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2 rotate-45 animate-[arrowbounce_2s_ease-in-out_infinite] border-b-2 border-r-2 border-[var(--color-primary-muted)]" />
-                        <span className="absolute left-1/2 top-2 h-2.5 w-2.5 -translate-x-1/2 rotate-45 animate-[arrowbounce_2s_ease-in-out_infinite_0.2s] border-b-2 border-r-2 border-[var(--color-primary-muted)]" />
+                        <span className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2  animate-[arrowbounce_2s_ease-in-out_infinite] border-b-2 border-r-2 border-[var(--color-primary-muted)]" />
+                        <span className="absolute left-1/2 top-2 h-2.5 w-2.5 -translate-x-1/2  animate-[arrowbounce_2s_ease-in-out_infinite_0.2s] border-b-2 border-r-2 border-[var(--color-primary-muted)]" />
                     </span>
                 </button>
             </div>
