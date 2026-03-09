@@ -1,311 +1,569 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
-const skillIcons = {
-  Python: "🐍", "C++": "⚙️", JavaScript: "JS", Java: "☕",
-  HTML: "</>", Swift: "◆", SQL: "⛁", CSS: "✦",
-  React: "⚛", FastAPI: "⚡", LangChain: "🔗", "Tailwind CSS": "💨",
-  TensorFlow: "🧠", "Scikit-learn": "📊", "Node.js": "⬡", Express: "◈",
-  Supabase: "⬡", Git: "⎇", GitHub: "◎", Docker: "🐳",
-  Jira: "◈", JUnit: "✓", MySQL: "⛁", MongoDB: "🍃",
-};
-
-const skills = {
-  Languages: [
-    { name: "Python" }, { name: "C++" }, { name: "JavaScript" }, { name: "Java" },
-    { name: "HTML" }, { name: "Swift" }, { name: "SQL" }, { name: "CSS" },
-  ],
-  Frameworks: [
-    { name: "React" }, { name: "FastAPI" }, { name: "LangChain" }, { name: "Tailwind CSS" },
-    { name: "TensorFlow" }, { name: "Scikit-learn" }, { name: "Node.js" }, { name: "Express" },
-  ],
-  Tools: [
-    { name: "Supabase" }, { name: "Git" }, { name: "GitHub" }, { name: "Docker" },
-    { name: "Jira" }, { name: "JUnit" }, { name: "MySQL" }, { name: "MongoDB" },
-  ]
-};
-
-const categoryConfig = {
+// ─── Skill data with experience weights ──────────────────────────────────────
+const CATEGORIES = {
   Languages: {
-    icon: "💻",
-    gradient: "from-[var(--color-primary)] to-[#b58e60]",
-    glow: "rgba(200,168,130,0.15)",
-    accent: "#c8a882",
-    tagAccent: "rgba(200,168,130,0.12)",
-    tagBorder: "rgba(200,168,130,0.3)",
-    tagHoverBorder: "rgba(200,168,130,0.7)",
-    tagHoverBg: "rgba(200,168,130,0.18)",
+    color: "#f0d8b2",
+    rgb: "240,216,178",
+    stroke: "#f6e4c8",
+    anchor: [0.21, 0.46],
+    skills: [
+      { name: "Python",     exp: 5 },
+      { name: "SQL",        exp: 4 },
+      { name: "JavaScript", exp: 4 },
+      { name: "C++",        exp: 3 },
+      { name: "Java",       exp: 3 },
+      { name: "Dart",       exp: 2 },
+      { name: "Swift",      exp: 2 },
+    ],
   },
   Frameworks: {
-    icon: "⚡",
-    gradient: "from-[#ad875d] to-[#9a754f]",
-    glow: "rgba(181,141,94,0.15)",
-    accent: "#b58e60",
-    tagAccent: "rgba(181,141,94,0.12)",
-    tagBorder: "rgba(181,141,94,0.3)",
-    tagHoverBorder: "rgba(181,141,94,0.7)",
-    tagHoverBg: "rgba(181,141,94,0.18)",
+    color: "#c8a882",
+    rgb: "200,168,130",
+    stroke: "#d4b896",
+    anchor: [0.72, 0.28],
+    skills: [
+      { name: "PyTorch",      exp: 4 },
+      { name: "LangChain",    exp: 4 },
+      { name: "FastAPI",      exp: 4 },
+      { name: "React",        exp: 4 },
+      { name: "TensorFlow",   exp: 3 },
+      { name: "LlamaIndex",   exp: 3 },
+      { name: "Scikit-learn", exp: 3 },
+      { name: "Hugging Face", exp: 2 }
+    ],
   },
   Tools: {
-    icon: "🛠️",
-    gradient: "from-[#c8a882] to-[#8f6e4a]",
-    glow: "rgba(154,117,79,0.15)",
-    accent: "#9a754f",
-    tagAccent: "rgba(154,117,79,0.12)",
-    tagBorder: "rgba(154,117,79,0.3)",
-    tagHoverBorder: "rgba(154,117,79,0.7)",
-    tagHoverBg: "rgba(154,117,79,0.18)",
+    color: "#7f5f3f",
+    rgb: "127,95,63",
+    stroke: "#98714a",
+    anchor: [0.63, 0.73],
+    skills: [
+      { name: "Azure",      exp: 4 },
+      { name: "Docker",     exp: 4 },
+      { name: "PostgreSQL",     exp: 4 },
+      { name: "Git",        exp: 4 },
+      { name: "ChromaDB",   exp: 3 },
+      { name: "AWS",        exp: 3 },
+      { name: "Pinecone",   exp: 2 },
+      { name: "Kubernetes", exp: 2 },
+      { name: "Supabase",   exp: 2 },
+    ],
   },
 };
 
-const SkillBadge = ({ skill, config, index }) => {
-  const [hovered, setHovered] = useState(false);
-  const icon = skillIcons[skill.name] || "◆";
+// Node radius: base + text-length contribution + experience bonus
+const calcR = (name, exp) => Math.round(22 + name.length * 2.6 + exp * 5);
 
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        animationDelay: `${0.3 + index * 0.06}s`,
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        padding: "10px 14px",
-        borderRadius: "10px",
-        border: `1px solid ${hovered ? config.tagHoverBorder : config.tagBorder}`,
-        background: hovered ? config.tagHoverBg : config.tagAccent,
-        transition: "all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)",
-        transform: hovered ? "translateX(4px) scale(1.015)" : "translateX(0) scale(1)",
-        cursor: "default",
-        position: "relative",
-        overflow: "hidden",
-      }}
-      className="animate-[fade-in-up_0.5s_ease-out_both]"
-    >
-      {/* left accent line */}
-      <div style={{
-        position: "absolute",
-        left: 0,
-        top: "20%",
-        height: "60%",
-        width: "2px",
-        borderRadius: "2px",
-        background: config.accent,
-        opacity: hovered ? 1 : 0,
-        transition: "opacity 0.2s ease",
-      }} />
-
-      {/* icon pill */}
-      <span style={{
-        fontSize: "0.75rem",
-        minWidth: "24px",
-        height: "24px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: "6px",
-        background: hovered ? `${config.accent}33` : "transparent",
-        color: config.accent,
-        fontFamily: "monospace",
-        fontWeight: "700",
-        transition: "background 0.2s ease",
-        letterSpacing: "-0.02em",
-      }}>
-        {icon}
-      </span>
-
-      <span style={{
-        fontSize: "0.875rem",
-        fontWeight: "500",
-        color: hovered
-          ? "var(--color-text-primary)"
-          : "var(--color-text-muted)",
-        transition: "color 0.2s ease",
-        letterSpacing: "0.01em",
-      }}>
-        {skill.name}
-      </span>
-    </div>
-  );
-};
-
-const CategoryCard = ({ category, items, config, isActive, isFiltered }) => {
-  const [cardHovered, setCardHovered] = useState(false);
-
-  return (
-    <div
-      onMouseEnter={() => setCardHovered(true)}
-      onMouseLeave={() => setCardHovered(false)}
-      style={{
-        position: "relative",
-        borderRadius: "20px",
-        border: "1px solid var(--color-border-subtle)",
-        background: "var(--color-bg-elevated)",
-        padding: "0",
-        overflow: "hidden",
-        transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
-        transform: cardHovered ? "translateY(-5px)" : "translateY(0)",
-        boxShadow: cardHovered
-          ? `0 20px 60px ${config.glow}, 0 4px 20px rgba(0,0,0,0.12)`
-          : "0 2px 8px rgba(0,0,0,0.06)",
-        opacity: isFiltered ? 0.35 : 1,
-      }}
-    >
-      {/* Top gradient bar - always visible, pulses on hover */}
-      <div style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "3px",
-        background: `linear-gradient(90deg, ${config.accent}, ${config.accent}88)`,
-        opacity: cardHovered ? 1 : 0.45,
-        transition: "opacity 0.3s ease",
-      }} />
-
-      {/* Glow orb background */}
-      <div style={{
-        position: "absolute",
-        top: "-60px",
-        right: "-60px",
-        width: "200px",
-        height: "200px",
-        borderRadius: "50%",
-        background: `radial-gradient(circle, ${config.glow} 0%, transparent 70%)`,
-        opacity: cardHovered ? 1 : 0,
-        transition: "opacity 0.4s ease",
-        pointerEvents: "none",
-      }} />
-
-      {/* Card header */}
-      <div style={{
-        padding: "28px 28px 20px",
-        borderBottom: "1px solid var(--color-border-muted)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          {/* Icon container */}
-          <div style={{
-            width: "46px",
-            height: "46px",
-            borderRadius: "12px",
-            background: `${config.accent}22`,
-            border: `1px solid ${config.accent}44`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "1.25rem",
-            transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-            transform: cardHovered ? "scale(1.1) rotate(8deg)" : "scale(1) rotate(0deg)",
-          }}>
-            {config.icon}
-          </div>
-
-          <div>
-            <h3 style={{
-              fontFamily: "var(--font-display, serif)",
-              fontSize: "1.25rem",
-              fontWeight: "600",
-              color: "var(--color-text-primary)",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.2,
-            }}>
-              {category}
-            </h3>
-
-          </div>
-        </div>
-
-      </div>
-
-      {/* Skills grid */}
-      <div style={{
-        padding: "20px 24px 24px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-      }}>
-        {items.map((skill, index) => (
-          <SkillBadge key={skill.name} skill={skill} config={config} index={index} />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const SkillsSection = () => {
-  const [activeFilter, setActiveFilter] = useState("All");
-  const tabRefs = useRef({});
+// ─── Component ────────────────────────────────────────────────────────────────
+export default function SkillsSection() {
+  const canvasRef = useRef(null);
+  const S = useRef({
+    nodes: [], stars: [],
+    hovered: null,
+    mouse: { x: -9999, y: -9999 },
+    W: 0, H: 0,
+  });
+  const rafRef = useRef(null);
+  const [cursor, setCursor] = useState("default");
 
   useEffect(() => {
-    const activeTab = tabRefs.current[activeFilter];
-    if (activeTab) {
-      setIndicatorStyle({
-        left: activeTab.offsetLeft,
-        width: activeTab.offsetWidth,
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    // ── Initialise ─────────────────────────────────────────────────────────
+    const init = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const W   = canvas.offsetWidth;
+      const H   = canvas.offsetHeight;
+      S.current.W = W;
+      S.current.H = H;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      ctx.resetTransform();
+      ctx.scale(dpr, dpr);
+
+      // Stars
+      S.current.stars = Array.from({ length: 180 }, () => ({
+        x:     Math.random() * W,
+        y:     Math.random() * H,
+        r:     Math.random() * 1.5 + 0.15,
+        phase: Math.random() * Math.PI * 2,
+        spd:   0.008 + Math.random() * 0.024,
+        cross: Math.random() < 0.06,
+      }));
+
+      // Nodes
+      const nodes = [];
+      Object.entries(CATEGORIES).forEach(([catName, cat]) => {
+        const ax = cat.anchor[0] * W;
+        const ay = cat.anchor[1] * H;
+        cat.skills.forEach((sk, i) => {
+          const spread = 72 + Math.random() * 60;
+          const angle  = (i / cat.skills.length) * Math.PI * 2 + i * 0.35;
+          nodes.push({
+            id:     `${catName}::${sk.name}`,
+            name:   sk.name,
+            cat:    catName,
+            exp:    sk.exp,
+            r:      calcR(sk.name, sk.exp),
+            color:  cat.color,
+            rgb:    cat.rgb,
+            stroke: cat.stroke,
+            x: ax + spread * Math.cos(angle),
+            y: ay + spread * Math.sin(angle),
+            vx: 0, vy: 0,
+            tx: ax, ty: ay,
+          });
+        });
       });
+      S.current.nodes = nodes;
+
+      // Pre-settle (no render)
+      for (let i = 0; i < 280; i++) physicsStep(nodes, W, H, 0.75);
+    };
+
+    // ── Physics ────────────────────────────────────────────────────────────
+    const physicsStep = (nodes, W, H, damp = 0.85) => {
+      const REPEL  = 3400;
+      const GRAV   = 0.019;
+      const BORDER = 0.38;
+      const MOUSE_RADIUS = 180;
+      const MOUSE_REPEL = 0.9;
+      const { mouse } = S.current;
+
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        let fx = 0, fy = 0;
+
+        for (let j = 0; j < nodes.length; j++) {
+          if (i === j) continue;
+          const m  = nodes[j];
+          const dx = n.x - m.x;
+          const dy = n.y - m.y;
+          const d  = Math.sqrt(dx * dx + dy * dy) || 0.1;
+          const minD = n.r + m.r + 20;
+
+          if (d < minD) {
+            const push = (minD - d) * 0.58;
+            fx += (dx / d) * push;
+            fy += (dy / d) * push;
+          } else if (d < 300) {
+            const f = REPEL / (d * d);
+            fx += (dx / d) * f;
+            fy += (dy / d) * f;
+          }
+        }
+
+        fx += (n.tx - n.x) * GRAV;
+        fy += (n.ty - n.y) * GRAV;
+
+        // Interactive pointer repulsion keeps the graph lively on hover.
+        if (mouse.x > -1000 && mouse.y > -1000) {
+          const mdx = n.x - mouse.x;
+          const mdy = n.y - mouse.y;
+          const md = Math.hypot(mdx, mdy) || 0.1;
+          if (md < MOUSE_RADIUS) {
+            const repel = (1 - md / MOUSE_RADIUS) * MOUSE_REPEL;
+            fx += (mdx / md) * repel * 6;
+            fy += (mdy / md) * repel * 6;
+          }
+        }
+
+        const mg = n.r + 16;
+        if (n.x < mg)          fx += (mg - n.x)       * BORDER;
+        else if (n.x > W - mg) fx -= (n.x - (W - mg)) * BORDER;
+        if (n.y < mg)          fy += (mg - n.y)       * BORDER;
+        else if (n.y > H - mg) fy -= (n.y - (H - mg)) * BORDER;
+
+        // Tiny ambient jitter so nodes never look frozen.
+        fx += (Math.random() - 0.5) * 0.045;
+        fy += (Math.random() - 0.5) * 0.045;
+
+        n.vx = (n.vx + fx * 0.085) * damp;
+        n.vy = (n.vy + fy * 0.085) * damp;
+        n.x += n.vx;
+        n.y += n.vy;
+      }
+    };
+
+    // ── Round rect helper ─────────────────────────────────────────────────
+    const rRect = (x, y, w, h, r) => {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y,     x + w, y + h, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x,     y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x,     y + h, x,     y,     r);
+      ctx.lineTo(x,    y + r);
+      ctx.arcTo(x,     y,     x + w, y,     r);
+      ctx.closePath();
+    };
+
+    // ── Draw ──────────────────────────────────────────────────────────────
+    const draw = () => {
+      const { W, H, nodes, stars, hovered } = S.current;
+      ctx.clearRect(0, 0, W, H);
+
+      /* 1 ── Warm dark background (aligned with app palette) ───────────── */
+      const bgG = ctx.createLinearGradient(0, 0, W, H);
+      bgG.addColorStop(0,   "#16120d");
+      bgG.addColorStop(0.5, "#1b150f");
+      bgG.addColorStop(1,   "#16120d");
+      ctx.fillStyle = bgG;
+      ctx.fillRect(0, 0, W, H);
+
+      /* 2 ── Warm ambient halos ─────────────────────────────────────────── */
+      const ambients = [
+        { x: 0.5, y: 0.54, r: 360, color: "200,168,130", a: 0.055 },
+        { x: 0.08, y: 0.14, r: 240, color: "217,185,143", a: 0.06 },
+        { x: 0.92, y: 0.86, r: 240, color: "160,127,90", a: 0.055 },
+      ];
+      ambients.forEach(({ x, y, r, color, a }) => {
+        const g = ctx.createRadialGradient(x * W, y * H, 0, x * W, y * H, r);
+        g.addColorStop(0, `rgba(${color},${a})`);
+        g.addColorStop(1, "transparent");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
+      });
+
+      Object.entries(CATEGORIES).forEach(([, cat]) => {
+        const ax = cat.anchor[0] * W;
+        const ay = cat.anchor[1] * H;
+        const g  = ctx.createRadialGradient(ax, ay, 0, ax, ay, 255);
+        g.addColorStop(0,   `rgba(${cat.rgb},0.10)`);
+        g.addColorStop(0.5, `rgba(${cat.rgb},0.03)`);
+        g.addColorStop(1,   "transparent");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
+      });
+
+      /* 3 ── Starfield ──────────────────────────────────────────────────── */
+      stars.forEach(s => {
+        s.phase += s.spd;
+        const a = Math.sin(s.phase) * 0.28 + 0.52;
+
+        if (s.cross) {
+          ctx.save();
+          ctx.globalAlpha  = a * 0.55;
+          ctx.strokeStyle  = "rgba(226,211,189,0.85)";
+          ctx.lineWidth    = 0.55;
+          const len = s.r * 3.8;
+          ctx.beginPath();
+          ctx.moveTo(s.x - len, s.y); ctx.lineTo(s.x + len, s.y);
+          ctx.moveTo(s.x, s.y - len); ctx.lineTo(s.x, s.y + len);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(239,226,206,${a * 0.6})`;
+        ctx.fill();
+      });
+
+      /* 4 ── Proximity edges (same category) ───────────────────────────── */
+      Object.entries(CATEGORIES).forEach(([catName, cat]) => {
+        const cn = nodes.filter(n => n.cat === catName);
+        for (let i = 0; i < cn.length; i++) {
+          for (let j = i + 1; j < cn.length; j++) {
+            const a = cn[i], b = cn[j];
+            const d = Math.hypot(a.x - b.x, a.y - b.y);
+            if (d < 215) {
+              ctx.save();
+              ctx.globalAlpha = (1 - d / 215) * 0.22;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.strokeStyle = cat.color;
+              ctx.lineWidth   = 1;
+              ctx.stroke();
+              ctx.restore();
+            }
+          }
+        }
+      });
+
+      /* 5 ── Nodes ──────────────────────────────────────────────────────── */
+      nodes.forEach(n => {
+        const isH = hovered === n.id;
+        const r   = isH ? n.r * 1.09 : n.r;
+        const cx  = n.x, cy = n.y;
+
+        ctx.save();
+        if (isH) {
+          ctx.shadowBlur  = 40;
+          ctx.shadowColor = `rgba(${n.rgb},0.85)`;
+        }
+
+        // Radial fill
+        const fill = ctx.createRadialGradient(
+          cx - r * 0.22, cy - r * 0.22, 0,
+          cx, cy, r * 1.08
+        );
+        fill.addColorStop(0,   `rgba(${n.rgb},${isH ? 0.5 : 0.38})`);
+        fill.addColorStop(0.5, `rgba(${n.rgb},${isH ? 0.2 : 0.13})`);
+        fill.addColorStop(1,   `rgba(${n.rgb},0.03)`);
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fillStyle = fill;
+        ctx.fill();
+
+        // Border
+        ctx.strokeStyle = isH ? n.color : `rgba(${n.rgb},0.72)`;
+        ctx.lineWidth   = isH ? 2.6 : 1.6;
+        ctx.stroke();
+        ctx.restore();
+
+        /* ── Label text ── */
+        ctx.save();
+        const fs = Math.max(9.5, Math.min(r * 0.30, 13.5));
+        ctx.font         = `700 ${fs}px 'DM Sans', system-ui, sans-serif`;
+        ctx.textAlign    = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle    = isH ? "#fdf8f0" : "rgba(245,232,216,0.94)";
+
+        if (isH) {
+          ctx.shadowBlur  = 10;
+          ctx.shadowColor = `rgba(${n.rgb},0.9)`;
+        }
+
+        // Clip inside node so long names never bleed
+        ctx.beginPath();
+        ctx.arc(cx, cy, r - 5, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.fillText(n.name, cx, cy - 4);
+
+        /* ── Experience pips ── */
+        const dotR   = 2.2;
+        const dotGap = 7;
+        const dotsW  = (n.exp - 1) * dotGap;
+        for (let di = 0; di < n.exp; di++) {
+          ctx.beginPath();
+          ctx.arc(cx - dotsW / 2 + di * dotGap, cy + r * 0.5, dotR, 0, Math.PI * 2);
+          ctx.fillStyle = isH ? n.color : `rgba(${n.rgb},0.58)`;
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+
+      /* 6 ── Tooltip ────────────────────────────────────────────────────── */
+      if (hovered) {
+        const n = nodes.find(nd => nd.id === hovered);
+        if (n) {
+          const label = `${n.name}  ·  ${n.exp} yr${n.exp > 1 ? "s" : ""}`;
+          ctx.font     = `600 11px 'DM Sans', system-ui`;
+          const tw     = ctx.measureText(label).width;
+          const pw = tw + 24, ph = 28;
+          const tx = Math.min(Math.max(n.x - pw / 2, 8), W - pw - 8);
+          const ty = Math.max(n.y - n.r - ph - 10, 8);
+
+          ctx.save();
+          ctx.shadowBlur  = 16;
+          ctx.shadowColor = `rgba(${n.rgb},0.45)`;
+          ctx.fillStyle   = "rgba(22,18,13,0.94)";
+          rRect(tx, ty, pw, ph, 7);
+          ctx.fill();
+          ctx.strokeStyle = `rgba(${n.rgb},0.5)`;
+          ctx.lineWidth   = 1;
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.font         = `600 11px 'DM Sans', system-ui`;
+          ctx.fillStyle    = n.color;
+          ctx.textAlign    = "left";
+          ctx.textBaseline = "middle";
+          ctx.fillText(label, tx + 12, ty + ph / 2);
+        }
+      }
+    };
+
+    // ── Animation loop ────────────────────────────────────────────────────
+    const loop = () => {
+      physicsStep(S.current.nodes, S.current.W, S.current.H, 0.86);
+
+      const { mouse, nodes } = S.current;
+      let nh = null;
+      for (const n of nodes) {
+        if (Math.hypot(n.x - mouse.x, n.y - mouse.y) < n.r) { nh = n.id; break; }
+      }
+      if (nh !== S.current.hovered) {
+        S.current.hovered = nh;
+        setCursor(nh ? "pointer" : "default");
+      }
+
+      // Hovered node gets a soft orbital force and nudges neighbors.
+      if (S.current.hovered) {
+        const active = nodes.find(n => n.id === S.current.hovered);
+        if (active) {
+          const t = performance.now() * 0.0045;
+          active.vx += Math.cos(t) * 0.14;
+          active.vy += Math.sin(t * 1.2) * 0.14;
+          for (const n of nodes) {
+            if (n.id === active.id) continue;
+            const dx = n.x - active.x;
+            const dy = n.y - active.y;
+            const d = Math.hypot(dx, dy) || 0.1;
+            if (d < 220) {
+              const push = (1 - d / 220) * 0.05;
+              n.vx += (dx / d) * push;
+              n.vy += (dy / d) * push;
+            }
+          }
+        }
+      }
+
+      draw();
+      rafRef.current = requestAnimationFrame(loop);
+    };
+
+    init();
+    loop();
+
+    const onResize = () => {
+      cancelAnimationFrame(rafRef.current);
+      init();
+      loop();
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  const onMove = e => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (rect) S.current.mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+
+  const onClick = () => {
+    const { mouse, nodes } = S.current;
+    const target = nodes.find(n => Math.hypot(n.x - mouse.x, n.y - mouse.y) < n.r);
+    if (!target) return;
+
+    // Click burst: impulse wave from the clicked node.
+    for (const n of nodes) {
+      const dx = n.x - target.x;
+      const dy = n.y - target.y;
+      const d = Math.hypot(dx, dy) || 0.1;
+      if (d < 260) {
+        const impulse = (1 - d / 260) * 3.4;
+        n.vx += (dx / d) * impulse + (Math.random() - 0.5) * 0.28;
+        n.vy += (dy / d) * impulse + (Math.random() - 0.5) * 0.28;
+      }
     }
-  }, [activeFilter]);
+  };
 
   return (
     <section
       id="skills"
-      className="relative overflow-hidden bg-[var(--color-bg-base)]"
+      style={{
+        background: "var(--color-bg-base, #16120d)",
+        padding: "80px 0 64px",
+        position: "relative",
+        overflow: "hidden",
+      }}
     >
-      <div className="section-shell">
+      {/* ── Header ── */}
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px 36px" }}>
+        <p style={{
+          color: "var(--color-text-meta, #9a8f7a)",
+          fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)",
+          fontSize: "0.75rem",
+          letterSpacing: "0.08em",
+          marginBottom: 10,
+          opacity: 1,
+          textTransform: "uppercase",
+        }}>
+          // Skills
+        </p>
+        <h2 style={{
+          fontFamily: "var(--font-display, 'DM Serif Display', Georgia, serif)",
+          fontSize: "clamp(1.9rem, 3.5vw, 2.6rem)",
+          fontWeight: 400,
+          color: "var(--color-text-primary, #eef6ff)",
+          letterSpacing: "-0.02em",
+          margin: "0 0 10px",
+          lineHeight: 1.15,
+        }}>
+          Technical Skills
+        </h2>
+        <p style={{
+          color: "var(--color-text-muted, #e8e2d8)",
+          fontSize: "0.92rem",
+          margin: 0,
+          fontFamily: "var(--font-body, 'Crimson Pro', Georgia, serif)",
+        }}>
+          Force-directed graph · node size = years of experience
+        </p>
+      </div>
 
-        {/* Header */}
-        <div className="relative mb-10 animate-[fade-in-up_0.8s_ease-out]">
-          <p className="eyebrow-label mb-3">// Skills</p>
-          <h2 className="font-display mb-4 text-4xl tracking-[-0.02em] text-[var(--color-text-primary)] max-md:text-[2.5rem] max-[480px]:text-[2rem]">
-            Technical Skills
-          </h2>
-          <p className="max-w-[600px] text-xl leading-relaxed text-[var(--color-text-muted)] max-md:text-[1.1rem]">
-            Expertise across languages, frameworks, and development tools
-          </p>
-        </div>
-
-
-        {/* Cards grid */}
-        <div
-          className="animate-[fade-in-up_0.8s_ease-out_0.2s_both]"
+      {/* ── Canvas ── */}
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px" }}>
+        <canvas
+          ref={canvasRef}
+          onMouseMove={onMove}
+          onClick={onClick}
+          onMouseLeave={() => { S.current.mouse = { x: -9999, y: -9999 }; }}
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "24px",
             width: "100%",
-            maxWidth: "1400px",
-            margin: "0 auto",
+            height: 550,
+            display: "block",
+            borderRadius: 18,
+            border: "1px solid var(--color-border-subtle, rgba(200, 168, 130, 0.12))",
+            cursor,
           }}
-        >
-          {Object.entries(skills).map(([category, items]) => (
-            <CategoryCard
-              key={category}
-              category={category}
-              items={items}
+        />
+      </div>
 
-              config={categoryConfig[category]}
-              isActive={activeFilter === category || activeFilter === "All"}
-              isFiltered={activeFilter !== "All" && activeFilter !== category}
-            />
-          ))}
-        </div>
+      {/* ── Legend ── */}
+      <div style={{
+        maxWidth: 1100,
+        margin: "20px auto 0",
+        padding: "0 40px",
+        display: "flex",
+        gap: 24,
+        justifyContent: "center",
+        flexWrap: "wrap",
+        alignItems: "center",
+      }}>
+        {Object.entries(CATEGORIES).map(([name, cat]) => (
+          <div key={name} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{
+              display: "inline-block",
+              width: 9, height: 9, borderRadius: "50%",
+              background: cat.color,
+              boxShadow: `0 0 8px rgba(${cat.rgb},0.9)`,
+              flexShrink: 0,
+            }} />
+            <span style={{
+              fontSize: "0.72rem",
+              fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)",
+              letterSpacing: "0.07em",
+              textTransform: "uppercase",
+              color: "var(--color-text-subtle, #b8a990)",
+            }}>
+              {name}
+            </span>
+          </div>
+        ))}
+        <span style={{
+          color: "var(--color-text-meta, #9a8f7a)",
+          fontSize: "0.68rem",
+          fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)",
+        }}>
+          ◈&nbsp;&nbsp;24 skills
+        </span>
       </div>
 
       <style>{`
-        @keyframes marquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@600;700&display=swap');
       `}</style>
     </section>
   );
-};
-
-export default SkillsSection;
+}

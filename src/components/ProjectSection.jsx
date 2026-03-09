@@ -15,6 +15,36 @@ const ProjectsSection = () => {
 
   const projects = [
     {
+      title: "Redesign, dont Redecorate: Agentic AI in Enterprise Workflows",
+      description:
+        "Authored a comprehensive systems research paper advised by Dr. Danielle Szafir evaluating human-in-the-loop (HITL) Agentic AI architectures in high-stakes enterprise workflows. Evaluated two production-grade platforms (Charlotte and Heelper) to demonstrate how domain-specific grounding reduces cognitive load. Developed a quantitative framework linking automated task elimination to measurable organizational ROI.",
+      tags: ["Research", "HCI", "System Architecture", "Enterprise Tech"],
+      aiBadges: ["Agentic AI", "HITL", "Multi-Agent"],
+      link: "#", // Replace with actual link when published
+      linkText: "Read Paper",
+      featured: true,
+    },
+    {
+      title: "Charlotte - Enterprise AI Platform",
+      description:
+        "Engineered and deployed a production RAG-based AI system serving the UNC Cashier's Office, Campus Health, and Accounting. Managed the full lifecycle from UNC ITS compliance review to Azure deployment. The system securely queries EDI reports and transaction data, eliminating over 200 manual hours per year of data searches.",
+      tags: ["Python", "Azure", "Vector Database", "Data Governance"],
+      aiBadges: ["Enterprise AI", "RAG", "Azure OpenAI"],
+      link: "https://charlotte-frontend.azurewebsites.net/",
+      linkText: "Try it out",
+      featured: true,
+    },
+    {
+      title: "Heelper - AI Email Assistant",
+      description:
+        "Developed an Agentic AI email assistant designed for the UNC Cashier's office to manage and triage high-volume inbound communications. Built with a Python automation backend to intelligently route, classify, and draft contextual responses, significantly reducing manual triage time and streamlining administrative workflows.",
+      tags: ["Python", "Automation", "Workflow Integration", "API"],
+      aiBadges: ["Agentic AI", "LLM Orchestration"],
+      link: "#", // Add GitHub or demo link if available
+      linkText: "View Project",
+      featured: true,
+    },
+    {
       title: "Image to LaTeX",
       description:
         "Developed a robust equation-to-LaTeX conversion system combining Optical Character Recognition (OCR) with Natural Language Processing (NLP) to accurately transcribe mathematical expressions. Leveraged Vision Transformers (ViT) for visual feature extraction and decoder LLMs for LaTeX generation, improving performance on low-quality and handwritten equations.",

@@ -17,6 +17,34 @@ const ProjectPreview = () => {
   };
 
   const previewProjects = [
+
+    {
+      title: "Redesign, dont Redecorate: Agentic AI in Enterprise Workflows",
+      category: "Research",
+      year: "2025",
+      description:
+        "Authored a comprehensive systems research paper advised by Dr. Danielle Szafir evaluating human-in-the-loop (HITL) Agentic AI architectures in high-stakes enterprise workflows. Evaluated two production-grade platforms (Charlotte and Heelper) to demonstrate how domain-specific grounding reduces cognitive load. Developed a quantitative framework linking automated task elimination to measurable organizational ROI.",
+      tags: ["Research", "HCI", "System Architecture", "Enterprise Tech"],
+      aiBadges: ["Agentic AI", "HITL", "Multi-Agent"],
+      link: "#",
+      linkText: "COMING SOON",
+      mockupTint: "from-emerald-300/30 via-cyan-200/10 to-transparent",
+      featured: true,
+    },
+    {
+      title: "Charlotte - Enterprise AI Platform",
+      category: "Enterprise AI",
+      year: "2025",
+      description:
+        "Engineered and deployed a production RAG-based AI system serving the UNC Cashier's Office, Campus Health, and Accounting. Managed the full lifecycle from UNC ITS compliance review to Azure deployment. The system securely queries EDI reports and transaction data, eliminating over 200 manual hours per year of data searches.",
+      tags: ["Python", "Azure", "Vector Database", "Data Governance"],
+      aiBadges: ["Enterprise AI", "RAG", "Azure OpenAI"],
+      link: "https://charlotte-frontend.azurewebsites.net/",
+      linkText: "Try it out",
+      mockupTint: "from-blue-300/30 via-sky-200/10 to-transparent",
+      featured: true,
+    },
+
     {
       title: "Image to LaTeX",
       category: "Machine Learning",
@@ -29,33 +57,7 @@ const ProjectPreview = () => {
       aiBadges: ["Vision Transformer", "OCR Pipeline"],
       mockupTint: "from-amber-300/30 via-amber-200/10 to-transparent",
       featured: true,
-    },
-    {
-      title: "Career Copilot AI",
-      category: "AI Product",
-      year: "2025",
-      description:
-        "Engineered Career Copilot AI, a full-stack intelligent platform providing personalized career advice, resume analysis, and job search assistance. Leveraged React for the frontend and FastAPI with LangChain/OpenAI for backend AI capabilities, featuring an interactive chat interface and Stripe integration for premium services.",
-      tags: ["React", "FastAPI", "LangChain", "OpenAI", "Supabase", "Full-Stack", "AI/ML"],
-      link: "https://career-copilot-nu.vercel.app/",
-      linkText: "Try it out",
-      aiBadges: ["GPT-4", "LangChain", "Multi-Agent"],
-      mockupTint: "from-emerald-300/30 via-cyan-200/10 to-transparent",
-      featured: true,
-    },
-    {
-      title: "Jarvis - RAG Chatbot",
-      category: "AI Assistant",
-      year: "2025",
-      description:
-        "Developed Jarvis, a RAG-based chatbot that uses LangChain and OpenAI to provide personalized responses to user queries about me. It uses a vector database to store the data like my resume, projects, github, certifications, linkedin, etc and a chat interface to interact with the bot.",
-      tags: ["React", "FastAPI", "LangChain", "OpenAI", "Full-Stack", "AI/ML"],
-      link: "https://jarvis-interface.vercel.app/",
-      linkText: "Chat with Jarvis",
-      aiBadges: ["RAG", "GPT-4", "LangChain"],
-      mockupTint: "from-blue-300/30 via-sky-200/10 to-transparent",
-      featured: true,
-    },
+    }
   ];
 
   return (
