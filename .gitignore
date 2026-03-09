@@ -28,3 +28,4 @@ backend/find_azure_resources.py
 backend/setup_azure_auth.md
 backend/test_azure_auth.py
 src/utils/responseParser.test.js
+backend/.env
