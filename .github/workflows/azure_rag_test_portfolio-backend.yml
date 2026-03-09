@@ -7,7 +7,7 @@ name: Build and deploy Python app to Azure Web App - portfolio-backend
 on:
   push:
     branches:
-      - azure_rag_test
+      - dev
   workflow_dispatch:
 
 jobs:
@@ -82,3 +82,4 @@ jobs:
         with:
           app-name: 'portfolio-backend'
           slot-name: 'Production'
+
