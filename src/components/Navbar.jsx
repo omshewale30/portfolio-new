@@ -36,27 +36,22 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const scrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const handleNavigation = (path) => {
     setIsMobileMenuOpen(false);
     setIsDropdownOpen(false);
     if (path.startsWith("#")) {
+      const sectionId = path.slice(1);
       if (location.pathname !== "/") {
-        navigate("/");
-        setTimeout(() => {
-          const sectionId = path.slice(1);
-          const section = document.getElementById(sectionId);
-          const navbar = document.querySelector("nav");
-          if (section && navbar) {
-            window.scrollTo({ top: section.offsetTop - navbar.offsetHeight, behavior: "smooth" });
-          }
-        }, 100);
+        navigate("/", { state: { scrollTo: sectionId }, replace: false });
       } else {
-        const sectionId = path.slice(1);
-        const section = document.getElementById(sectionId);
-        const navbar = document.querySelector("nav");
-        if (section && navbar) {
-          window.scrollTo({ top: section.offsetTop - navbar.offsetHeight, behavior: "smooth" });
-        }
+        scrollToSection(sectionId);
       }
     } else if (path === "/") {
       if (location.pathname !== "/") navigate("/");
@@ -126,7 +121,6 @@ const Header = () => {
                 {[
                   ["#about", "About Me"],
                   ["#education", "Education"],
-                  ["#timeline", "Timeline"],
                   ["#skills", "Skills"],
                   ["#contact", "Contact"],
                 ].map(([href, label]) => (

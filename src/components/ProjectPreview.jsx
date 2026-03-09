@@ -52,7 +52,7 @@ const ProjectPreview = () => {
       description:
         "Developed a robust equation-to-LaTeX conversion system combining Optical Character Recognition (OCR) with Natural Language Processing (NLP) to accurately transcribe mathematical expressions. Leveraged Vision Transformers (ViT) for visual feature extraction and decoder LLMs for LaTeX generation, improving performance on low-quality and handwritten equations.",
       tags: ["Machine Learning", "TensorFlow", "OCR", "NLP"],
-      link: "https://adminliveunc-my.sharepoint.com/:b:/r/personal/gtbachel_ad_unc_edu/Documents/Attachments/755_Final_Report.pdf?csf=1&web=1&e=X7q1Rs",
+      link: "https://drive.google.com/file/d/1P_J3Q39MPd2p6FeERYnNe4iStTSxlRQC/view?usp=sharing",
       linkText: "Report",
       aiBadges: ["Vision Transformer", "OCR Pipeline"],
       mockupTint: "from-amber-300/30 via-amber-200/10 to-transparent",

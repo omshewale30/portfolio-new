@@ -21,7 +21,7 @@ const ProjectsSection = () => {
       tags: ["Research", "HCI", "System Architecture", "Enterprise Tech"],
       aiBadges: ["Agentic AI", "HITL", "Multi-Agent"],
       link: "#", // Replace with actual link when published
-      linkText: "Read Paper",
+      linkText: "COMING SOON",
       featured: true,
     },
     {
@@ -40,7 +40,7 @@ const ProjectsSection = () => {
         "Developed an Agentic AI email assistant designed for the UNC Cashier's office to manage and triage high-volume inbound communications. Built with a Python automation backend to intelligently route, classify, and draft contextual responses, significantly reducing manual triage time and streamlining administrative workflows.",
       tags: ["Python", "Automation", "Workflow Integration", "API"],
       aiBadges: ["Agentic AI", "LLM Orchestration"],
-      link: "#", // Add GitHub or demo link if available
+      link: "https://heelper-frontend.nicedesert-a13116bc.eastus.azurecontainerapps.io/", // Add GitHub or demo link if available
       linkText: "View Project",
       featured: true,
     },
@@ -50,7 +50,7 @@ const ProjectsSection = () => {
         "Developed a robust equation-to-LaTeX conversion system combining Optical Character Recognition (OCR) with Natural Language Processing (NLP) to accurately transcribe mathematical expressions. Leveraged Vision Transformers (ViT) for visual feature extraction and decoder LLMs for LaTeX generation, improving performance on low-quality and handwritten equations.",
       tags: ["Machine Learning", "TensorFlow", "OCR", "NLP"],
       aiBadges: ["Vision Transformer", "OCR Pipeline"],
-      link: "https://adminliveunc-my.sharepoint.com/:b:/r/personal/gtbachel_ad_unc_edu/Documents/Attachments/755_Final_Report.pdf?csf=1&web=1&e=X7q1Rs",
+      link: "https://drive.google.com/file/d/1P_J3Q39MPd2p6FeERYnNe4iStTSxlRQC/view?usp=sharing",
       linkText: "Report",
       featured: true,
     },
@@ -138,16 +138,14 @@ const ProjectsSection = () => {
       title: "Game Application for Mental Health Patients",
       description:
         "Led the development of 5 diverse games in Unity, specifically designed to enhance fine motor skills for mental health patients. Implemented an interactive user interface, resulting in improved accessibility and ease of navigation for patients. Received positive feedback from users, with a measured increase in fine motor skill improvement among patients.",
-      tags: ["Unity", "Game Development", "UI/UX Design", "C#"],
-      link: "#",
-      linkText: "View Project",
+      tags: ["Unity", "Game Development", "UI/UX Design", "C#"]
     },
     {
       title: "Shopping Web Application",
       description:
         "Led a team of 5 in developing a full-stack shopping application in Java, similar to Amazon.com. Implemented a robust database system to manage customer information and correlate it with order numbers, improving data retrieval processes. Leveraged SQL and GUI features to create a highly user-oriented and intuitive shopping experience.",
       tags: ["Java", "JavaFX", "SQL", "HTML", "CSS", "Full-Stack Development"],
-      link: "#",
+      link: "https://github.com/aroth6/shopping-app",
       linkText: "View Project",
     },
   ]

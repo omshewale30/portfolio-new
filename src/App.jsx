@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import './App.css'
 import Hero from "./components/Hero.jsx";
@@ -14,8 +14,11 @@ import ContactSection from "./components/ContactSection.jsx";
 import EducationSection from "./components/EducationSection.jsx";
 
 
-function App() {
+function AppContent() {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [sessionId, setSessionId] = useState(null);
+
     useEffect(() => {
         const storedSessionId = localStorage.getItem('sessionId');
         if (storedSessionId){
@@ -25,14 +28,26 @@ function App() {
             localStorage.setItem('sessionId', newSessionId);
             setSessionId(newSessionId);
         }
-    }, [])  //create a new session id if one does not exist
+    }, []);
 
+    // Scroll to section when navigating to home with state.scrollTo (e.g. from Navbar hash links)
+    useEffect(() => {
+        if (location.pathname !== "/" || !location.state?.scrollTo) return;
+        const sectionId = location.state.scrollTo;
+        const timer = requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const el = document.getElementById(sectionId);
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                navigate(".", { replace: true, state: {} });
+            });
+        });
+        return () => cancelAnimationFrame(timer);
+    }, [location.pathname, location.state?.scrollTo, navigate]);
 
     return (
-        <Router>
-            <div className="App">
-                <Navbar />
-                <Routes>
+        <div className="App">
+            <Navbar />
+            <Routes>
                     {/* Home Page */}
                     <Route
                         path="/"
@@ -62,11 +77,17 @@ function App() {
                     <Route path="/experience" element={<Experience />} />
 
 
-                </Routes>
-            </div>
-        </Router>
+            </Routes>
+        </div>
+    );
+}
 
-    )
+function App() {
+    return (
+        <Router>
+            <AppContent />
+        </Router>
+    );
 }
 
 export default App
