@@ -176,7 +176,7 @@ const ContactSection = () => {
                   </svg>
                 </a>
                 <a
-                  href="https://github.com/omshewale"
+                  href="https://github.com/omshewale30"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-text-subtle)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] focus:outline-2 focus:outline-[var(--color-primary)] focus:outline-offset-2 max-[480px]:h-10 max-[480px]:w-10"
