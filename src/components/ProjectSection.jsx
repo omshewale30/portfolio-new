@@ -105,7 +105,7 @@ const ProjectsSection = () => {
       description:
         "Leading the development of a web-based 2D escape room game designed to enhance clinical education. The game, set in a virtual exam room, engages players with interactive puzzles focused on pharmacist decision-making. Built using Dart and Flutter, the project includes an authoring tool that enables faculty to customize scenarios, ensuring scalable and adaptable learning experiences. Initially tailored for diabetes care and pharmacist prescribing, this platform aims to revolutionize clinical training across institutions.",
       tags: ["Dart", "Flutter", "Game Development", "Education Technology"],
-      link: "https://yourprojectlink.com",
+      link: "https://yashas-hm-unc.github.io/illness-lab-website/",
       linkText: "Try it out",
     },
     {
