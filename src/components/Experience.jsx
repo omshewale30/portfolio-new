@@ -4,28 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { fadeInUp } from "../utils/animations"
 
 const experienceDetails = [
-  {
-    "title": "AI Intern",
-    "company": "yAI",
-    "location": "Remote - NYC, NY",
-    "duration": "07/2025 – Present",
-    "contributions": [
-      "Engineered and optimized a proprietary Retrieval Augmented Generation (RAG) based AI tool for comprehensive financial analysis, significantly reducing the manual research time for investment banking and private equity firms from hundreds of hours to a matter of minutes.",
-      "Spearheaded the design and deployment of the entire Azure cloud infrastructure, including implementing robust on-premises deployment solutions to ensure high availability, data security, and seamless integration for enterprise clients.",
-      "Developed a novel, multi-faceted 5-way scoring system to provide a quantifiable quality assessment of AI-generated responses, enhancing model trustworthiness and accuracy by meticulously evaluating citation reliability and relevance.",
-      "Collaborated with the founder to iterate on core product features, utilizing user feedback from financial analysts to improve the tool's performance and ensure its alignment with industry-specific needs and workflows."
-    ],
-    "technologies": [
-      "Azure Cloud",
-      "Python",
-      "LangChain",
-      "Retrieval Augmented Generation (RAG)",
-      "Financial Technology (FinTech)",
-      "Large Language Models (LLMs)"
-    ],
-    "image": "../assets/yAI.png",
-    "type": "AI/development"
-  },
+
   {
     "title": "Business Analyst",
     "company": "University of North Carolina - Chapel Hill",
@@ -49,6 +28,28 @@ const experienceDetails = [
     ],
     "image": "../assets/UNC_FO.jpeg",
     "type": "finance"
+  },
+  {
+    "title": "AI Intern",
+    "company": "yAI",
+    "location": "Remote - NYC, NY",
+    "duration": "07/2025 – 10/2025",
+    "contributions": [
+      "Engineered and optimized a proprietary Retrieval Augmented Generation (RAG) based AI tool for comprehensive financial analysis, significantly reducing the manual research time for investment banking and private equity firms from hundreds of hours to a matter of minutes.",
+      "Spearheaded the design and deployment of the entire Azure cloud infrastructure, including implementing robust on-premises deployment solutions to ensure high availability, data security, and seamless integration for enterprise clients.",
+      "Developed a novel, multi-faceted 5-way scoring system to provide a quantifiable quality assessment of AI-generated responses, enhancing model trustworthiness and accuracy by meticulously evaluating citation reliability and relevance.",
+      "Collaborated with the founder to iterate on core product features, utilizing user feedback from financial analysts to improve the tool's performance and ensure its alignment with industry-specific needs and workflows."
+    ],
+    "technologies": [
+      "Azure Cloud",
+      "Python",
+      "LangChain",
+      "Retrieval Augmented Generation (RAG)",
+      "Financial Technology (FinTech)",
+      "Large Language Models (LLMs)"
+    ],
+    "image": "../assets/yAI.png",
+    "type": "AI/development"
   },
   {
     title: "Lead Software Developer",
@@ -152,6 +153,7 @@ const Experience = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
+          style={{ marginBottom: "2rem" }}
         >
           <p className="eyebrow-label mb-3">// Experience</p>
           <h2 className="font-display text-4xl tracking-tight text-[var(--color-text-primary)] sm:text-5xl md:text-6xl">
@@ -282,7 +284,8 @@ const Experience = () => {
                     {exp.technologies.map((tech, techIndex) => (
                       <li
                         key={techIndex}
-                        className="rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.03)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-[var(--color-text-subtle)] transition-colors duration-300 group-hover:border-[var(--color-border-focus)] group-hover:bg-[rgba(200,168,130,0.1)] group-hover:text-[var(--color-primary)]"
+                        className="rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.03)] font-mono text-[10px] uppercase tracking-wider text-[var(--color-text-subtle)] transition-colors duration-300 group-hover:border-[var(--color-border-focus)] group-hover:bg-[rgba(200,168,130,0.1)] group-hover:text-[var(--color-primary)]"
+                        style={{ padding: "0.1rem 0.1rem" }}
                       >
                         {tech}
                       </li>

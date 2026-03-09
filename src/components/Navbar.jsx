@@ -72,10 +72,10 @@ const Header = () => {
 
   return (
     <nav
-      className={`navbar-bar fixed left-1/2 top-4 z-[1050] flex w-auto max-w-[calc(100%-2rem)] -translate-x-1/2 items-center rounded-full px-10 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] md:top-3 md:w-[30vw] md:max-w-[30vw] md:rounded-[22px] md:px-8 ${
+      className={`navbar-bar fixed left-1/2 top-4 z-[1050] flex w-auto max-w-[calc(100%-2rem)] -translate-x-1/2 items-center rounded-full px-10 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] md:top-3 md:min-w-[480px] md:w-auto md:max-w-[min(56vw,900px)] md:rounded-[22px] md:px-10 ${
         scrolled
-          ? "border border-[rgba(255,255,255,0.08)] bg-[rgba(22,18,13,0.85)] py-4 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-[20px] backdrop-saturate-[1.8] md:py-5"
-          : "border border-[rgba(255,255,255,0.06)] bg-[rgba(30,24,16,0.6)] py-4 shadow-[0_4px_24px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-[24px] backdrop-saturate-[1.5] md:py-5"
+          ? "border border-[rgba(255,255,255,0.08)] bg-[rgba(22,18,13,0.85)] py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-[20px] backdrop-saturate-[1.8] md:py-4"
+          : "border border-[rgba(255,255,255,0.06)] bg-[rgba(30,24,16,0.6)] py-3 shadow-[0_4px_24px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-[24px] backdrop-saturate-[1.5] md:py-4"
       } ${
         isVisible
           ? "translate-y-0 opacity-100"
@@ -108,7 +108,8 @@ const Header = () => {
                   e.preventDefault();
                   if (isMobileView) toggleDropdown();
                 }}
-                className="nav-link-glass relative flex items-center justify-center rounded-[25px] px-5 py-5 text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)] max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:inline-flex md:w-auto md:text-[1.2rem]"
+                className="nav-link-glass relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)] max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:inline-flex md:w-auto md:text-[1.2rem]"
+                style={{ padding: "0.875rem 1.5rem" }}
               >
                 Home
               </a>
@@ -147,11 +148,12 @@ const Header = () => {
               <a
                 href="#"
                 onClick={() => handleNavigation("/experience")}
-                className={`flex items-center justify-center rounded-[25px] px-5 py-5 text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
+                className={`flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
                   location.pathname === "/experience"
                     ? "bg-[rgba(200,168,130,0.12)] font-semibold !text-[var(--color-primary)] shadow-[inset_0_0_0_1px_rgba(200,168,130,0.2)]"
                     : "!text-[var(--color-text-muted)] hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)]"
                 }`}
+                style={{ padding: "0.875rem 1.5rem" }}
               >
                 Experience
               </a>
@@ -160,21 +162,23 @@ const Header = () => {
               <a
                 href="#"
                 onClick={() => handleNavigation("/projects")}
-                className={`relative flex items-center justify-center rounded-[25px] px-5 py-5 text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
+                className={`relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
                   location.pathname === "/projects"
                     ? "bg-[rgba(200,168,130,0.12)] font-semibold !text-[var(--color-primary)] shadow-[inset_0_0_0_1px_rgba(200,168,130,0.2)]"
                     : "!text-[var(--color-text-muted)] hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)]"
                 }`}
+                style={{ padding: "0.875rem 1.5rem" }}
               >
                 Projects
               </a>
             </li>
             <li>
               <a
-                href="/Docs/Om_Shewale.pdf"
+                href="https://drive.google.com/file/d/12nH9Tl4pyx8Wt3Y0S9YGngcIMR5IAsix/view?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="nav-link-glass flex items-center justify-center rounded-[25px] px-5 py-5 text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)] max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
+                className="nav-link-glass flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)] max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
+                style={{ padding: "0.875rem 1.5rem" }}
               >
                 Resume
               </a>
@@ -186,7 +190,8 @@ const Header = () => {
                   e.preventDefault();
                   window.location.assign("https://jarvis-interface.vercel.app/");
                 }}
-                className="nav-link-glass group flex items-center justify-center rounded-[25px] px-5 py-5 text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)] max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
+                className="nav-link-glass group flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)] max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
+                style={{ padding: "0.875rem 1.5rem" }}
               >
                 Jarvis
               </a>

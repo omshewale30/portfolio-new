@@ -138,7 +138,8 @@ const ProjectsSection = () => {
 
       <div className="section-shell relative z-10">
         <motion.div
-          className="mb-14 text-center sm:mb-20"
+          className="text-center"
+          style={{ marginBottom: "1.25rem" }}
           variants={fadeInUp}
           initial="hidden"
           whileInView="visible"
@@ -148,7 +149,15 @@ const ProjectsSection = () => {
           <h2 className="font-display mb-4 text-4xl italic tracking-tight text-[var(--color-text-primary)] sm:text-5xl md:text-6xl">
             What I've Built
           </h2>
-          <div className="divider-warm w-full max-w-3xl mt-8 my-8 mx-auto" />
+            <div 
+          className="divider-warm mb-12"
+          style={{ 
+            width: "100%", 
+            maxWidth: "48rem", 
+            margin: "0 auto 1.25rem auto",
+            display: "block"
+          }}
+          />
         </motion.div>
 
         <motion.div

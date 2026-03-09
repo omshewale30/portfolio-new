@@ -148,6 +148,12 @@ const ContactSection = () => {
               ))}
             </div>
 
+            <div className="mb-10 flex flex-wrap items-center gap-3"
+              style={{ marginTop: "0.5rem" }}
+            >
+              <ScheduleCallButton inline />
+            </div>
+
             <div className="border-t border-[var(--color-border-muted)] pt-8">
               <h4 className="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">Follow Me</h4>
               <div className="flex justify-start gap-3 max-md:justify-center">
@@ -333,7 +339,6 @@ const ContactSection = () => {
           </nav>
         </div>
       </div>
-      <ScheduleCallButton />
     </footer>
   )
 }

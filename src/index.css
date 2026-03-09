@@ -108,7 +108,7 @@
 
 /* Divider with gold overhang */
 .divider-warm {
-  height: 1px;
+  height: 2px;
   background: linear-gradient(
     90deg,
     transparent 0%,
@@ -117,7 +117,6 @@
     var(--color-border-subtle) 85%,
     transparent 100%
   );
-
 }
 
 /* Primary button – warm fill */
@@ -318,6 +317,15 @@
 .schedule-call-btn:hover {
   background: var(--color-primary-hover) !important;
   border-color: rgba(22, 18, 13, 0.25);
+}
+.schedule-call-btn--small {
+  min-height: unset;
+  padding: 0.5rem 1rem;
+}
+@media (max-width: 480px) {
+  .schedule-call-btn--small {
+    padding: 0.25rem 0.5rem;
+  }
 }
 @media (max-width: 768px) {
   .schedule-call-btn {

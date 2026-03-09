@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Github, Instagram, Linkedin, MapPin } from "lucide-react";
 import ScheduleCallButton from "./ScheduleCallButton";
 import ChatBot from "./ChatBot";
@@ -11,6 +12,7 @@ const TOKEN_PHRASES = [
 ];
 
 const Hero = () => {
+  const navigate = useNavigate();
   const [tokenText, setTokenText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [phraseIndex, setPhraseIndex] = useState(0);
@@ -132,12 +134,8 @@ const Hero = () => {
     };
   }, []);
 
-  const scrollToProjects = () => {
-    const projectsSection = document.getElementById("projects-preview");
-    const navbar = document.querySelector("nav");
-    if (!projectsSection) return;
-    const offset = navbar ? navbar.offsetHeight + 24 : 80;
-    window.scrollTo({ top: projectsSection.offsetTop - offset, behavior: "smooth" });
+  const goToProjects = () => {
+    navigate("/projects");
   };
 
   return (
@@ -145,22 +143,18 @@ const Hero = () => {
       <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 opacity-90" aria-hidden />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(200,168,130,0.12),transparent_50%),radial-gradient(circle_at_80%_75%,rgba(184,140,94,0.14),transparent_50%)]" />
 
-      <ScheduleCallButton />
-
       {/* ── Two-column shell ── */}
       <div className="section-shell relative z-10 flex min-h-screen items-center py-28 max-md:py-24">
         <div className="flex w-full items-center gap-12 max-lg:gap-8 max-md:flex-col max-md:gap-10">
 
           {/* ── LEFT COLUMN (60%) ── */}
-          <div className="flex flex-1 flex-col max-md:w-full">
-
-
+          <div className="flex flex-1 flex-col max-md:w-full gap-4">
 
             {/* Headline */}
             <h1 className="font-display text-5xl leading-[1.06] tracking-[-0.025em] text-[var(--color-text-primary)] md:text-6xl lg:text-7xl">
               Building intelligent systems.
               <br />
-              <span className="text-[var(--color-primary)]">Shipping AI products.</span>
+              <span className="text-[var(--color-primary)]">Not just LLM wrappers.</span>
             </h1>
 
             {/* Subline */}
@@ -177,7 +171,7 @@ const Hero = () => {
 
             {/* CTAs */}
             <div className="mt-10 flex flex-wrap items-center gap-3">
-              <button type="button" className="btn-primary" onClick={scrollToProjects}>
+              <button type="button" className="btn-primary" onClick={goToProjects}>
                 View Projects
               </button>
               <a href="/Docs/Om_Shewale.pdf" download className="btn-ghost">
@@ -245,7 +239,9 @@ const Hero = () => {
                   >
                     <Linkedin size={16} />
                   </a>
+                  <ScheduleCallButton inline />
                 </div>
+                
 
                 {/* Availability pill */}
                 <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.06)] px-3 py-1.5">

@@ -11,6 +11,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    
     const [selectedSource, setSelectedSource] = useState(null);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isDetached, setIsDetached] = useState(false);
@@ -256,7 +257,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                             >
                                 <div
-                                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                                    className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed ${
                                         msg.role === "user"
                                             ? "bg-[var(--color-primary)] text-[var(--color-bg-base)]"
                                             : "border border-[var(--color-border-subtle)] bg-[rgba(40,32,22,0.8)] text-[var(--color-text-muted)]"
@@ -283,7 +284,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                         ))}
                         {isLoading && (
                             <div className="flex justify-start">
-                                <div className="flex items-center gap-2 rounded-2xl border border-[var(--color-border-subtle)] bg-[rgba(40,32,22,0.8)] px-4 py-3">
+                                <div className="flex items-center gap-2 rounded-2xl border border-[var(--color-border-subtle)] bg-[rgba(40,32,22,0.8)] px-5 py-3.5">
                                     <div className="flex gap-1">
                                         <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:0ms]" />
                                         <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:150ms]" />
@@ -403,7 +404,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                 {messages.map((msg, index) => (
                     <div
                         key={index}
-                        className={`my-1 max-w-[90%] rounded-3xl border px-4 py-3 text-sm shadow-sm ${
+                        className={`my-1 max-w-[90%] rounded-3xl border px-5 py-4 text-sm shadow-sm ${
                             msg.role === "user"
                                 ? "self-end border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-bg-base)]"
                                 : "self-start border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]"
@@ -432,7 +433,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                     </div>
                 ))}
                 {isLoading && (
-                    <div className="my-1 flex max-w-[90%] items-center gap-2 self-start rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 py-3">
+                    <div className="my-1 flex max-w-[90%] items-center gap-2 self-start rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-5 py-4">
                         <div className="flex gap-1">
                             <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:0ms]" />
                             <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:150ms]" />

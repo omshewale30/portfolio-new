@@ -214,14 +214,7 @@ const CategoryCard = ({ category, items, config, isActive, isFiltered }) => {
             }}>
               {category}
             </h3>
-            <p style={{
-              fontSize: "0.75rem",
-              color: "var(--color-text-muted)",
-              marginTop: "2px",
-              opacity: 0.7,
-            }}>
-              {items.length} technologies
-            </p>
+
           </div>
         </div>
 
