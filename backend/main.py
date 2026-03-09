@@ -38,7 +38,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://omshewale.me","http://localhost:5173","https://jarvis-interface.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
