@@ -1,13 +1,9 @@
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.pool import NullPool
 
 from config import settings
 
-DATABASE_URL = (
-    settings.database_url
-    .replace("postgresql://", "postgresql+asyncpg://")
-    .replace("sslmode=require", "ssl=true")
+engine = create_async_engine(
+    settings.database_url,
+    poolclass=NullPool,
 )
-
-engine = create_async_engine(DATABASE_URL)
-
-print("Connection successful!")
