@@ -8,25 +8,23 @@ from pydantic import BaseModel
 from openai import OpenAI
 from contextlib import asynccontextmanager
 from settings.config import settings
-from settings.logging import configure_logging
+from settings.logging import configure_logging, get_logger
 from integrations.telegram import parse_inbound, send_message
 from jarvis_agents.runner import run_agent
 from fastapi.responses import JSONResponse
 from integrations.telegram import set_webhook
-from settings.logging import configure_logging
 from scheduler import start_scheduler
 from db.connection import get_async_session
 
-
 openai_client = None
-
+logger = get_logger(__name__)
 PROMPT_ID = "pmpt_69ae2f5b1f988195a348525fe1a475f50f270f2f5fb69a34"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global openai_client
     load_dotenv()  # ✅ FIX: Load .env inside lifespan, before reading env vars
-    configure_logging()
+    configure_logging(level="INFO") 
     print("Starting up...")
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:

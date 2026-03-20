@@ -43,3 +43,6 @@ def configure_logging(
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("apscheduler").setLevel(logging.INFO)
+
+def get_logger(name: str) -> logging.Logger:
+    return logging.getLogger(name)
