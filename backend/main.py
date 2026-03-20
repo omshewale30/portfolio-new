@@ -102,17 +102,12 @@ def chat(request: ChatRequest):
 
 
 @app.post("/webhook")
-def telegram_webhook(request: Request):
+async def telegram_webhook(request: Request):
     """
     Receives inbound Telegram updates.
-    Telegram expects a 200 response quickly — run agent in background.
+    Telegram expects a 200 response quickly — run agent async.
     """
-    import asyncio
-    
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    
-    update = loop.run_until_complete(request.json())
+    update = await request.json()
     parsed = parse_inbound(update)
 
     if parsed is None:
@@ -126,19 +121,19 @@ def telegram_webhook(request: Request):
 
     logger.info(f"Received from {chat_id}: {user_message}")
 
-    try:
-        response_text = loop.run_until_complete(run_agent(chat_id, user_message))
-        loop.run_until_complete(send_message(chat_id, response_text))
-    except Exception as e:
-        logger.error(f"Agent error: {e}", exc_info=True)
-        loop.run_until_complete(send_message(chat_id, "⚠️ Something went wrong. Please try again."))
-    finally:
-        loop.close()
-    
+    async def _handle():
+        try:
+            response_text = await run_agent(chat_id, user_message)
+            await send_message(chat_id, response_text)
+        except Exception as e:
+            logger.error(f"Agent error: {e}", exc_info=True)
+            await send_message(chat_id, "⚠️ Something went wrong. Please try again.")
+
+    asyncio.create_task(_handle())
     return Response(status_code=200)
 
 @app.get("/health")
-def health():
+async def health():
     return JSONResponse({"status": "ok"})
 
 if __name__ == "__main__":
