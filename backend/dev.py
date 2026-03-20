@@ -6,16 +6,15 @@ Run with: python dev.py
 Do not wrap Application.run_polling() in asyncio.run() — PTB runs its own
 event loop internally; nesting causes "event loop is already running".
 """
-import logging
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 from jarvis_agents.runner import run_agent
 from scheduler import start_scheduler
-from config import settings
+from settings.config import settings
 from db.connection import get_async_session
+from settings.logging import configure_logging
 
-
-logging.basicConfig(level=logging.INFO)
+configure_logging()
 
 
 async def post_init(application: Application) -> None:

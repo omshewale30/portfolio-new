@@ -2,7 +2,7 @@ from agents import Agent
 from jarvis_agents.calendar_agent import calendar_agent
 from jarvis_agents.weather_agent import weather_agent
 from jarvis_agents.task_agent import task_agent
-from config import settings
+from settings.config import settings
 from tools.time_tools import get_current_datetime
 from tools.get_personal_info import get_personal_info
 

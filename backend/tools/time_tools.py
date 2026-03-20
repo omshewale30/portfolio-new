@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from agents import function_tool
-from config import settings
+from settings.config import settings
 
 
 @function_tool

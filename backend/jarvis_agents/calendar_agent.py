@@ -1,5 +1,5 @@
 from agents import Agent
-from config import settings
+from settings.config import settings
 from tools.calendar_tools import (
     get_todays_events,
     get_events_for_date,

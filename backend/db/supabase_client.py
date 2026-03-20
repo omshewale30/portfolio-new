@@ -1,6 +1,6 @@
 from supabase._async.client import AsyncClient, create_client
 
-from config import settings
+from settings.config import settings
 
 _client: AsyncClient | None = None
 

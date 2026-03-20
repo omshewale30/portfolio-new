@@ -2,7 +2,7 @@ import os
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
-from config import settings
+from settings.config import settings
 
 SCOPES = [
     "https://www.googleapis.com/auth/calendar",        # Full calendar access
@@ -19,6 +19,7 @@ def get_calendar_credentials() -> Credentials:
 
     if os.path.exists(settings.google_token_path):
         creds = Credentials.from_authorized_user_file(settings.google_token_path, SCOPES)
+
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:

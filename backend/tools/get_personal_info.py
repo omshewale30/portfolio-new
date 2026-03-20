@@ -1,6 +1,6 @@
 from agents import function_tool
 from openai import OpenAI
-from config import settings
+from settings.config import settings
 
 from agents import function_tool, RunContextWrapper
 from openai import AsyncOpenAI

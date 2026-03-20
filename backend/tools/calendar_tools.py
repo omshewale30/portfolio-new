@@ -3,7 +3,7 @@ import pytz
 from googleapiclient.discovery import build
 from agents import function_tool
 from integrations.google_auth import get_calendar_credentials
-from config import settings
+from settings.config import settings
 
 CALENDAR_ID = "primary"
 

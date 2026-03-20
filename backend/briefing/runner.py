@@ -3,7 +3,7 @@ from openai import AsyncOpenAI
 from tools.calendar_tools import get_todays_events
 from tools.task_tools import _list_overdue_tasks, _list_due_today_tasks
 from integrations.telegram import send_message
-from config import settings
+from settings.config import settings
 from jarvis_agents.runner import run_agent
 from db.connection import get_async_session
 logger = logging.getLogger(__name__)

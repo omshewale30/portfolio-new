@@ -1,5 +1,5 @@
 import httpx
-from config import settings
+from settings.config import settings
 
 TELEGRAM_BASE = f"https://api.telegram.org/bot{settings.telegram_bot_token}"
 

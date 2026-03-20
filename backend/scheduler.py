@@ -3,7 +3,7 @@ import logging
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 import pytz
-from config import settings
+from settings.config import settings
 
 logger = logging.getLogger(__name__)
 scheduler = AsyncIOScheduler(timezone=pytz.timezone(settings.timezone))
