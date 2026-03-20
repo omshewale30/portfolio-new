@@ -1,11 +1,20 @@
+import asyncio
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 from contextlib import asynccontextmanager
+from config import settings
+from integrations.telegram import parse_inbound, send_message
+from jarvis_agents.runner import run_agent
+import logging
+from fastapi.responses import JSONResponse
+from integrations.telegram import set_webhook
+from scheduler import start_scheduler
+logger = logging.getLogger(__name__)
 
 openai_client = None
 
@@ -20,6 +29,14 @@ async def lifespan(app: FastAPI):
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set. Check your .env file.")
     openai_client = OpenAI(api_key=api_key)
+
+    if settings.webhook_base_url:
+        webhook_url = f"{settings.webhook_base_url}/webhook"
+        result = await set_webhook(webhook_url)
+        logger.info(f"Webhook registered: {result}")
+
+    start_scheduler()
+    logger.info("Scheduler started")
     yield
     print("Shutting down...")
 
@@ -83,6 +100,43 @@ def chat(request: ChatRequest):
         print(f"Error calling OpenAI Responses API: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.post("/webhook")
+async def telegram_webhook(request: Request):
+    """
+    Receives inbound Telegram updates.
+    Telegram expects a 200 response quickly — run agent async.
+    """
+    update = await request.json()
+    parsed = parse_inbound(update)
+
+    if parsed is None:
+        # Not a text message (sticker, photo, etc.) — ignore
+        return Response(status_code=200)
+
+    chat_id, user_message = parsed
+
+    # Security: only respond to your own chat ID
+    if chat_id != settings.telegram_chat_id:
+        logger.warning(f"Ignored message from unknown chat_id: {chat_id}")
+        return Response(status_code=200)
+
+    logger.info(f"Received from {chat_id}: {user_message}")
+
+    async def _handle():
+        try:
+            response_text = await run_agent(chat_id, user_message)
+            await send_message(chat_id, response_text)
+        except Exception as e:
+            logger.error(f"Agent error: {e}", exc_info=True)
+            await send_message(chat_id, "⚠️ Something went wrong. Please try again.")
+
+    asyncio.create_task(_handle())
+    return Response(status_code=200)
+
+@app.get("/health")
+async def health():
+    return JSONResponse({"status": "ok"})
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -13,3 +13,41 @@ langchain-community
 langchain-core
 langchain-openai
 langchain-chroma
+pydantic-settings
+python-telegram-bot
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+asyncpg
+sqlalchemy[asyncio]
+alembic
+apscheduler
+python-dotenv
+
+httpx
+
+# OpenAI Agents SDK
+openai-agents
+
+# Telegram
+python-telegram-bot
+
+# Google Calendar
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+
+# Database
+asyncpg
+psycopg2-binary
+alembic
+supabase
+
+# Scheduling
+apscheduler
+
+
+# Utilities
+pytz
+python-dateutil
+msal

@@ -1,0 +1,12 @@
+from supabase._async.client import AsyncClient, create_client
+
+from config import settings
+
+_client: AsyncClient | None = None
+
+
+async def get_client() -> AsyncClient:
+    global _client
+    if _client is None:
+        _client = await create_client(settings.supabase_url, settings.supabase_key)
+    return _client

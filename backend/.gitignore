@@ -2,3 +2,5 @@
 /vector_db
 .vercel
 *.pyc
+credentials/google_token.json
+credentials/google_oauth.json
