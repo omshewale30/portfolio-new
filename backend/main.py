@@ -102,40 +102,43 @@ def chat(request: ChatRequest):
 
 
 @app.post("/webhook")
-async def telegram_webhook(request: Request):
+def telegram_webhook(request: Request):
     """
     Receives inbound Telegram updates.
-    Telegram expects a 200 response quickly — run agent async.
+    Telegram expects a 200 response quickly — run agent in background.
     """
-    update = await request.json()
+    import asyncio
+    
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    update = loop.run_until_complete(request.json())
     parsed = parse_inbound(update)
 
     if parsed is None:
-        # Not a text message (sticker, photo, etc.) — ignore
         return Response(status_code=200)
 
     chat_id, user_message = parsed
 
-    # Security: only respond to your own chat ID
     if chat_id != settings.telegram_chat_id:
         logger.warning(f"Ignored message from unknown chat_id: {chat_id}")
         return Response(status_code=200)
 
     logger.info(f"Received from {chat_id}: {user_message}")
 
-    async def _handle():
-        try:
-            response_text = await run_agent(chat_id, user_message)
-            await send_message(chat_id, response_text)
-        except Exception as e:
-            logger.error(f"Agent error: {e}", exc_info=True)
-            await send_message(chat_id, "⚠️ Something went wrong. Please try again.")
-
-    asyncio.create_task(_handle())
+    try:
+        response_text = loop.run_until_complete(run_agent(chat_id, user_message))
+        loop.run_until_complete(send_message(chat_id, response_text))
+    except Exception as e:
+        logger.error(f"Agent error: {e}", exc_info=True)
+        loop.run_until_complete(send_message(chat_id, "⚠️ Something went wrong. Please try again."))
+    finally:
+        loop.close()
+    
     return Response(status_code=200)
 
 @app.get("/health")
-async def health():
+def health():
     return JSONResponse({"status": "ok"})
 
 if __name__ == "__main__":
