@@ -1,9 +1,8 @@
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_engine
 from sqlalchemy.pool import NullPool
 
 from config import settings
 
-engine = create_async_engine(
-    settings.database_url,
-    poolclass=NullPool,
-)
+DATABASE_URL = settings.database_url
+
+engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
