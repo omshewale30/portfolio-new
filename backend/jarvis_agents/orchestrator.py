@@ -5,7 +5,11 @@ from jarvis_agents.task_agent import task_agent
 from config import settings
 from tools.time_tools import get_current_datetime
 from tools.get_personal_info import get_personal_info
-orchestrator = Agent(
+
+
+
+def get_orchestrator():
+  return Agent(
     name="Jarvis",
     instructions=f"""
 You are Jarvis, a sharp and efficient personal assistant. You communicate exclusively
