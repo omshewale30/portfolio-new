@@ -5,6 +5,7 @@ from tools.task_tools import _list_overdue_tasks, _list_due_today_tasks
 from integrations.telegram import send_message
 from config import settings
 from jarvis_agents.runner import run_agent
+from db.connection import get_async_session
 logger = logging.getLogger(__name__)
 client = AsyncOpenAI(api_key=settings.openai_api_key)
 
@@ -30,10 +31,12 @@ async def send_morning_briefing() -> None:
     logger.info("Running morning briefing...")
 
     try:
-        calendar_weather_context = await run_agent(
-            settings.telegram_chat_id,
-            "Get the calendar events and current weather for today",
-        )
+        async with get_async_session() as db_session:
+            calendar_weather_context = await run_agent(
+                settings.telegram_chat_id,
+                "Get the calendar events and current weather for today",
+                db_session=db_session,
+            )
 
         overdue_context = await _list_overdue_tasks()
         due_today_context = await _list_due_today_tasks()

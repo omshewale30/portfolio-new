@@ -14,6 +14,7 @@ import logging
 from fastapi.responses import JSONResponse
 from integrations.telegram import set_webhook
 from scheduler import start_scheduler
+from db.connection import get_async_session
 logger = logging.getLogger(__name__)
 
 openai_client = None
@@ -123,7 +124,8 @@ async def telegram_webhook(request: Request):
 
     async def _handle():
         try:
-            response_text = await run_agent(chat_id, user_message)
+            async with get_async_session() as db_session:
+                response_text = await run_agent(chat_id, user_message, db_session=db_session)
             await send_message(chat_id, response_text)
         except Exception as e:
             logger.error(f"Agent error: {e}", exc_info=True)

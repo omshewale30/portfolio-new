@@ -12,6 +12,7 @@ from telegram.ext import Application, MessageHandler, filters, ContextTypes
 from jarvis_agents.runner import run_agent
 from scheduler import start_scheduler
 from config import settings
+from db.connection import get_async_session
 
 
 logging.basicConfig(level=logging.INFO)
@@ -27,7 +28,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f"[{settings.telegram_chat_id}] You: {user_message}")
 
     try:
-        response = await run_agent(update.effective_chat.id, user_message)
+        async with get_async_session() as db_session:
+            response = await run_agent(update.effective_chat.id, user_message, db_session=db_session)
         await update.message.reply_text(response)
         print(f"[{settings.telegram_chat_id}] Jarvis: {response}")
     except Exception as e:

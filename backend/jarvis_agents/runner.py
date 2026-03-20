@@ -1,7 +1,7 @@
 from agents import Runner, RunConfig, SessionSettings
 from agents.extensions.memory import SQLAlchemySession
 import re
-from db.connection import engine
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
 from jarvis_agents.orchestrator import orchestrator
 
 
@@ -13,12 +13,16 @@ def _clean_telegram_output(text: str) -> str:
     return text.strip()
 
 
-async def run_agent(chat_id: str | int, user_message: str) -> str:
+async def run_agent(chat_id: str | int, user_message: str, db_session: AsyncSession) -> str:
     """
     Run the orchestrator agent and return the final text response.
     Session is keyed per Telegram chat.
     """
-    session = SQLAlchemySession(str(chat_id), engine=engine, create_tables=True)
+    memory_engine = db_session.bind
+    if not isinstance(memory_engine, AsyncEngine):
+        raise RuntimeError("AsyncSession is not bound to an AsyncEngine")
+
+    session = SQLAlchemySession(str(chat_id), engine=memory_engine, create_tables=True)
 
     result = await Runner.run(
         orchestrator,
