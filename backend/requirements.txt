@@ -1,32 +1,12 @@
-azure-ai-projects
-azure-identity
-azure-ai-agents
-azure-ai-projects
-azure-ai-agents
-click
-python-dotenv
+# Web server
 fastapi
 uvicorn
-pydantic
-langchain
-langchain-community
-langchain-core
-langchain-openai
-langchain-chroma
+
+# Settings
 pydantic-settings
-python-telegram-bot
-google-api-python-client
-google-auth-httplib2
-google-auth-oauthlib
-asyncpg
-sqlalchemy[asyncio]
-alembic
-apscheduler
 python-dotenv
 
-httpx
-
-# OpenAI Agents SDK
+# OpenAI Agents SDK (pulls in openai as a transitive dependency)
 openai-agents
 
 # Telegram
@@ -39,15 +19,12 @@ google-auth-oauthlib
 
 # Database
 asyncpg
-psycopg2-binary
-alembic
+sqlalchemy[asyncio]
 supabase
 
 # Scheduling
 apscheduler
 
-
 # Utilities
 pytz
-python-dateutil
-msal
+httpx
