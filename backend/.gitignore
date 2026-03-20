@@ -4,3 +4,4 @@
 *.pyc
 credentials/google_token.json
 credentials/google_oauth.json
+.venv
