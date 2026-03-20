@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     webhook_base_url: str = os.getenv("WEBHOOK_BASE_URL", "")
     google_credentials_path: str = "credentials/google_oauth.json"
     google_token_path: str = "credentials/google_token.json"
+    # If unset, writable path is auto-picked (e.g. /tmp on Render when token is under /etc/secrets).
+    google_token_write_path: str = os.getenv("GOOGLE_TOKEN_WRITE_PATH", "")
     weather_location: str = os.getenv("WEATHER_LOCATION", "Chapel Hill,US")
     database_url: str = os.getenv("DATABASE_URL", "")
     briefing_hour: int = int(os.getenv("BRIEFING_HOUR", "7"))
