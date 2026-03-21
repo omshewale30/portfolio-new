@@ -5,11 +5,18 @@ from agents import function_tool
 from integrations.google_auth import get_calendar_credentials
 from settings.config import settings
 
-CALENDAR_ID = "primary"
+CALENDAR_ID = "fb99434f2a7786e7e3a03319f0d9d33069ea1d0093a28d1d9574a7b8bb17277d@group.calendar.google.com"
+
+_calendar_service = None
 
 def _get_service():
-    creds = get_calendar_credentials()
-    return build("calendar", "v3", credentials=creds)
+    """Returns the Google Calendar service, building it only once."""
+    global _calendar_service
+    if _calendar_service is None:
+        creds = get_calendar_credentials()
+        # The service object handles token refreshing automatically
+        _calendar_service = build("calendar", "v3", credentials=creds)
+    return _calendar_service
 
 def _local_tz():
     return pytz.timezone(settings.timezone)
@@ -103,17 +110,32 @@ def create_calendar_event(title: str, start_iso: str, duration_minutes: int = 60
     """
     Creates a new event on the user's Google Calendar.
 
+    IMPORTANT: Before calling this, you MUST know the current date/time.
+    Call get_current_datetime() first if you haven't already in this conversation turn.
+
     Args:
         title: The name of the event (e.g., 'Dentist appointment').
         start_iso: The start time in ISO 8601 format including timezone offset,
-                   e.g., '2025-04-10T15:00:00-04:00'. Derive this from the
-                   user's message and their local timezone.
+                   e.g., '2025-04-10T15:00:00-04:00'. The YEAR MUST be correct
+                   (currently 2026). Derive this from the user's message and
+                   their local timezone.
         duration_minutes: Length of the event in minutes. Default is 60.
 
     Returns a confirmation string with the event title and time.
     """
     tz = _local_tz()
+    now = datetime.now(tz)
     start_dt = datetime.fromisoformat(start_iso).astimezone(tz)
+    
+    # Reject events more than 1 hour in the past
+    if start_dt < now - timedelta(hours=1):
+        return (
+            f"❌ Cannot create event in the past.\n"
+            f"   You tried to create an event for: {start_dt.strftime('%A, %B %d, %Y at %-I:%M %p')}\n"
+            f"   Current date/time is: {now.strftime('%A, %B %d, %Y at %-I:%M %p')}\n"
+            f"   Please use the correct date. Today is {now.strftime('%Y-%m-%d')}."
+        )
+    
     end_dt = start_dt + timedelta(minutes=duration_minutes)
 
     service = _get_service()
@@ -129,7 +151,7 @@ def create_calendar_event(title: str, start_iso: str, duration_minutes: int = 60
     link = event.get("htmlLink", "")
     return (
         f"✅ Created: '{title}'\n"
-        f"   {start_dt.strftime('%A, %B %d at %-I:%M %p')} "
+        f"   {start_dt.strftime('%A, %B %d, %Y at %-I:%M %p')} "
         f"({duration_minutes} min)\n"
         f"   {link}"
     )
@@ -141,13 +163,28 @@ def update_event_time(event_title_hint: str, new_start_iso: str, duration_minute
     Searches for the event by title (case-insensitive partial match) within
     the next 7 days, then updates its start and end time.
 
+    IMPORTANT: Call get_current_datetime() first to know the current date.
+
     Args:
         event_title_hint: Part of the event title to search for.
         new_start_iso: New start time in ISO 8601 format with timezone offset.
+                       The YEAR MUST be correct (currently 2026).
         duration_minutes: New duration in minutes. Defaults to 60.
     """
     tz = _local_tz()
     now = datetime.now(tz)
+    
+    new_start = datetime.fromisoformat(new_start_iso).astimezone(tz)
+    
+    # Reject rescheduling to more than 1 hour in the past
+    if new_start < now - timedelta(hours=1):
+        return (
+            f"❌ Cannot reschedule event to the past.\n"
+            f"   You tried to reschedule to: {new_start.strftime('%A, %B %d, %Y at %-I:%M %p')}\n"
+            f"   Current date/time is: {now.strftime('%A, %B %d, %Y at %-I:%M %p')}\n"
+            f"   Please use the correct date. Today is {now.strftime('%Y-%m-%d')}."
+        )
+    
     search_end = now + timedelta(days=7)
 
     service = _get_service()
@@ -169,7 +206,6 @@ def update_event_time(event_title_hint: str, new_start_iso: str, duration_minute
     event_id = event["id"]
     old_title = event.get("summary", "Untitled")
 
-    new_start = datetime.fromisoformat(new_start_iso).astimezone(tz)
     new_end = new_start + timedelta(minutes=duration_minutes)
 
     event["start"] = {"dateTime": new_start.isoformat(), "timeZone": settings.timezone}
@@ -183,7 +219,7 @@ def update_event_time(event_title_hint: str, new_start_iso: str, duration_minute
 
     return (
         f"✅ Moved '{old_title}' to "
-        f"{new_start.strftime('%A, %B %d at %-I:%M %p')}."
+        f"{new_start.strftime('%A, %B %d, %Y at %-I:%M %p')}."
     )
 
 @function_tool
