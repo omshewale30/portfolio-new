@@ -6,9 +6,7 @@
  * @returns {Promise} - Promise that resolves with the agent's response
  */
 // const API_URL = "https://portfolio-backend-16cp.onrender.com/chat"
-// const API_URL = "https://portfolio-dev-backend-flax.vercel.app/chat"
-
-const API_URL = "https://jarvis-backend.mangorock-5b91e244.eastus.azurecontainerapps.io/chat"
+const API_URL = "https://portfolio-dev-backend-flax.vercel.app/chat"
 
 export const submitChat = async (user_id, userInput) => {
     const response = await fetch(API_URL, {
