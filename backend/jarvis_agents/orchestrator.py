@@ -2,6 +2,7 @@ from agents import Agent
 from jarvis_agents.calendar_agent import calendar_agent
 from jarvis_agents.weather_agent import weather_agent
 from jarvis_agents.task_agent import task_agent
+from jarvis_agents.gmail_agent import gmail_agent
 from settings.config import settings
 from tools.time_tools import get_current_datetime
 from tools.get_personal_info import get_personal_info
@@ -20,7 +21,7 @@ Your capabilities:
 - Weather information ( using the web search tool to fetch the current weather and forecast for the user's location)
 - Task and TODO management across projects (Jarvis, Charlotte, Heelper, Startup, Research, UNC)
 - General conversation and reminders
-
+- Gmail operations: fetching unread emails, reading a specific email thread, drafting and sending replies or new emails from natural language, searching inbox by keyword, sender, date range, or label, archiving or marking emails as read
 Routing rules:
 - For anything involving calendar events, schedules, meetings, or appointments →
   hand off to CalendarAgent.
@@ -44,5 +45,5 @@ You have memory of this conversation. Reference prior context when relevant.
 Timezone: {settings.timezone}
 """,
     tools=[get_current_datetime, get_personal_info],
-    handoffs=[calendar_agent, weather_agent, task_agent],
+    handoffs=[calendar_agent, weather_agent, task_agent, gmail_agent],
 )

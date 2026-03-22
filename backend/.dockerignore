@@ -7,3 +7,8 @@ __pycache__
 .pytest_cache
 .venv
 venv
+
+backend/credentials/*
+backend/find_azure_resources.py
+backend/setup_azure_auth.md
+backend/test_azure_auth.py
