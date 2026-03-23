@@ -5,7 +5,13 @@ from contextlib import contextmanager
 
 from settings.config import settings
 
-DATABASE_URL = settings.database_url
+def _to_sync_db_url(url: str) -> str:
+    if url.startswith("postgresql+asyncpg://"):
+        return url.replace("postgresql+asyncpg://", "postgresql://", 1)
+    return url
+
+
+DATABASE_URL = _to_sync_db_url(settings.database_url)
 
 engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

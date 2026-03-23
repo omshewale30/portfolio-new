@@ -22,6 +22,7 @@ def _to_async_db_url(url: str) -> str:
 MEMORY_ENGINE: AsyncEngine = create_async_engine(
     _to_async_db_url(settings.database_url),
     pool_pre_ping=True,
+    connect_args={"statement_cache_size": 0},
 )
 
 
