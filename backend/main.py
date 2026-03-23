@@ -14,7 +14,7 @@ from jarvis_agents.runner import run_agent
 from fastapi.responses import JSONResponse
 from integrations.telegram import set_webhook
 from scheduler import start_scheduler
-from db.connection import get_async_session
+from db.connection import db_session_scope
 
 openai_client = None
 logger = get_logger(__name__)
@@ -124,7 +124,7 @@ async def telegram_webhook(request: Request):
 
     async def _handle():
         try:
-            async with get_async_session() as db_session:
+            with db_session_scope() as db_session:
                 response_text = await run_agent(chat_id, user_message, db_session=db_session)
             await send_message(chat_id, response_text)
         except Exception as e:

@@ -1,21 +1,40 @@
-from contextlib import asynccontextmanager
-from collections.abc import AsyncIterator
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import NullPool
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
 
 from settings.config import settings
 
 DATABASE_URL = settings.database_url
 
-engine = create_async_engine(DATABASE_URL, poolclass=NullPool)
-AsyncSessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-@asynccontextmanager
-async def get_async_session() -> AsyncIterator[AsyncSession]:
+
+def get_db():
     """
-    Yield a request-scoped AsyncSession.
-    Each webhook/task should open its own session to avoid cross-request reuse.
+    Dependency that provides a database session per request.
+    Automatically rolls back on exceptions, then closes.
     """
-    async with AsyncSessionLocal() as session:
-        yield session
+    db = SessionLocal()
+    try:
+        yield db
+    except Exception:
+        db.rollback()  # Rollback uncommitted changes on any error
+        raise
+    finally:
+        db.close()
+
+
+@contextmanager
+def db_session_scope():
+    """Context manager wrapper for non-FastAPI call sites."""
+    db = SessionLocal()
+    try:
+        yield db
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
