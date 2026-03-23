@@ -1,9 +1,13 @@
 from datetime import date
 from typing import Optional
+import logging
 
 from agents import function_tool
 
 from db.supabase_client import get_client
+from integrations.notion import sync_task_to_notion
+
+logger = logging.getLogger(__name__)
 
 VALID_PROJECTS = {"Jarvis", "Charlotte", "Heelper", "Startup", "Research", "UNC"}
 VALID_PRIORITIES = {"low", "normal", "high"}
@@ -48,7 +52,13 @@ async def _create_task(
         payload["due_date"] = due_date
 
     result = await client.table("tasks").insert(payload).execute()
-    task_id = result.data[0]["id"]
+    task = result.data[0]
+    task_id = task["id"]
+
+    try:
+        sync_task_to_notion(task)
+    except Exception as e:
+        logger.warning(f"Failed to sync task #{task_id} to Notion: {e}")
 
     due_str = f", due {due_date}" if due_date else ""
     return f"✅ Task #{task_id} created [{project} / {priority}]{due_str}: {description}"
@@ -89,8 +99,14 @@ async def _complete_task(task_id: int) -> str:
     if not result.data:
         return f"Task #{task_id} not found or already closed."
 
-    row = result.data[0]
-    return f"✅ Task #{task_id} [{row['project']}] marked done: {row['description']}"
+    task = result.data[0]
+    
+    try:
+        sync_task_to_notion(task)
+    except Exception as e:
+        logger.warning(f"Failed to sync task #{task_id} completion to Notion: {e}")
+
+    return f"✅ Task #{task_id} [{task['project']}] marked done: {task['description']}"
 
 
 async def _list_overdue_tasks() -> str:

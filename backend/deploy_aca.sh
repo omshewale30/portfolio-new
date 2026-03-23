@@ -105,6 +105,7 @@ az containerapp update \
   --resource-group "$RESOURCE_GROUP" \
   --image "$REMOTE_IMAGE" \
   --set-env-vars "${ENV_VARS_ARGS[@]}" \
+  --min-replicas 1 \
   --output table
 
 echo "Done. Pushed and deployed: $REMOTE_IMAGE -> $CONTAINER_APP_NAME"
