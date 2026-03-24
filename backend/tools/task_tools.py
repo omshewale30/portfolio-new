@@ -30,12 +30,7 @@ def _sort_tasks(rows: list[dict]) -> list[dict]:
 # Raw async helpers — used by both function_tools and briefing/runner.py
 # ---------------------------------------------------------------------------
 
-async def _create_task(
-    project: str,
-    description: str,
-    priority: str = "normal",
-    due_date: Optional[str] = None,
-) -> str:
+async def _create_task(project: str, description: str, priority: str = "normal", due_date: Optional[str] = None) -> str:
     if project not in VALID_PROJECTS:
         return f"Invalid project '{project}'. Must be one of: {', '.join(sorted(VALID_PROJECTS))}."
     if priority not in VALID_PRIORITIES:
@@ -64,15 +59,21 @@ async def _create_task(
     return f"✅ Task #{task_id} created [{project} / {priority}]{due_str}: {description}"
 
 
-async def _list_tasks(project: Optional[str] = None, status: str = "open") -> str:
+async def _list_tasks(project: Optional[str] = None, status: str = "open", due_date: Optional[str] = None) -> str:
     if status not in VALID_STATUSES:
         return f"Invalid status '{status}'. Must be one of: open, done, cancelled."
+    if due_date:
+        try:
+            date.fromisoformat(due_date)
+        except ValueError:
+            return f"Invalid due_date '{due_date}'. Use YYYY-MM-DD format."
 
     client = await get_client()
     query = client.table("tasks").select("id, project, description, priority, due_date").eq("status", status)
     if project:
         query = query.eq("project", project)
-
+    if due_date:
+        query = query.eq("due_date", due_date)
     result = await query.execute()
     rows = _sort_tasks(result.data)
 
@@ -180,18 +181,19 @@ async def create_task(
 
 
 @function_tool
-async def list_tasks(project: Optional[str] = None, status: str = "open") -> str:
+async def list_tasks(project: Optional[str] = None, status: str = "open", due_date: Optional[str] = None) -> str:
     """
-    Lists tasks, optionally filtered by project and/or status.
+    Lists tasks, optionally filtered by project and/or status and/or due date.
 
     Args:
         project: Optional project filter (Jarvis, Charlotte, Heelper, Startup, Research, UNC).
                  Omit to list tasks across all projects.
         status: Filter by status — open, done, or cancelled. Defaults to open.
-
+        due_date: Optional due date in YYYY-MM-DD format.
+        Omit to list tasks across all due dates.
     Returns a formatted list of matching tasks.
     """
-    return await _list_tasks(project, status)
+    return await _list_tasks(project, status, due_date)
 
 
 @function_tool
