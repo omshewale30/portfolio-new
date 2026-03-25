@@ -5,6 +5,8 @@ from integrations.telegram import send_message
 from settings.config import settings
 from jarvis_agents.runner import run_agent
 from db.connection import get_async_session
+from jarvis_agents.weather_agent import weather_agent
+from jarvis_agents.news_agent import ai_news_agent
 logger = logging.getLogger(__name__)
 client = AsyncOpenAI(api_key=settings.openai_api_key)
 
@@ -24,9 +26,7 @@ Keep the total under 250 words. Conversational, not corporate.
 
 PLANNING_REQUEST = (
     "Plan my day for the remainder of today using my existing calendar, today's and overdue "
-    "tasks, weather, and top 3 AI news items. Follow the planning safety policy: avoid "
-    "overlaps/duplicates, add reasonable buffers, and only create calendar blocks when clear "
-    "and low-risk; otherwise return draft with warnings. Return the structured planning result."
+    "tasks, weather."
 )
 
 async def send_morning_briefing() -> None:
@@ -44,6 +44,8 @@ async def send_morning_briefing() -> None:
                 PLANNING_REQUEST,
                 db_session=db_session,
             )
+        weather_context = await weather_agent.run(settings.telegram_chat_id, "What is the weather for today?")
+        ai_news_context = await ai_news_agent.run(settings.telegram_chat_id, "What are the top 3 AI news items for today?")
 
         overdue_context = await _list_overdue_tasks()
         due_today_context = await _list_due_today_tasks()
@@ -52,6 +54,8 @@ async def send_morning_briefing() -> None:
             overdue_context,
             due_today_context,
             f"Planning result:\n{planning_context}",
+            f"Weather context:\n{weather_context}",
+            f"AI news context:\n{ai_news_context}",
         ])
 
         response = await client.chat.completions.create(
