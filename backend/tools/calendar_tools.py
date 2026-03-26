@@ -1,4 +1,8 @@
 from datetime import datetime, timedelta
+import logging
+import ssl
+import time
+from socket import timeout as SocketTimeout
 import pytz
 from googleapiclient.discovery import build
 from agents import function_tool
@@ -8,18 +12,48 @@ from settings.config import settings
 CALENDAR_ID = "fb99434f2a7786e7e3a03319f0d9d33069ea1d0093a28d1d9574a7b8bb17277d@group.calendar.google.com"
 
 _calendar_service = None
+logger = logging.getLogger(__name__)
 
 def _get_service():
     """Returns the Google Calendar service, building it only once."""
     global _calendar_service
     if _calendar_service is None:
         creds = get_calendar_credentials()
-        # The service object handles token refreshing automatically
-        _calendar_service = build("calendar", "v3", credentials=creds)
+        # Disable discovery file cache to avoid oauth2client file_cache path.
+        # This also removes the discovery_cache warning seen before local crashes.
+        _calendar_service = build(
+            "calendar",
+            "v3",
+            credentials=creds,
+            cache_discovery=False,
+        )
     return _calendar_service
 
 def _local_tz():
     return pytz.timezone(settings.timezone)
+
+
+def _execute_with_retry(request_factory, action: str, attempts: int = 3):
+    """
+    Execute a Google API request with a small retry budget for transient TLS/network errors.
+    Rebuilds the cached service between attempts to avoid stale underlying connections.
+    """
+    global _calendar_service
+    for attempt in range(1, attempts + 1):
+        try:
+            return request_factory().execute(num_retries=2)
+        except (ssl.SSLError, ConnectionResetError, TimeoutError, SocketTimeout) as exc:
+            if attempt == attempts:
+                raise
+            logger.warning(
+                "Transient transport error during %s (attempt %s/%s): %s",
+                action,
+                attempt,
+                attempts,
+                exc,
+            )
+            _calendar_service = None
+            time.sleep(min(2 ** attempt, 5))
 
 
 def _parse_google_datetime(value: str) -> datetime:
@@ -150,15 +184,17 @@ def create_calendar_event(title: str, start_iso: str, duration_minutes: int = 60
     
     end_dt = start_dt + timedelta(minutes=duration_minutes)
 
-    service = _get_service()
-    event = service.events().insert(
-        calendarId=CALENDAR_ID,
-        body={
-            "summary": title,
-            "start": {"dateTime": start_dt.isoformat(), "timeZone": settings.timezone},
-            "end": {"dateTime": end_dt.isoformat(), "timeZone": settings.timezone},
-        }
-    ).execute()
+    event = _execute_with_retry(
+        lambda: _get_service().events().insert(
+            calendarId=CALENDAR_ID,
+            body={
+                "summary": title,
+                "start": {"dateTime": start_dt.isoformat(), "timeZone": settings.timezone},
+                "end": {"dateTime": end_dt.isoformat(), "timeZone": settings.timezone},
+            },
+        ),
+        action="create_calendar_event",
+    )
 
     return {
         "success": True,
