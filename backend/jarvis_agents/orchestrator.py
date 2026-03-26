@@ -1,7 +1,7 @@
 from agents import Agent
-from jarvis_agents.calendar_agent import calendar_agent
-from jarvis_agents.weather_agent import weather_agent
-from jarvis_agents.task_agent import task_agent
+from jarvis_agents.calendar_agent import calendar_agent, calendar_tool
+from agents import WebSearchTool
+from jarvis_agents.task_agent import task_agent, task_tool
 from jarvis_agents.gmail_agent import gmail_agent
 from settings.config import settings
 from tools.time_tools import get_current_datetime
@@ -56,6 +56,6 @@ You have memory of this conversation. Reference prior context when relevant.
 
 Timezone: {settings.timezone}
 """,
-    tools=[get_current_datetime, get_personal_info],
-    handoffs=[calendar_agent, weather_agent, task_agent, gmail_agent, ai_news_agent, planning_agent],
+    tools=[get_current_datetime, get_personal_info, calendar_tool, WebSearchTool(), task_tool],
+    handoffs=[gmail_agent, ai_news_agent, planning_agent]
 )

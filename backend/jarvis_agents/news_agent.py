@@ -11,6 +11,7 @@ from agents import Agent, WebSearchTool
 ai_news_agent = Agent(
     name="AiNewsAgent",
     handoff_description="Handles all AI news operations: fetching the top 3 news in the AI industry for the day.",
+    model="gpt-4o-mini",
     instructions="""
 You are Jarvis's AI news reporter. You have access to the web to fetch the top 3 news in the AI industry for the day.    
 
@@ -29,3 +30,8 @@ Formatting rules for Telegram:
          WebSearchTool()
     ]
 )
+
+ai_news_tool = ai_news_agent.as_tool(tool_name="ai_news_tool",
+tool_description="Handles all AI news operations: fetching the top 3 news in the AI industry for the day.",
+ parameters=None,
+ include_input_schema=False)
