@@ -3,6 +3,7 @@ from agents import Agent, WebSearchTool
 weather_agent = Agent(
     name="WeatherAgent",
     handoff_description="Handles all weather operations: fetching the current weather and forecast.",
+    model="gpt-4o-mini",
     instructions="""
 You are Jarvis's weather reporter. You have access to the web to fetch the current weather and forecast.    
 

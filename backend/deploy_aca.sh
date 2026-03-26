@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$SCRIPT_DIR/.env"
 IMAGE_NAME="${IMAGE_NAME:-backend}"
-IMAGE_TAG="${IMAGE_TAG:-$(git rev-parse --short HEAD)}"
+IMAGE_TAG="${IMAGE_TAG:-$(git rev-parse --short HEAD)-$(date +%s)}"
 ACR_NAME="${ACR_NAME:-jarvisacr1}"
 CONTAINER_APP_NAME="${CONTAINER_APP_NAME:-jarvis-backend}"
 RESOURCE_GROUP="${RESOURCE_GROUP:-jarvis}"

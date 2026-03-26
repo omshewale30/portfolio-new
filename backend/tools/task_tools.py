@@ -26,25 +26,61 @@ def _sort_tasks(rows: list[dict]) -> list[dict]:
     return sorted(rows, key=lambda r: (PRIORITY_ORDER.get(r["priority"], 2), r.get("due_date") or "9999", r["id"]))
 
 
+def _normalize_task(row: dict) -> dict:
+    return {
+        "id": row.get("id"),
+        "project": row.get("project"),
+        "description": row.get("description"),
+        "priority": row.get("priority"),
+        "status": row.get("status"),
+        "due_date": row.get("due_date"),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Raw async helpers — used by both function_tools and briefing/runner.py
 # ---------------------------------------------------------------------------
 
-async def _create_task(
+async def _create_task(project: str, description: str, priority: str = "normal", due_date: Optional[str] = None) -> str:
+    result = await _create_task_structured(project, description, priority, due_date)
+    if not result["success"]:
+        return result["message"]
+
+    task_id = result["task"]["id"]
+    due_str = f", due {due_date}" if due_date else ""
+    return f"✅ Task #{task_id} created [{project} / {priority}]{due_str}: {description}"
+
+
+async def _create_task_structured(
     project: str,
     description: str,
     priority: str = "normal",
     due_date: Optional[str] = None,
-) -> str:
+) -> dict:
     if project not in VALID_PROJECTS:
-        return f"Invalid project '{project}'. Must be one of: {', '.join(sorted(VALID_PROJECTS))}."
+        return {
+            "success": False,
+            "error_code": "INVALID_PROJECT",
+            "message": f"Invalid project '{project}'. Must be one of: {', '.join(sorted(VALID_PROJECTS))}.",
+            "valid_projects": sorted(VALID_PROJECTS),
+        }
     if priority not in VALID_PRIORITIES:
-        return f"Invalid priority '{priority}'. Must be one of: low, normal, high."
+        return {
+            "success": False,
+            "error_code": "INVALID_PRIORITY",
+            "message": f"Invalid priority '{priority}'. Must be one of: low, normal, high.",
+            "valid_priorities": sorted(VALID_PRIORITIES),
+        }
     if due_date:
         try:
             date.fromisoformat(due_date)
         except ValueError:
-            return f"Invalid due_date '{due_date}'. Use YYYY-MM-DD format."
+            return {
+                "success": False,
+                "error_code": "INVALID_DUE_DATE",
+                "message": f"Invalid due_date '{due_date}'. Use YYYY-MM-DD format.",
+                "due_date": due_date,
+            }
 
     client = await get_client()
     payload = {"project": project, "description": description, "priority": priority}
@@ -60,22 +96,19 @@ async def _create_task(
     except Exception as e:
         logger.warning(f"Failed to sync task #{task_id} to Notion: {e}")
 
-    due_str = f", due {due_date}" if due_date else ""
-    return f"✅ Task #{task_id} created [{project} / {priority}]{due_str}: {description}"
+    return {
+        "success": True,
+        "action": "create",
+        "task": _normalize_task(task),
+    }
 
 
-async def _list_tasks(project: Optional[str] = None, status: str = "open") -> str:
-    if status not in VALID_STATUSES:
-        return f"Invalid status '{status}'. Must be one of: open, done, cancelled."
+async def _list_tasks(project: Optional[str] = None, status: str = "open", due_date: Optional[str] = None) -> str:
+    result = await _list_tasks_structured(project, status, due_date)
+    if not result["success"]:
+        return result["message"]
 
-    client = await get_client()
-    query = client.table("tasks").select("id, project, description, priority, due_date").eq("status", status)
-    if project:
-        query = query.eq("project", project)
-
-    result = await query.execute()
-    rows = _sort_tasks(result.data)
-
+    rows = result["tasks"]
     if not rows:
         scope = f"[{project}]" if project else "all projects"
         return f"No {status} tasks for {scope}."
@@ -86,7 +119,59 @@ async def _list_tasks(project: Optional[str] = None, status: str = "open") -> st
     return "\n".join(lines)
 
 
+async def _list_tasks_structured(
+    project: Optional[str] = None, status: str = "open", due_date: Optional[str] = None
+) -> dict:
+    if status not in VALID_STATUSES:
+        return {
+            "success": False,
+            "error_code": "INVALID_STATUS",
+            "message": f"Invalid status '{status}'. Must be one of: open, done, cancelled.",
+            "valid_statuses": sorted(VALID_STATUSES),
+        }
+    if due_date:
+        try:
+            date.fromisoformat(due_date)
+        except ValueError:
+            return {
+                "success": False,
+                "error_code": "INVALID_DUE_DATE",
+                "message": f"Invalid due_date '{due_date}'. Use YYYY-MM-DD format.",
+                "due_date": due_date,
+            }
+
+    client = await get_client()
+    query = (
+        client.table("tasks")
+        .select("id, project, description, priority, status, due_date")
+        .eq("status", status)
+    )
+    if project:
+        query = query.eq("project", project)
+    if due_date:
+        query = query.eq("due_date", due_date)
+    result = await query.execute()
+    rows = _sort_tasks(result.data)
+
+    return {
+        "success": True,
+        "status_filter": status,
+        "project_filter": project,
+        "due_date_filter": due_date,
+        "count": len(rows),
+        "tasks": [_normalize_task(r) for r in rows],
+    }
+
+
 async def _complete_task(task_id: int) -> str:
+    result = await _complete_task_structured(task_id)
+    if not result["success"]:
+        return result["message"]
+    task = result["task"]
+    return f"✅ Task #{task_id} [{task['project']}] marked done: {task['description']}"
+
+
+async def _complete_task_structured(task_id: int) -> dict:
     client = await get_client()
     result = (
         await client.table("tasks")
@@ -97,7 +182,12 @@ async def _complete_task(task_id: int) -> str:
     )
 
     if not result.data:
-        return f"Task #{task_id} not found or already closed."
+        return {
+            "success": False,
+            "error_code": "TASK_NOT_OPEN",
+            "message": f"Task #{task_id} not found or already closed.",
+            "task_id": task_id,
+        }
 
     task = result.data[0]
     
@@ -106,10 +196,28 @@ async def _complete_task(task_id: int) -> str:
     except Exception as e:
         logger.warning(f"Failed to sync task #{task_id} completion to Notion: {e}")
 
-    return f"✅ Task #{task_id} [{task['project']}] marked done: {task['description']}"
+    return {
+        "success": True,
+        "action": "complete",
+        "task": _normalize_task(task),
+    }
 
 
 async def _list_overdue_tasks() -> str:
+    result = await _list_overdue_tasks_structured()
+    if not result["success"]:
+        return result["message"]
+    rows = result["tasks"]
+    if not rows:
+        return "No overdue tasks."
+    lines = ["⚠️ Overdue tasks:"]
+    for row in rows:
+        icon = PRIORITY_ICON.get(row["priority"], "")
+        lines.append(f"  #{row['id']} {icon} [{row['project']}] {row['description']} (was due {row['due_date']})")
+    return "\n".join(lines)
+
+
+async def _list_overdue_tasks_structured() -> dict:
     today = date.today().isoformat()
 
     client = await get_client()
@@ -123,14 +231,12 @@ async def _list_overdue_tasks() -> str:
     )
     rows = result.data
 
-    if not rows:
-        return "No overdue tasks."
-
-    lines = ["⚠️ Overdue tasks:"]
-    for row in rows:
-        icon = PRIORITY_ICON.get(row["priority"], "")
-        lines.append(f"  #{row['id']} {icon} [{row['project']}] {row['description']} (was due {row['due_date']})")
-    return "\n".join(lines)
+    return {
+        "success": True,
+        "date": today,
+        "count": len(rows),
+        "tasks": [_normalize_task(r) for r in rows],
+    }
 
 
 async def _list_due_today_tasks() -> str:
@@ -164,7 +270,7 @@ async def create_task(
     description: str,
     priority: str = "normal",
     due_date: Optional[str] = None,
-) -> str:
+) -> dict:
     """
     Creates a new task in the task tracker.
 
@@ -174,43 +280,44 @@ async def create_task(
         priority: Task priority — low, normal, or high. Defaults to normal.
         due_date: Optional due date in YYYY-MM-DD format.
 
-    Returns a confirmation with the new task ID.
+    Returns a structured result with success/error and task details.
     """
-    return await _create_task(project, description, priority, due_date)
+    return await _create_task_structured(project, description, priority, due_date)
 
 
 @function_tool
-async def list_tasks(project: Optional[str] = None, status: str = "open") -> str:
+async def list_tasks(project: Optional[str] = None, status: str = "open", due_date: Optional[str] = None) -> dict:
     """
-    Lists tasks, optionally filtered by project and/or status.
+    Lists tasks, optionally filtered by project and/or status and/or due date.
 
     Args:
         project: Optional project filter (Jarvis, Charlotte, Heelper, Startup, Research, UNC).
                  Omit to list tasks across all projects.
         status: Filter by status — open, done, or cancelled. Defaults to open.
-
-    Returns a formatted list of matching tasks.
+        due_date: Optional due date in YYYY-MM-DD format.
+        Omit to list tasks across all due dates.
+    Returns a structured result with deterministic task entries.
     """
-    return await _list_tasks(project, status)
+    return await _list_tasks_structured(project, status, due_date)
 
 
 @function_tool
-async def complete_task(task_id: int) -> str:
+async def complete_task(task_id: int) -> dict:
     """
     Marks a task as done.
 
     Args:
         task_id: The numeric ID of the task to mark complete.
 
-    Returns a confirmation or an error if the task was not found.
+    Returns a structured success/error result.
     """
-    return await _complete_task(task_id)
+    return await _complete_task_structured(task_id)
 
 
 @function_tool
-async def list_overdue_tasks() -> str:
+async def list_overdue_tasks() -> dict:
     """
     Returns all open tasks whose due date is strictly before today.
     Use this during the morning briefing or when the user asks about overdue work.
     """
-    return await _list_overdue_tasks()
+    return await _list_overdue_tasks_structured()

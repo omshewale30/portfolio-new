@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import pytz
 from googleapiclient.discovery import build
 from agents import function_tool
@@ -21,12 +21,41 @@ def _get_service():
 def _local_tz():
     return pytz.timezone(settings.timezone)
 
+
+def _parse_google_datetime(value: str) -> datetime:
+    """Parse Google datetime strings, including trailing Z."""
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def _normalize_event(event: dict, tz) -> dict:
+    """Return deterministic structured event shape for agent consumption."""
+    start_raw = event.get("start", {}).get("dateTime") or event.get("start", {}).get("date")
+    end_raw = event.get("end", {}).get("dateTime") or event.get("end", {}).get("date")
+    is_all_day = "date" in event.get("start", {})
+
+    if is_all_day:
+        start_local = tz.localize(datetime.strptime(start_raw, "%Y-%m-%d"))
+        end_local = tz.localize(datetime.strptime(end_raw, "%Y-%m-%d"))
+        start_iso = start_local.isoformat()
+        end_iso = end_local.isoformat()
+    else:
+        start_iso = _parse_google_datetime(start_raw).astimezone(tz).isoformat()
+        end_iso = _parse_google_datetime(end_raw).astimezone(tz).isoformat()
+
+    return {
+        "id": event.get("id"),
+        "title": event.get("summary", "Untitled"),
+        "start_iso": start_iso,
+        "end_iso": end_iso,
+        "is_all_day": is_all_day,
+        "location": event.get("location"),
+        "html_link": event.get("htmlLink"),
+    }
+
 @function_tool
-def get_todays_events() -> str:
+def get_todays_events() -> dict:
     """
-    Returns all of the user's Google Calendar events for today,
-    formatted as a readable list. Use this when the user asks what's
-    on their calendar today or what their schedule looks like.
+    Returns today's calendar events in a deterministic structured format.
     """
     tz = _local_tz()
     now = datetime.now(tz)
@@ -43,33 +72,21 @@ def get_todays_events() -> str:
     ).execute()
 
     events = result.get("items", [])
-    if not events:
-        return "No events scheduled for today."
+    normalized = [_normalize_event(event, tz) for event in events]
 
-    lines = [f"📅 Events for {now.strftime('%A, %B %d')}:"]
-    for event in events:
-        start = event["start"].get("dateTime", event["start"].get("date"))
-        summary = event.get("summary", "Untitled")
-
-        # Format time if it's a datetime (not all-day)
-        if "T" in start:
-            dt = datetime.fromisoformat(start).astimezone(tz)
-            time_str = dt.strftime("%-I:%M %p")
-        else:
-            time_str = "All day"
-
-        location = event.get("location", "")
-        loc_str = f" @ {location}" if location else ""
-        lines.append(f"  • {time_str} — {summary}{loc_str}")
-
-    return "\n".join(lines)
+    return {
+        "success": True,
+        "date": now.strftime("%Y-%m-%d"),
+        "timezone": settings.timezone,
+        "count": len(normalized),
+        "events": normalized,
+    }
 
 @function_tool
-def get_events_for_date(date_str: str) -> str:
+def get_events_for_date(date_str: str) -> dict:
     """
-    Returns calendar events for a specific date.
+    Returns calendar events for a specific date in structured format.
     date_str must be in YYYY-MM-DD format (e.g., '2025-04-10').
-    Use this when the user asks about a day other than today.
     """
     tz = _local_tz()
     naive_target = datetime.strptime(date_str, "%Y-%m-%d")
@@ -89,24 +106,18 @@ def get_events_for_date(date_str: str) -> str:
     ).execute()
 
     events = result.get("items", [])
-    if not events:
-        return f"No events scheduled for {target.strftime('%A, %B %d')}."
+    normalized = [_normalize_event(event, tz) for event in events]
 
-    lines = [f"📅 Events for {target.strftime('%A, %B %d')}:"]
-    for event in events:
-        start_raw = event["start"].get("dateTime", event["start"].get("date"))
-        summary = event.get("summary", "Untitled")
-        if "T" in start_raw:
-            dt = datetime.fromisoformat(start_raw).astimezone(tz)
-            time_str = dt.strftime("%-I:%M %p")
-        else:
-            time_str = "All day"
-        lines.append(f"  • {time_str} — {summary}")
-
-    return "\n".join(lines)
+    return {
+        "success": True,
+        "date": date_str,
+        "timezone": settings.timezone,
+        "count": len(normalized),
+        "events": normalized,
+    }
 
 @function_tool
-def create_calendar_event(title: str, start_iso: str, duration_minutes: int = 60) -> str:
+def create_calendar_event(title: str, start_iso: str, duration_minutes: int = 60) -> dict:
     """
     Creates a new event on the user's Google Calendar.
 
@@ -121,7 +132,7 @@ def create_calendar_event(title: str, start_iso: str, duration_minutes: int = 60
                    their local timezone.
         duration_minutes: Length of the event in minutes. Default is 60.
 
-    Returns a confirmation string with the event title and time.
+    Returns a structured result with the created event details.
     """
     tz = _local_tz()
     now = datetime.now(tz)
@@ -129,12 +140,13 @@ def create_calendar_event(title: str, start_iso: str, duration_minutes: int = 60
     
     # Reject events more than 1 hour in the past
     if start_dt < now - timedelta(hours=1):
-        return (
-            f"❌ Cannot create event in the past.\n"
-            f"   You tried to create an event for: {start_dt.strftime('%A, %B %d, %Y at %-I:%M %p')}\n"
-            f"   Current date/time is: {now.strftime('%A, %B %d, %Y at %-I:%M %p')}\n"
-            f"   Please use the correct date. Today is {now.strftime('%Y-%m-%d')}."
-        )
+        return {
+            "success": False,
+            "error_code": "EVENT_IN_PAST",
+            "message": "Cannot create event in the past.",
+            "attempted_start_iso": start_dt.isoformat(),
+            "current_now_iso": now.isoformat(),
+        }
     
     end_dt = start_dt + timedelta(minutes=duration_minutes)
 
@@ -148,16 +160,15 @@ def create_calendar_event(title: str, start_iso: str, duration_minutes: int = 60
         }
     ).execute()
 
-    link = event.get("htmlLink", "")
-    return (
-        f"✅ Created: '{title}'\n"
-        f"   {start_dt.strftime('%A, %B %d, %Y at %-I:%M %p')} "
-        f"({duration_minutes} min)\n"
-        f"   {link}"
-    )
+    return {
+        "success": True,
+        "action": "create",
+        "event": _normalize_event(event, tz),
+        "duration_minutes": duration_minutes,
+    }
 
 @function_tool
-def update_event_time(event_title_hint: str, new_start_iso: str, duration_minutes: int = 60) -> str:
+def update_event_time(event_title_hint: str, new_start_iso: str, duration_minutes: int = 60) -> dict:
     """
     Moves an existing calendar event to a new time.
     Searches for the event by title (case-insensitive partial match) within
@@ -178,12 +189,13 @@ def update_event_time(event_title_hint: str, new_start_iso: str, duration_minute
     
     # Reject rescheduling to more than 1 hour in the past
     if new_start < now - timedelta(hours=1):
-        return (
-            f"❌ Cannot reschedule event to the past.\n"
-            f"   You tried to reschedule to: {new_start.strftime('%A, %B %d, %Y at %-I:%M %p')}\n"
-            f"   Current date/time is: {now.strftime('%A, %B %d, %Y at %-I:%M %p')}\n"
-            f"   Please use the correct date. Today is {now.strftime('%Y-%m-%d')}."
-        )
+        return {
+            "success": False,
+            "error_code": "EVENT_IN_PAST",
+            "message": "Cannot reschedule event to the past.",
+            "attempted_start_iso": new_start.isoformat(),
+            "current_now_iso": now.isoformat(),
+        }
     
     search_end = now + timedelta(days=7)
 
@@ -199,7 +211,12 @@ def update_event_time(event_title_hint: str, new_start_iso: str, duration_minute
 
     events = result.get("items", [])
     if not events:
-        return f"No upcoming event found matching '{event_title_hint}'."
+        return {
+            "success": False,
+            "error_code": "EVENT_NOT_FOUND",
+            "message": f"No upcoming event found matching '{event_title_hint}'.",
+            "event_title_hint": event_title_hint,
+        }
 
     # Take the first match
     event = events[0]
@@ -211,19 +228,22 @@ def update_event_time(event_title_hint: str, new_start_iso: str, duration_minute
     event["start"] = {"dateTime": new_start.isoformat(), "timeZone": settings.timezone}
     event["end"] = {"dateTime": new_end.isoformat(), "timeZone": settings.timezone}
 
-    service.events().update(
+    updated_event = service.events().update(
         calendarId=CALENDAR_ID,
         eventId=event_id,
         body=event
     ).execute()
 
-    return (
-        f"✅ Moved '{old_title}' to "
-        f"{new_start.strftime('%A, %B %d, %Y at %-I:%M %p')}."
-    )
+    return {
+        "success": True,
+        "action": "update",
+        "matched_title": old_title,
+        "event": _normalize_event(updated_event, tz),
+        "duration_minutes": duration_minutes,
+    }
 
 @function_tool
-def delete_event(event_title_hint: str) -> str:
+def delete_event(event_title_hint: str) -> dict:
     """
     Deletes an upcoming calendar event matching the given title hint.
     Searches within the next 7 days.
@@ -246,10 +266,19 @@ def delete_event(event_title_hint: str) -> str:
 
     events = result.get("items", [])
     if not events:
-        return f"No upcoming event found matching '{event_title_hint}'."
+        return {
+            "success": False,
+            "error_code": "EVENT_NOT_FOUND",
+            "message": f"No upcoming event found matching '{event_title_hint}'.",
+            "event_title_hint": event_title_hint,
+        }
 
     event = events[0]
-    title = event.get("summary", "Untitled")
+    normalized_event = _normalize_event(event, tz)
     service.events().delete(calendarId=CALENDAR_ID, eventId=event["id"]).execute()
 
-    return f"🗑️ Deleted event: '{title}'."
+    return {
+        "success": True,
+        "action": "delete",
+        "event": normalized_event,
+    }

@@ -1,5 +1,6 @@
 from agents import Agent
 from settings.config import settings
+from pydantic import BaseModel, Field
 from tools.calendar_tools import (
     get_todays_events,
     get_events_for_date,
@@ -11,7 +12,6 @@ from tools.time_tools import get_current_datetime
 
 calendar_agent = Agent(
     name="CalendarAgent",
-    handoff_description="Handles all Google Calendar operations: reading, creating, updating, and deleting events.",
     instructions=f"""
 You are Jarvis's calendar manager. You have full access to the user's Google Calendar.
 User timezone: {settings.timezone}
@@ -48,3 +48,14 @@ Other rules:
         delete_event,
     ],
 )
+
+class CalendarActionInput(BaseModel):
+    action: str = Field(description="read_today or create or update or delete")
+    title: str | None = None
+    start_iso: str | None = None
+    end_iso: str | None = None
+
+calendar_tool = calendar_agent.as_tool(tool_name="calendar_tool",
+tool_description="Handles all Google Calendar operations: reading, creating, updating, and deleting events.",
+ parameters=CalendarActionInput,
+ include_input_schema=True)
