@@ -24,6 +24,11 @@ def get_gmail_service():
         client_secret=client_secret
     )
 
-    # Initialize the service
-    service = build('gmail', 'v1', credentials=creds)
+    # Disable discovery file cache to avoid oauth2client file_cache path.
+    service = build(
+        "gmail",
+        "v1",
+        credentials=creds,
+        cache_discovery=False,
+    )
     return service
