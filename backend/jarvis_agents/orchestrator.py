@@ -1,61 +1,227 @@
-from agents import Agent
-from jarvis_agents.calendar_agent import calendar_agent, calendar_tool
-from agents import WebSearchTool
-from jarvis_agents.task_agent import task_agent, task_tool
-from jarvis_agents.gmail_agent import gmail_agent
-from settings.config import settings
-from tools.time_tools import get_current_datetime
+"""LangGraph orchestrator for the Telegram route."""
+
+from __future__ import annotations
+
+from typing import Any, Annotated
+
+from langchain_core.messages import AIMessage, SystemMessage, ToolMessage, trim_messages
+from langchain_core.tools import InjectedToolCallId, tool
+from langgraph.graph import END, StateGraph
+from langgraph.prebuilt import InjectedState, ToolNode
+from langgraph.types import Command
+from prompts import ORCHESTRATOR_SYSTEM_PROMPT
+from state import JarvisState
+
 from tools.get_personal_info import get_personal_info
-from jarvis_agents.planning_agent import planning_agent
-from jarvis_agents.news_agent import ai_news_agent
+from tools.time_tools import get_current_datetime
+from jarvis_agents.gmail_agent import gmail_agent_node
+from jarvis_agents.planning_agent import planning_agent_node
+from jarvis_agents.news_agent import news_agent_node
+from jarvis_agents.task_agent import task_agent_node
+from llm.clients import orchestrator_llm
+from jarvis_agents.calendar_agent import calendar_agent_node
+
+@tool
+def transfer_to_gmail(
+    tool_call_id: Annotated[str, InjectedToolCallId],
+    state: Annotated[JarvisState, InjectedState],
+) -> Command:
+    """Transfer control to the Gmail specialist for email operations."""
+    del state
+    return Command(
+        update={
+            "active_agent": "gmail_agent",
+            "messages": [
+                ToolMessage(
+                    content="Transferred to Gmail specialist.",
+                    name="transfer_to_gmail",
+                    tool_call_id=tool_call_id,
+                )
+            ],
+        }
+    )
+
+
+@tool
+def transfer_to_planning(
+    tool_call_id: Annotated[str, InjectedToolCallId],
+    state: Annotated[JarvisState, InjectedState],
+) -> Command:
+    """Transfer control to the planning specialist for day planning and scheduling."""
+    del state
+    return Command(
+        update={
+            "active_agent": "planning_agent",
+            "messages": [
+                ToolMessage(
+                    content="Transferred to planning specialist.",
+                    name="transfer_to_planning",
+                    tool_call_id=tool_call_id,
+                )
+            ],
+        }
+    )
+
+
+@tool
+def transfer_to_calendar(
+    tool_call_id: Annotated[str, InjectedToolCallId],
+    state: Annotated[JarvisState, InjectedState],
+) -> Command:
+    """Transfer control to the calendar specialist for calendar operations."""
+    del state
+    return Command(
+        update={
+            "active_agent": "calendar_agent",
+            "messages": [
+                ToolMessage(
+                    content="Transferred to calendar specialist.",
+                    name="transfer_to_calendar",
+                    tool_call_id=tool_call_id,
+                )
+            ],
+        }
+    )
+
+
+@tool
+def transfer_to_news(
+    tool_call_id: Annotated[str, InjectedToolCallId],
+    state: Annotated[JarvisState, InjectedState],
+) -> Command:
+    """Transfer control to the AI news specialist."""
+    del state
+    return Command(
+        update={
+            "active_agent": "news_agent",
+            "messages": [
+                ToolMessage(
+                    content="Transferred to news specialist.",
+                    name="transfer_to_news",
+                    tool_call_id=tool_call_id,
+                )
+            ],
+        }
+    )
+
+
+@tool
+def transfer_to_task(
+    tool_call_id: Annotated[str, InjectedToolCallId],
+    state: Annotated[JarvisState, InjectedState],
+) -> Command:
+    """Transfer control to the task specialist for task operations."""
+    del state
+    return Command(
+        update={
+            "active_agent": "task_agent",
+            "messages": [
+                ToolMessage(
+                    content="Transferred to task specialist.",
+                    name="transfer_to_task",
+                    tool_call_id=tool_call_id,
+                )
+            ],
+        }
+    )
 
 
 
-def get_orchestrator():
-  return Agent(
-    name="Jarvis",
-    instructions=f"""
-You are Jarvis, a sharp and efficient personal assistant. You communicate exclusively
-via Telegram with your user.
+ROUTING_TOOLS = [transfer_to_gmail, transfer_to_news, transfer_to_planning, transfer_to_calendar, transfer_to_task]
 
-Your capabilities:
-- Calendar management (reading, creating, editing, deleting events)
-- Weather information ( using the web search tool to fetch the current weather and forecast for the user's location)
-- Task and TODO management across projects (Jarvis, Charlotte, Heelper, Startup, Research, UNC)
-- General conversation and reminders
-- Gmail operations: fetching unread emails, reading a specific email thread, drafting and sending replies or new emails from natural language, searching inbox by keyword, sender, date range, or label, archiving or marking emails as read
-- AI news operations: fetching the top 3 news in the AI industry for the day
-- Planning operations: creating a realistic day plan from calendar, tasks, weather, and AI news, then scheduling only safe and justified blocks
-Routing rules:
-- For anything involving calendar events, schedules, meetings, or appointments →
-  hand off to CalendarAgent.
-- For anything involving weather, temperature, or conditions (using the web search tool to fetch the current weather and forecast for the user's location) → hand off to WeatherAgent.
-- For anything involving tasks, TODOs, action items, or project work →
-  hand off to TaskAgent.
-- For anything involving Gmail, inbox triage, reading threads, drafting replies, searching emails, or archiving/marking as read →
-  hand off to GmailAgent.
-- For anything involving AI news, top 3 news in the AI industry for the day ->
-  hand off to AiNewsAgent.
-- For questions about current date/time ("what is today", "what is tomorrow", "what time is it") -> call get_current_datetime first, then answer from that tool output.
-- For questions about Om's personal information and relevant context about Om -> call get_personal_info first, then answer from that tool output.
-- For morning planning, daily plan generation, "plan my day", or "schedule focus blocks" ->
-  hand off to PlanningAgent.
-- When a request combines calendar + tasks + weather + AI news for today's plan, prefer PlanningAgent over direct CalendarAgent actions.
-- PlanningAgent may schedule new events through CalendarAgent only when safe, clear, and low-risk; if inputs are missing or ambiguous, it should return a draft plan with warnings.
-- For greetings, general questions, or things outside these domains → respond directly.
+ORCHESTRATOR_EXECUTION_TOOLS = [
+    get_current_datetime,
+    get_personal_info,
+]
+ORCHESTRATOR_LLM_TOOLS = [*ORCHESTRATOR_EXECUTION_TOOLS, *ROUTING_TOOLS]
 
-Personality:
-- Concise and direct. Don't pad responses.
-- Friendly but not sycophantic. No "Great question!" openers.
-- Use emojis sparingly — only where they add clarity.
-- If you're unsure what the user wants, ask one clarifying question.
-- Return plain text only (Telegram-friendly). No markdown formatting, no citations, and no source/reference tags.
-- Never guess the current date or time from memory; use get_current_datetime for date/time questions.
+def _safe_content(message: Any) -> str:
+    content = getattr(message, "content", "")
+    if isinstance(content, list):
+        return " ".join(str(part) for part in content)
+    return str(content or "")
 
-You have memory of this conversation. Reference prior context when relevant.
 
-Timezone: {settings.timezone}
-""",
-    tools=[get_current_datetime, get_personal_info, calendar_tool, WebSearchTool(), task_tool],
-    handoffs=[gmail_agent, ai_news_agent, planning_agent]
-)
+def orchestrator_node(state: JarvisState) -> dict:
+    message_window = trim_messages(
+        list(state["messages"]),
+        strategy="last",
+        max_tokens=7000,
+        token_counter=orchestrator_llm,
+        allow_partial=False,
+    )
+    response = orchestrator_llm.bind_tools(ORCHESTRATOR_LLM_TOOLS).invoke(
+        [SystemMessage(content=ORCHESTRATOR_SYSTEM_PROMPT), *message_window]
+    )
+    return {"messages": [response], "active_agent": "orchestrator"}
+
+
+def route_orchestrator(state: JarvisState) -> str:
+    last = state["messages"][-1]
+    if not isinstance(last, AIMessage) or not last.tool_calls:
+        return END
+    return "orchestrator_tools"
+
+
+def route_after_orchestrator_tools(state: JarvisState) -> str:
+    active_agent = state.get("active_agent")
+    if active_agent == "gmail_agent":
+        return "gmail_agent"
+    if active_agent == "news_agent":
+        return "news_agent"
+    if active_agent == "planning_agent":
+        return "planning_agent"
+    if active_agent == "calendar_agent":
+        return "calendar_agent"
+    if active_agent == "task_agent":
+        return "task_agent"
+    return "orchestrator"
+
+
+
+def _specialist_back_edge(state: JarvisState) -> str:
+    """
+    End specialist execution after one specialist turn.
+    If no final text exists, fall back to orchestrator for recovery.
+    """
+    last = state["messages"][-1]
+    return END if _safe_content(last).strip() else "orchestrator"
+
+
+def build_orchestrator_graph(checkpointer):
+    graph_builder = StateGraph(JarvisState)
+    graph_builder.add_node("orchestrator", orchestrator_node)
+    graph_builder.add_node("orchestrator_tools", ToolNode(ORCHESTRATOR_LLM_TOOLS))
+    graph_builder.add_node("gmail_agent", gmail_agent_node)
+    graph_builder.add_node("news_agent", news_agent_node)
+    graph_builder.add_node("planning_agent", planning_agent_node)
+    graph_builder.add_node("calendar_agent", calendar_agent_node)
+    graph_builder.add_node("task_agent", task_agent_node)
+
+    graph_builder.set_entry_point("orchestrator")
+    graph_builder.add_conditional_edges(
+        "orchestrator",
+        route_orchestrator,
+        {
+            "orchestrator_tools": "orchestrator_tools",
+            END: END,
+        },
+    )
+    graph_builder.add_conditional_edges(
+        "orchestrator_tools",
+        route_after_orchestrator_tools,
+        {
+            "gmail_agent": "gmail_agent",
+            "news_agent": "news_agent",
+            "planning_agent": "planning_agent",
+            "calendar_agent": "calendar_agent",
+            "task_agent": "task_agent",
+            "orchestrator": "orchestrator",
+        },
+    )
+    graph_builder.add_conditional_edges("gmail_agent", _specialist_back_edge, {"orchestrator": "orchestrator", END: END})
+    graph_builder.add_conditional_edges("news_agent", _specialist_back_edge, {"orchestrator": "orchestrator", END: END})
+    graph_builder.add_conditional_edges("planning_agent", _specialist_back_edge, {"orchestrator": "orchestrator", END: END})
+    graph_builder.add_conditional_edges("calendar_agent", _specialist_back_edge, {"orchestrator": "orchestrator", END: END})
+    graph_builder.add_conditional_edges("task_agent", _specialist_back_edge, {"orchestrator": "orchestrator", END: END})
+    return graph_builder.compile(checkpointer=checkpointer)

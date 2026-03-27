@@ -10,11 +10,10 @@ from contextlib import asynccontextmanager
 from settings.config import settings
 from settings.logging import configure_logging, get_logger
 from integrations.telegram import parse_inbound, send_message
-from jarvis_agents.runner import run_agent
+from jarvis_agents.runner import init_agent_runtime, run_agent, shutdown_agent_runtime
 from fastapi.responses import JSONResponse
 from integrations.telegram import set_webhook
 from scheduler import start_scheduler
-from db.connection import get_async_session
 
 openai_client = None
 logger = get_logger(__name__)
@@ -36,9 +35,11 @@ async def lifespan(app: FastAPI):
         result = await set_webhook(webhook_url)
         logger.info(f"Webhook registered: {result}")
 
+    await init_agent_runtime()
     start_scheduler()
     logger.info("Scheduler started")
     yield
+    await shutdown_agent_runtime()
     print("Shutting down...")
 
 
@@ -124,8 +125,7 @@ async def telegram_webhook(request: Request):
 
     async def _handle():
         try:
-            async with get_async_session() as db_session:
-                response_text = await run_agent(chat_id, user_message, db_session=db_session)
+            response_text = await run_agent(chat_id, user_message)
             await send_message(chat_id, response_text)
         except Exception as e:
             logger.error(f"Agent error: {e}", exc_info=True)

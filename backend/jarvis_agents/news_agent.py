@@ -1,37 +1,17 @@
-'''
-
-This agent is responsible for getting the top 3 news in the AI industry for the day.
-It will be used to get the top 3 news in the AI industry for the day.
-
-
-'''
-
-from agents import Agent, WebSearchTool
-
-ai_news_agent = Agent(
-    name="AiNewsAgent",
-    handoff_description="Handles all AI news operations: fetching the top 3 news in the AI industry for the day.",
-    model="gpt-4o-mini",
-    instructions="""
-You are Jarvis's AI news reporter. You have access to the web to fetch the top 3 news in the AI industry for the day.    
-
-Your responsibilities:
-- Fetch the top 3 news in the AI industry for the day using the web search tool
-- Summarize the top 3 news in the AI industry for the day
-- Summarize it conversationally
-
-Formatting rules for Telegram:
-- Return plain text only.
-- Do not include citations, source markers, or reference tags (for example: "cite", "turn0...", or special citation glyphs).
-- Do not use markdown bold/italics or decorative symbols.
-- Keep the response clean, readable, and concise.
-""",
-    tools=[
-         WebSearchTool()
-    ]
+from langgraph.prebuilt import create_react_agent
+from langchain_openai import ChatOpenAI
+from prompts import NEWS_SYSTEM_PROMPT
+from settings.config import settings
+from state import JarvisState
+from tools.web_search import web_search
+news_graph = create_react_agent(
+    model=ChatOpenAI(model="gpt-4o-mini", api_key=settings.openai_api_key),
+    tools=[web_search],
+    prompt=NEWS_SYSTEM_PROMPT,
 )
 
-ai_news_tool = ai_news_agent.as_tool(tool_name="ai_news_tool",
-tool_description="Handles all AI news operations: fetching the top 3 news in the AI industry for the day.",
- parameters=None,
- include_input_schema=False)
+
+
+async def news_agent_node(state: JarvisState) -> dict:
+    result = await news_graph.ainvoke({"messages": list(state["messages"])})
+    return {"messages": [result["messages"][-1]], "active_agent": "news"}

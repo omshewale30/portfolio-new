@@ -2,7 +2,7 @@ from datetime import date
 from typing import Optional
 import logging
 
-from agents import function_tool
+from langchain_core.tools import tool
 
 from db.supabase_client import get_client
 from integrations.notion import sync_task_to_notion
@@ -264,7 +264,7 @@ async def _list_due_today_tasks() -> str:
 # function_tool wrappers for the agents SDK
 # ---------------------------------------------------------------------------
 
-@function_tool
+@tool
 async def create_task(
     project: str,
     description: str,
@@ -285,7 +285,7 @@ async def create_task(
     return await _create_task_structured(project, description, priority, due_date)
 
 
-@function_tool
+@tool
 async def list_tasks(project: Optional[str] = None, status: str = "open", due_date: Optional[str] = None) -> dict:
     """
     Lists tasks, optionally filtered by project and/or status and/or due date.
@@ -301,7 +301,7 @@ async def list_tasks(project: Optional[str] = None, status: str = "open", due_da
     return await _list_tasks_structured(project, status, due_date)
 
 
-@function_tool
+@tool
 async def complete_task(task_id: int) -> dict:
     """
     Marks a task as done.
@@ -314,10 +314,17 @@ async def complete_task(task_id: int) -> dict:
     return await _complete_task_structured(task_id)
 
 
-@function_tool
+@tool
 async def list_overdue_tasks() -> dict:
     """
     Returns all open tasks whose due date is strictly before today.
     Use this during the morning briefing or when the user asks about overdue work.
     """
     return await _list_overdue_tasks_structured()
+
+TASK_TOOLS = [
+    create_task,
+    list_tasks,
+    complete_task,
+    list_overdue_tasks,
+]

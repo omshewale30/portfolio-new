@@ -2,13 +2,11 @@ import asyncio
 import logging
 from openai import AsyncOpenAI, RateLimitError
 from typing import Any
+from langchain_core.messages import HumanMessage
 from tools.task_tools import _list_overdue_tasks, _list_due_today_tasks
 from integrations.telegram import send_message
 from settings.config import settings
-from jarvis_agents.weather_agent import weather_agent
-from jarvis_agents.news_agent import ai_news_agent
-from jarvis_agents.planning_agent import planning_agent
-from agents import Runner
+from jarvis_agents.planning_agent import planning_agent_node
 import json
 
 logger = logging.getLogger(__name__)
@@ -69,8 +67,7 @@ def _to_jsonable(value: Any) -> Any:
 
 
 def _planning_context_json(run_result: Any) -> str:
-    final_output = getattr(run_result, "final_output", run_result)
-    jsonable = _to_jsonable(final_output)
+    jsonable = _to_jsonable(run_result)
     return json.dumps(jsonable, indent=2, ensure_ascii=True)
 
 
@@ -101,7 +98,14 @@ async def send_morning_briefing() -> None:
 
     try:
         planning_run = await _run_with_retry(
-            lambda: Runner.run(planning_agent, PLANNING_REQUEST),
+            lambda: planning_agent_node.ainvoke(
+                {
+                    "messages": [HumanMessage(content=PLANNING_REQUEST)],
+                    "chat_id": "briefing",
+                    "active_agent": "planning",
+                },
+                config={"recursion_limit": 50},
+            ),
             "planning",
         )
 

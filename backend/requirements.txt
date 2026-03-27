@@ -6,7 +6,13 @@ uvicorn
 pydantic-settings
 python-dotenv
 
-# OpenAI Agents SDK (pulls in openai as a transitive dependency)
+# AI runtimes
+openai
+langgraph
+langchain-openai
+langchain-core
+langgraph-checkpoint-postgres
+psycopg[binary]
 openai-agents
 
 # Telegram

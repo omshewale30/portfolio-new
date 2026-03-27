@@ -1,14 +1,12 @@
-from agents import function_tool
-from openai import OpenAI
+from langchain_core.tools import tool
 from settings.config import settings
 
-from agents import function_tool, RunContextWrapper
 from openai import AsyncOpenAI
 
 openai_client = AsyncOpenAI()
 VECTOR_STORE_ID = settings.vector_store_id
 
-@function_tool
+@tool
 async def get_personal_info(query: str, top_k: int = 8) -> str:
     """
     Search Jarvis's personal knowledge base for Om's personal information and relevant context about Om.

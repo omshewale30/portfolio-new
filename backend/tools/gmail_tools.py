@@ -1,11 +1,20 @@
 import base64
+import logging
+import random
+import ssl
+import time
 from email.mime.text import MIMEText
 from typing import Optional
 
-from agents import function_tool
+from googleapiclient.errors import HttpError
 from integrations.gmail_auth import get_gmail_service
+from langchain_core.tools import tool
 
 _gmail_service = None
+logger = logging.getLogger(__name__)
+
+RETRYABLE_HTTP_STATUS = {408, 409, 425, 429, 500, 502, 503, 504}
+TRANSIENT_GMAIL_EXCEPTIONS = (ssl.SSLError, TimeoutError, OSError)
 
 def _get_gmail_service():
     global _gmail_service
@@ -14,7 +23,64 @@ def _get_gmail_service():
     return _gmail_service
 
 
-@function_tool
+def _is_retryable_http_error(exc: HttpError) -> bool:
+    status = getattr(getattr(exc, "resp", None), "status", None)
+    return status in RETRYABLE_HTTP_STATUS
+
+
+def _execute_gmail(operation: str, request_factory, attempts: int = 4, base_delay: float = 1.0):
+    """
+    Execute a Gmail API request with retry/backoff and structured diagnostics.
+
+    request_factory must return a new request object for each attempt.
+    """
+    for attempt in range(1, attempts + 1):
+        try:
+            return request_factory().execute()
+        except HttpError as exc:
+            retryable = _is_retryable_http_error(exc)
+            if not retryable or attempt == attempts:
+                logger.exception(
+                    "Gmail API failed: op=%s attempt=%s/%s retryable=%s",
+                    operation,
+                    attempt,
+                    attempts,
+                    retryable,
+                )
+                raise
+            delay = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 0.25)
+            logger.warning(
+                "Transient Gmail HttpError: op=%s attempt=%s/%s status=%s; retrying in %.2fs",
+                operation,
+                attempt,
+                attempts,
+                getattr(getattr(exc, "resp", None), "status", None),
+                delay,
+            )
+            time.sleep(delay)
+        except TRANSIENT_GMAIL_EXCEPTIONS as exc:
+            if attempt == attempts:
+                logger.exception(
+                    "Transient Gmail transport error persisted: op=%s attempt=%s/%s type=%s",
+                    operation,
+                    attempt,
+                    attempts,
+                    type(exc).__name__,
+                )
+                raise
+            delay = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 0.25)
+            logger.warning(
+                "Transient Gmail transport error: op=%s attempt=%s/%s type=%s; retrying in %.2fs",
+                operation,
+                attempt,
+                attempts,
+                type(exc).__name__,
+                delay,
+            )
+            time.sleep(delay)
+
+
+@tool
 def get_unread_emails(max_results: int = 10) -> str:
     """Fetch unread emails from the inbox.
     
@@ -24,11 +90,14 @@ def get_unread_emails(max_results: int = 10) -> str:
     Returns:
         List of unread email summaries with id, thread_id, subject, from, and snippet
     """
-    results = _get_gmail_service().users().messages().list(
-        userId="me",
-        q="is:unread",
-        maxResults=max_results
-    ).execute()
+    results = _execute_gmail(
+        "messages.list.unread",
+        lambda: _get_gmail_service().users().messages().list(
+            userId="me",
+            q="is:unread",
+            maxResults=max_results,
+        ),
+    )
 
     messages = results.get("messages", [])
     if not messages:
@@ -36,10 +105,15 @@ def get_unread_emails(max_results: int = 10) -> str:
 
     emails = []
     for msg in messages:
-        msg_data = _get_gmail_service().users().messages().get(
-            userId="me", id=msg["id"], format="metadata",
-            metadataHeaders=["Subject", "From", "Date"]
-        ).execute()
+        msg_data = _execute_gmail(
+            "messages.get.metadata",
+            lambda m=msg: _get_gmail_service().users().messages().get(
+                userId="me",
+                id=m["id"],
+                format="metadata",
+                metadataHeaders=["Subject", "From", "Date"],
+            ),
+        )
 
         headers = {h["name"]: h["value"] for h in msg_data.get("payload", {}).get("headers", [])}
         emails.append({
@@ -59,7 +133,7 @@ def get_unread_emails(max_results: int = 10) -> str:
     return "\n".join(lines)
 
 
-@function_tool
+@tool
 def get_email_thread(thread_id: str) -> str:
     """Read a specific email thread by its ID.
     
@@ -69,9 +143,14 @@ def get_email_thread(thread_id: str) -> str:
     Returns:
         Thread details including all messages with their content
     """
-    thread = _get_gmail_service().users().threads().get(
-        userId="me", id=thread_id, format="full"
-    ).execute()
+    thread = _execute_gmail(
+        "threads.get.full",
+        lambda: _get_gmail_service().users().threads().get(
+            userId="me",
+            id=thread_id,
+            format="full",
+        ),
+    )
 
     messages = []
     for msg in thread.get("messages", []):
@@ -112,7 +191,7 @@ def _extract_body(payload: dict) -> str:
     return ""
 
 
-@function_tool
+@tool
 def draft_email(to: str, subject: str, body: str) -> str:
     """Create a draft email.
     
@@ -129,14 +208,18 @@ def draft_email(to: str, subject: str, body: str) -> str:
     message["subject"] = subject
 
     raw = base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")
-    draft = _get_gmail_service().users().drafts().create(
-        userId="me", body={"message": {"raw": raw}}
-    ).execute()
+    draft = _execute_gmail(
+        "drafts.create",
+        lambda: _get_gmail_service().users().drafts().create(
+            userId="me",
+            body={"message": {"raw": raw}},
+        ),
+    )
 
     return f"✅ Draft created (ID: {draft['id']})\n  To: {to}\n  Subject: {subject}"
 
 
-@function_tool
+@tool
 def send_email(to: str, subject: str, body: str, thread_id: Optional[str] = None) -> str:
     """Send an email or reply to a thread.
     
@@ -159,14 +242,18 @@ def send_email(to: str, subject: str, body: str, thread_id: Optional[str] = None
     if thread_id:
         body_data["threadId"] = thread_id
 
-    sent = _get_gmail_service().users().messages().send(
-        userId="me", body=body_data
-    ).execute()
+    sent = _execute_gmail(
+        "messages.send",
+        lambda: _get_gmail_service().users().messages().send(
+            userId="me",
+            body=body_data,
+        ),
+    )
 
     return f"✅ Email sent successfully!\n  To: {to}\n  Subject: {subject}\n  Message ID: {sent['id']}"
 
 
-@function_tool
+@tool
 def search_emails(
     query: Optional[str] = None,
     sender: Optional[str] = None,
@@ -202,9 +289,14 @@ def search_emails(
 
     q = " ".join(q_parts) if q_parts else ""
 
-    results = _get_gmail_service().users().messages().list(
-        userId="me", q=q, maxResults=max_results
-    ).execute()
+    results = _execute_gmail(
+        "messages.list.search",
+        lambda: _get_gmail_service().users().messages().list(
+            userId="me",
+            q=q,
+            maxResults=max_results,
+        ),
+    )
 
     messages = results.get("messages", [])
     if not messages:
@@ -212,10 +304,15 @@ def search_emails(
 
     emails = []
     for msg in messages:
-        msg_data = _get_gmail_service().users().messages().get(
-            userId="me", id=msg["id"], format="metadata",
-            metadataHeaders=["Subject", "From", "Date"]
-        ).execute()
+        msg_data = _execute_gmail(
+            "messages.get.metadata",
+            lambda m=msg: _get_gmail_service().users().messages().get(
+                userId="me",
+                id=m["id"],
+                format="metadata",
+                metadataHeaders=["Subject", "From", "Date"],
+            ),
+        )
 
         headers = {h["name"]: h["value"] for h in msg_data.get("payload", {}).get("headers", [])}
         emails.append({
@@ -235,7 +332,7 @@ def search_emails(
     return "\n".join(lines)
 
 
-@function_tool
+@tool
 def archive_email(message_id: str) -> str:
     """Archive an email by removing it from inbox.
     
@@ -245,15 +342,19 @@ def archive_email(message_id: str) -> str:
     Returns:
         Status of the archive operation
     """
-    _get_gmail_service().users().messages().modify(
-        userId="me", id=message_id,
-        body={"removeLabelIds": ["INBOX"]}
-    ).execute()
+    _execute_gmail(
+        "messages.modify.archive",
+        lambda: _get_gmail_service().users().messages().modify(
+            userId="me",
+            id=message_id,
+            body={"removeLabelIds": ["INBOX"]},
+        ),
+    )
 
     return f"✅ Email archived (ID: {message_id})"
 
 
-@function_tool
+@tool
 def mark_as_read(message_id: str) -> str:
     """Mark an email as read.
     
@@ -263,9 +364,25 @@ def mark_as_read(message_id: str) -> str:
     Returns:
         Status of the operation
     """
-    _get_gmail_service().users().messages().modify(
-        userId="me", id=message_id,
-        body={"removeLabelIds": ["UNREAD"]}
-    ).execute()
+    _execute_gmail(
+        "messages.modify.mark_read",
+        lambda: _get_gmail_service().users().messages().modify(
+            userId="me",
+            id=message_id,
+            body={"removeLabelIds": ["UNREAD"]},
+        ),
+    )
 
     return f"✅ Email marked as read (ID: {message_id})"
+
+
+
+GMAIL_TOOLS = [
+    get_unread_emails,
+    get_email_thread,
+    draft_email,
+    send_email,
+    search_emails,
+    archive_email,
+    mark_as_read,
+]

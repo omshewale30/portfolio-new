@@ -5,7 +5,7 @@ import time
 from socket import timeout as SocketTimeout
 import pytz
 from googleapiclient.discovery import build
-from agents import function_tool
+from langchain_core.tools import tool
 from integrations.google_auth import get_calendar_credentials
 from settings.config import settings
 
@@ -86,7 +86,7 @@ def _normalize_event(event: dict, tz) -> dict:
         "html_link": event.get("htmlLink"),
     }
 
-@function_tool
+@tool
 def get_todays_events() -> dict:
     """
     Returns today's calendar events in a deterministic structured format.
@@ -116,7 +116,7 @@ def get_todays_events() -> dict:
         "events": normalized,
     }
 
-@function_tool
+@tool
 def get_events_for_date(date_str: str) -> dict:
     """
     Returns calendar events for a specific date in structured format.
@@ -150,7 +150,7 @@ def get_events_for_date(date_str: str) -> dict:
         "events": normalized,
     }
 
-@function_tool
+@tool
 def create_calendar_event(title: str, start_iso: str, duration_minutes: int = 60) -> dict:
     """
     Creates a new event on the user's Google Calendar.
@@ -203,7 +203,7 @@ def create_calendar_event(title: str, start_iso: str, duration_minutes: int = 60
         "duration_minutes": duration_minutes,
     }
 
-@function_tool
+@tool
 def update_event_time(event_title_hint: str, new_start_iso: str, duration_minutes: int = 60) -> dict:
     """
     Moves an existing calendar event to a new time.
@@ -278,7 +278,7 @@ def update_event_time(event_title_hint: str, new_start_iso: str, duration_minute
         "duration_minutes": duration_minutes,
     }
 
-@function_tool
+@tool
 def delete_event(event_title_hint: str) -> dict:
     """
     Deletes an upcoming calendar event matching the given title hint.
@@ -318,3 +318,11 @@ def delete_event(event_title_hint: str) -> dict:
         "action": "delete",
         "event": normalized_event,
     }
+
+CALENDAR_TOOLS = [
+    get_todays_events,
+    get_events_for_date,
+    create_calendar_event,
+    update_event_time,
+    delete_event,
+]
