@@ -7,7 +7,7 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 from psycopg import AsyncConnection
 from psycopg.rows import dict_row
 from sqlalchemy.ext.asyncio import AsyncSession
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage, ToolMessage
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.errors import GraphRecursionError
 from jarvis_agents.orchestrator import build_orchestrator_graph
@@ -91,6 +91,42 @@ async def _checkpointer_from_conn_string(db_url: str) -> AsyncIterator[AsyncPost
         yield AsyncPostgresSaver(conn=conn)
 
 
+async def _remove_dangling_tool_calls(config: dict) -> bool:
+    """Strip AIMessages whose tool_calls have no matching ToolMessage from the thread.
+
+    Returns True if anything was removed (caller should retry with the same thread).
+    """
+    try:
+        state = await _graph.aget_state(config)
+    except Exception:
+        return False
+
+    messages = list(state.values.get("messages", []))
+    if not messages:
+        return False
+
+    responded_ids: set[str] = {
+        msg.tool_call_id
+        for msg in messages
+        if isinstance(msg, ToolMessage) and getattr(msg, "tool_call_id", None)
+    }
+
+    to_remove = [
+        RemoveMessage(id=msg.id)
+        for msg in messages
+        if isinstance(msg, AIMessage)
+        and getattr(msg, "tool_calls", None)
+        and any(tc["id"] not in responded_ids for tc in msg.tool_calls)
+    ]
+
+    if not to_remove:
+        return False
+
+    await _graph.aupdate_state(config, {"messages": to_remove})
+    logger.info("Removed %d dangling tool-call message(s) for thread %s", len(to_remove), config["configurable"]["thread_id"])
+    return True
+
+
 async def init_agent_runtime() -> None:
     global _graph, _checkpointer_cm
     if _graph is not None:
@@ -126,7 +162,6 @@ async def run_agent(chat_id: str | int, user_message: str, db_session: AsyncSess
     initial_state = {
         "messages": [HumanMessage(content=user_message)],
         "chat_id": str(chat_id),
-        "active_agent": "orchestrator",
     }
     try:
         result = await _graph.ainvoke(initial_state, config=config)
@@ -150,14 +185,17 @@ async def run_agent(chat_id: str | int, user_message: str, db_session: AsyncSess
         if not invalid_tool_history:
             raise
         logger.warning(
-            "Invalid tool-call history for chat_id=%s; retrying with a fresh thread: %s",
+            "Invalid tool-call history for chat_id=%s; attempting in-place repair: %s",
             chat_id,
             error_text,
         )
-        retry_config = {
+        fixed = await _remove_dangling_tool_calls(config)
+        retry_config = config if fixed else {
             **config,
             "configurable": {"thread_id": f"{chat_id}_recovered_{int(time.time())}"},
         }
+        if not fixed:
+            logger.warning("Could not repair thread for chat_id=%s; falling back to fresh thread", chat_id)
         result = await _graph.ainvoke(initial_state, config=retry_config)
         final_text = _clean_telegram_output(_extract_message_text(result["messages"][-1]))
         return final_text or "I couldn't generate a response. Please try again."

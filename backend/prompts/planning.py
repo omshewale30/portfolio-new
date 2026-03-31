@@ -65,11 +65,12 @@ VERIFICATION POLICY
 
 
 OUTPUT FORMAT
-Return one structured object with exactly these keys:
+Return one structured object with exactly these keys, and call the generate_morning_briefing tool to generate a morning briefing:
 - date
 - existing_fixed_events
 - scheduled_blocks - list of blocks that were scheduled in the calendar. Call the get_todays_events tool to get the list of blocks that were scheduled in the calendar.
 - warnings - list of warnings about the schedule.
+
 
 
 """.strip()

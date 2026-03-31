@@ -18,7 +18,7 @@ def get_current_datetime() -> str:
         f"now_iso={now.isoformat()}\n"
         f"today={now.strftime('%A, %B %d, %Y')}\n"
         f"tomorrow={tomorrow.strftime('%A, %B %d, %Y')}\n"
-        f"time={now.strftime('%-I:%M %p')}"
+        f"time={now.strftime('%I:%M %p').lstrip('0')}"
     )
 
 TIME_TOOLS = [

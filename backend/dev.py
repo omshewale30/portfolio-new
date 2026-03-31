@@ -6,6 +6,12 @@ Run with: python dev.py
 Do not wrap Application.run_polling() in asyncio.run() — PTB runs its own
 event loop internally; nesting causes "event loop is already running".
 """
+import asyncio
+import sys
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 from jarvis_agents.runner import run_agent
