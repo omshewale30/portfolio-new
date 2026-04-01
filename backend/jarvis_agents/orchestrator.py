@@ -8,18 +8,19 @@ from langchain_core.messages import AIMessage, SystemMessage, ToolMessage, trim_
 from langchain_core.tools import InjectedToolCallId, StructuredTool
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import InjectedState, ToolNode
+
 from langgraph.types import Command
 from prompts import ORCHESTRATOR_SYSTEM_PROMPT
 from state import JarvisState
 
 from tools.get_personal_info import get_personal_info
 from tools.time_tools import get_current_datetime
+from tools.task_tools import TASK_TOOLS
 from jarvis_agents.gmail_agent import gmail_agent_node
 from jarvis_agents.planning_agent import planning_agent_node
-from jarvis_agents.news_agent import news_agent_node
-from jarvis_agents.task_agent import task_agent_node
 from llm.clients import orchestrator_llm
 from jarvis_agents.calendar_agent import calendar_agent_node
+from tools.web_search import web_search
 
 
 def create_handoff_tool(agent_name: str, description: str | None = None):
@@ -39,15 +40,15 @@ def create_handoff_tool(agent_name: str, description: str | None = None):
 
 ROUTING_TOOLS = [
     create_handoff_tool("gmail_agent", "Transfer to Gmail specialist for email operations."),
-    create_handoff_tool("news_agent", "Transfer to AI news specialist."),
     create_handoff_tool("planning_agent", "Transfer to planning specialist."),
     create_handoff_tool("calendar_agent", "Transfer to calendar specialist."),
-    create_handoff_tool("task_agent", "Transfer to task specialist.")
 ]
 
 ORCHESTRATOR_EXECUTION_TOOLS = [
     get_current_datetime,
     get_personal_info,
+    *TASK_TOOLS,
+    web_search,
 ]
 ORCHESTRATOR_LLM_TOOLS = [*ORCHESTRATOR_EXECUTION_TOOLS, *ROUTING_TOOLS]
 
@@ -83,10 +84,8 @@ def build_orchestrator_graph(checkpointer):
     graph_builder.add_node("orchestrator", orchestrator_node)
     graph_builder.add_node("orchestrator_tools", ToolNode(ORCHESTRATOR_LLM_TOOLS))
     graph_builder.add_node("gmail_agent", gmail_agent_node)
-    graph_builder.add_node("news_agent", news_agent_node)
     graph_builder.add_node("planning_agent", planning_agent_node)
     graph_builder.add_node("calendar_agent", calendar_agent_node)
-    graph_builder.add_node("task_agent", task_agent_node)
     graph_builder.set_entry_point("orchestrator")
     graph_builder.add_conditional_edges(
         "orchestrator",
@@ -97,6 +96,6 @@ def build_orchestrator_graph(checkpointer):
         },
     )
     graph_builder.add_edge("orchestrator_tools", "orchestrator")
-    for agent in ["gmail_agent", "news_agent", "planning_agent", "calendar_agent", "task_agent"]:
+    for agent in ["gmail_agent", "planning_agent", "calendar_agent"]:
         graph_builder.add_edge(agent, "orchestrator")
     return graph_builder.compile(checkpointer=checkpointer)

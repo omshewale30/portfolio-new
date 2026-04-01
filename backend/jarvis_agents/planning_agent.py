@@ -1,15 +1,14 @@
 from langchain.agents import create_agent
-from langchain_openai import ChatOpenAI
-from settings.config import settings
 from prompts import PLANNING_SYSTEM_PROMPT
 from tools.calendar_tools import CALENDAR_TOOLS
 from tools.task_tools import TASK_TOOLS
 from tools.time_tools import get_current_datetime
 from state import JarvisState
 from tools.briefing_tool import generate_morning_briefing
+from llm.clients import specialist_llm
 
 planning_graph = create_agent(
-    model=ChatOpenAI(model="gpt-4o-mini", api_key=settings.openai_api_key),
+    model=specialist_llm,
     tools=[
         *CALENDAR_TOOLS,
         *TASK_TOOLS,

@@ -1,12 +1,12 @@
 from langchain.agents import create_agent
-from langchain_openai import ChatOpenAI
 from tools.calendar_tools import CALENDAR_TOOLS
 from prompts import CALENDAR_SYSTEM_PROMPT
 from settings.config import settings
 from state import JarvisState
+from llm.clients import specialist_llm
 
 calendar_graph = create_agent(
-    model=ChatOpenAI(model="gpt-4o-mini", api_key=settings.openai_api_key),
+    model=specialist_llm,
     tools=CALENDAR_TOOLS,
     system_prompt=CALENDAR_SYSTEM_PROMPT,
 )

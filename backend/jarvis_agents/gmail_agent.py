@@ -7,12 +7,12 @@ It will also be used to archive or mark emails as read.
 
 from langchain.agents import create_agent
 from tools.gmail_tools import GMAIL_TOOLS
-from langchain_openai import ChatOpenAI
 from prompts import GMAIL_SYSTEM_PROMPT
 from state import JarvisState
+from llm.clients import specialist_llm
 
 gmail_graph = create_agent(
-    model=ChatOpenAI(model="gpt-4o"),
+    model=specialist_llm,
     tools=GMAIL_TOOLS,
     system_prompt=GMAIL_SYSTEM_PROMPT,
 )
