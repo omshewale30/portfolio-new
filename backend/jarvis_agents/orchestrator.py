@@ -57,10 +57,12 @@ _orchestrator_llm = orchestrator_llm.bind_tools(ORCHESTRATOR_LLM_TOOLS)
 
 def orchestrator_node(state: JarvisState) -> dict:
     message_window = trim_messages(
-        list(state["messages"]),
+        state["messages"],
         strategy="last",
         max_tokens=7000,
-        token_counter=orchestrator_llm,
+        token_counter=orchestrator_llm,  # or "approximate"
+        start_on="human",
+        include_system=False,            # you inject SystemMessage separately
         allow_partial=False,
     )
     response = _orchestrator_llm.invoke(
@@ -74,6 +76,24 @@ def route_orchestrator(state: JarvisState) -> str:
     if not isinstance(last, AIMessage) or not last.tool_calls:
         return END
     return "orchestrator_tools"
+
+
+def route_after_orchestrator_tools(state: JarvisState) -> str:
+    """Route transfer-tool results to specialists; otherwise continue orchestration."""
+    transfer_map = {
+        "transfer_to_gmail_agent": "gmail_agent",
+        "transfer_to_planning_agent": "planning_agent",
+        "transfer_to_calendar_agent": "calendar_agent",
+    }
+    messages = list(state["messages"])
+    last_ai_with_tools = next(
+        (msg for msg in reversed(messages) if isinstance(msg, AIMessage) and msg.tool_calls),
+        None,
+    )
+    if last_ai_with_tools is None:
+        return "orchestrator"
+    tool_name = last_ai_with_tools.tool_calls[-1]["name"]
+    return transfer_map.get(tool_name, "orchestrator")
 
 
 
@@ -95,7 +115,16 @@ def build_orchestrator_graph(checkpointer):
             END: END,
         },
     )
-    graph_builder.add_edge("orchestrator_tools", "orchestrator")
+    graph_builder.add_conditional_edges(
+        "orchestrator_tools",
+        route_after_orchestrator_tools,
+        {
+            "orchestrator": "orchestrator",
+            "gmail_agent": "gmail_agent",
+            "planning_agent": "planning_agent",
+            "calendar_agent": "calendar_agent",
+        },
+    )
     for agent in ["gmail_agent", "planning_agent", "calendar_agent"]:
-        graph_builder.add_edge(agent, "orchestrator")
+        graph_builder.add_edge(agent, END)
     return graph_builder.compile(checkpointer=checkpointer)

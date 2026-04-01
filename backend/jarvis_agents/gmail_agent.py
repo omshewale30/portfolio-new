@@ -10,15 +10,18 @@ from tools.gmail_tools import GMAIL_TOOLS
 from prompts import GMAIL_SYSTEM_PROMPT
 from state import JarvisState
 from llm.clients import specialist_llm
+from tools.time_tools import get_current_datetime
 
 gmail_graph = create_agent(
     model=specialist_llm,
-    tools=GMAIL_TOOLS,
+    tools=GMAIL_TOOLS + [get_current_datetime],
     system_prompt=GMAIL_SYSTEM_PROMPT,
 )
 
 
 async def gmail_agent_node(state: JarvisState) -> dict:
-    result = await gmail_graph.ainvoke({"messages": list(state["messages"])})
+    # Keep specialist context intentionally tight to reduce cross-turn drift.
+    relevant_messages = list(state["messages"])[-3:]
+    result = await gmail_graph.ainvoke({"messages": relevant_messages})
     return {"messages": [result["messages"][-1]]}
 

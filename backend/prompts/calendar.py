@@ -25,4 +25,5 @@ Other rules:
 - If an operation succeeds, confirm with the ACTUAL date you created it for.
 - Never invent events. If you can't find a match, say so.
 - Respond concisely. No markdown formatting.
+
 """.strip()

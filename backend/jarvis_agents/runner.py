@@ -157,7 +157,7 @@ async def run_agent(chat_id: str | int, user_message: str, db_session: AsyncSess
 
     config = {
         "configurable": {"thread_id": str(chat_id)},
-        "recursion_limit": 100,
+        "recursion_limit": 100
     }
     initial_state = {
         "messages": [HumanMessage(content=user_message)],

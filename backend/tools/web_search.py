@@ -1,11 +1,12 @@
 from langchain_core.tools import tool
+from openai import AsyncOpenAI
 
-from llm.clients import orchestrator_llm
+client = AsyncOpenAI()
 
 @tool
 async def web_search(query: str) -> str:
     """Search the web and return a concise summary with citations."""
-    response = await orchestrator_llm.responses.create(
+    response = await client.responses.create(
         model="gpt-4o",
         input=query,
         tools=[{"type": "web_search"}],
