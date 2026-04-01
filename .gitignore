@@ -31,3 +31,4 @@ src/utils/responseParser.test.js
 backend/.env
 
 backend/credentials/*
+backend/__pycache__/*
