@@ -1,14 +1,23 @@
+import asyncio
 import logging
+import random
+import re
 from datetime import datetime
 
 import pytz
 from langchain_core.messages import HumanMessage, AIMessage
+from openai import RateLimitError
 
 from integrations.telegram import send_message
 from jarvis_agents.planning_agent import planning_graph
 from settings.config import settings
 
 logger = logging.getLogger(__name__)
+
+# Morning briefing runs many agent steps; org TPM can be saturated. Outer retries with
+# backoff that can span minute boundaries recover where SDK-only retries do not.
+_BRIEFING_RATE_LIMIT_ATTEMPTS = 10
+_RETRY_MS_RE = re.compile(r"try again in ([\d.]+)\s*ms", re.IGNORECASE)
 
 MORNING_BRIEFING_MESSAGE = """
 Generate a complete morning briefing by following these steps in order:
@@ -38,6 +47,36 @@ def _extract_final_response(messages: list) -> str:
     return ""
 
 
+def _rate_limit_backoff_seconds(attempt: int, exc: RateLimitError) -> float:
+    """Sleep long enough for TPM rolling window to recover; API 'try again in Xms' is often too short."""
+    msg = str(exc)
+    m = _RETRY_MS_RE.search(msg)
+    hint_sec = float(m.group(1)) / 1000.0 if m else 0.0
+    # Escalate: 4s, 8s, 16s, ... capped so we can cross into the next minute under heavy TPM use.
+    floor = min(120.0, 2.0 ** (attempt + 2))
+    return max(hint_sec + random.uniform(0, 0.5), floor)
+
+
+async def _run_planning_briefing():
+    for attempt in range(_BRIEFING_RATE_LIMIT_ATTEMPTS):
+        try:
+            return await planning_graph.ainvoke({
+                "messages": [HumanMessage(content=MORNING_BRIEFING_MESSAGE)]
+            })
+        except RateLimitError as e:
+            if attempt >= _BRIEFING_RATE_LIMIT_ATTEMPTS - 1:
+                raise
+            delay = _rate_limit_backoff_seconds(attempt, e)
+            logger.warning(
+                "Morning briefing rate limited (attempt %s/%s); retrying in %.1fs: %s",
+                attempt + 1,
+                _BRIEFING_RATE_LIMIT_ATTEMPTS,
+                delay,
+                e,
+            )
+            await asyncio.sleep(delay)
+
+
 async def send_morning_briefing() -> None:
     """
     Runs the morning briefing workflow:
@@ -54,9 +93,7 @@ async def send_morning_briefing() -> None:
     logger.info("Running morning briefing for %s...", now.strftime("%Y-%m-%d %H:%M"))
 
     try:
-        result = await planning_graph.ainvoke({
-            "messages": [HumanMessage(content=MORNING_BRIEFING_MESSAGE)]
-        })
+        result = await _run_planning_briefing()
 
         briefing_text = _extract_final_response(result.get("messages", []))
 
