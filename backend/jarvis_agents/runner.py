@@ -5,6 +5,7 @@ from collections.abc import AsyncIterator
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from psycopg import AsyncConnection
+from psycopg import OperationalError as PsycopgOperationalError
 from psycopg.rows import dict_row
 from sqlalchemy.ext.asyncio import AsyncSession
 from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage, ToolMessage
@@ -127,6 +128,34 @@ async def _remove_dangling_tool_calls(config: dict) -> bool:
     return True
 
 
+def _is_closed_connection_error(exc: Exception) -> bool:
+    """Detect transient psycopg connection-closed failures."""
+    return isinstance(exc, PsycopgOperationalError) and "connection is closed" in str(exc).lower()
+
+
+async def _invoke_with_closed_connection_retry(
+    initial_state: dict,
+    config: dict,
+    *,
+    retry_label: str,
+) -> dict:
+    """Invoke graph and rebuild runtime once if checkpoint connection is stale."""
+    global _graph
+    try:
+        return await _graph.ainvoke(initial_state, config=config)
+    except Exception as exc:
+        if not _is_closed_connection_error(exc):
+            raise
+        logger.warning("Detected closed Postgres connection; rebuilding LangGraph runtime")
+        await shutdown_agent_runtime()
+        await init_agent_runtime()
+        retry_config = {
+            **config,
+            "configurable": {"thread_id": f"{config['configurable']['thread_id']}_{retry_label}_{int(time.time())}"},
+        }
+        return await _graph.ainvoke(initial_state, config=retry_config)
+
+
 async def init_agent_runtime() -> None:
     global _graph, _checkpointer_cm
     if _graph is not None:
@@ -164,7 +193,7 @@ async def run_agent(chat_id: str | int, user_message: str, db_session: AsyncSess
         "chat_id": str(chat_id),
     }
     try:
-        result = await _graph.ainvoke(initial_state, config=config)
+        result = await _invoke_with_closed_connection_retry(initial_state, config, retry_label="reconnect")
         final_text = _clean_telegram_output(_extract_message_text(result["messages"][-1]))
         return final_text or "I couldn't generate a response. Please try again."
     except GraphRecursionError:
@@ -173,11 +202,16 @@ async def run_agent(chat_id: str | int, user_message: str, db_session: AsyncSess
             **config,
             "configurable": {"thread_id": f"{chat_id}_retry_{int(time.time())}"},
         }
-        result = await _graph.ainvoke(initial_state, config=retry_config)
+        result = await _invoke_with_closed_connection_retry(initial_state, retry_config, retry_label="reconnect")
         final_text = _clean_telegram_output(_extract_message_text(result["messages"][-1]))
         return final_text or "I couldn't generate a response. Please try again."
     except Exception as e:
         error_text = str(e)
+        if _is_closed_connection_error(e):
+            logger.warning("Closed Postgres connection surfaced in recovery path; retrying once")
+            result = await _invoke_with_closed_connection_retry(initial_state, config, retry_label="reconnect")
+            final_text = _clean_telegram_output(_extract_message_text(result["messages"][-1]))
+            return final_text or "I couldn't generate a response. Please try again."
         invalid_tool_history = (
             "must be followed by tool messages" in error_text
             or "do not have a corresponding ToolMessage" in error_text
@@ -196,6 +230,6 @@ async def run_agent(chat_id: str | int, user_message: str, db_session: AsyncSess
         }
         if not fixed:
             logger.warning("Could not repair thread for chat_id=%s; falling back to fresh thread", chat_id)
-        result = await _graph.ainvoke(initial_state, config=retry_config)
+        result = await _invoke_with_closed_connection_retry(initial_state, retry_config, retry_label="reconnect")
         final_text = _clean_telegram_output(_extract_message_text(result["messages"][-1]))
         return final_text or "I couldn't generate a response. Please try again."
