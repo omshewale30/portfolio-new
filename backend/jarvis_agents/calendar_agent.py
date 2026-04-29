@@ -24,5 +24,5 @@ async def calendar_agent_node(state: JarvisState) -> dict:
         include_system=False,   # system prompt already comes from create_agent(...)
         allow_partial=False,
     )
-    result = await calendar_graph.ainvoke({"messages": relevant_messages})
+    result = await calendar_graph.ainvoke({"messages": relevant_messages}, config={"recursion_limit": 10})
     return {"messages": [result["messages"][-1]]}

@@ -22,6 +22,6 @@ gmail_graph = create_agent(
 async def gmail_agent_node(state: JarvisState) -> dict:
     # Keep specialist context intentionally tight to reduce cross-turn drift.
     relevant_messages = list(state["messages"])[-3:]
-    result = await gmail_graph.ainvoke({"messages": relevant_messages})
+    result = await gmail_graph.ainvoke({"messages": relevant_messages}, config={"recursion_limit": 10})
     return {"messages": [result["messages"][-1]]}
 

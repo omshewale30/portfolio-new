@@ -25,11 +25,11 @@ async def planning_agent_node(state: JarvisState) -> dict:
     relevant_messages = trim_messages(
         list(state["messages"]),
         strategy="last",
-        max_tokens=12,          # counts messages because token_counter=len
+        max_tokens=50,          # counts messages because token_counter=len
         token_counter=len,
         start_on="human",
         include_system=False,   # system prompt already comes from create_agent(...)
         allow_partial=False,
     )
-    result = await planning_graph.ainvoke({"messages": relevant_messages})
-    return {"messages": [result["messages"][-1]]}
+    result = await planning_graph.ainvoke({"messages": relevant_messages}, config={"recursion_limit": 10})
+    return {"messages": [result["messages"][-2]]}
