@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 
 import pytz
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from openai import RateLimitError
 
 from integrations.telegram import send_message
@@ -36,6 +36,16 @@ Return the final briefing text.
 def _extract_final_response(messages: list) -> str:
     """Extract the final AI response text from message list."""
     for msg in reversed(messages):
+        if isinstance(msg, ToolMessage) and msg.name == "generate_morning_briefing":
+            content = msg.content
+            if isinstance(content, str) and content.strip():
+                return content.strip()
+            if isinstance(content, list):
+                for item in content:
+                    if isinstance(item, dict) and item.get("text"):
+                        return str(item["text"]).strip()
+
+    for msg in reversed(messages):
         if isinstance(msg, AIMessage):
             content = msg.content
             if isinstance(content, str) and content.strip():
@@ -61,8 +71,8 @@ async def _run_planning_briefing():
     for attempt in range(_BRIEFING_RATE_LIMIT_ATTEMPTS):
         try:
             return await planning_graph.ainvoke({
-                "messages": [HumanMessage(content=MORNING_BRIEFING_MESSAGE)]
-            })
+                "messages": [HumanMessage(content=MORNING_BRIEFING_MESSAGE)],
+            }, config={"recursion_limit": 50})
         except RateLimitError as e:
             if attempt >= _BRIEFING_RATE_LIMIT_ATTEMPTS - 1:
                 raise

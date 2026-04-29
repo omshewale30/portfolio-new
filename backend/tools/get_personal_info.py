@@ -17,7 +17,7 @@ async def get_personal_info(query: str, top_k: int = 8) -> str:
         top_k: Number of results to retrieve (default 8)
     """
     response = await openai_client.responses.create(
-        model="gpt-4o-mini",  # cheap model just for retrieval
+        model="gpt-4.1-mini",  # cheap model just for retrieval
         input=query,
         tools=[{
             "type": "file_search",

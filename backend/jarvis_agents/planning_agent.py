@@ -5,12 +5,12 @@ from tools.task_tools import TASK_TOOLS
 from tools.time_tools import get_current_datetime
 from state import JarvisState
 from tools.briefing_tool import generate_morning_briefing
-from llm.clients import specialist_llm
+from llm.clients import orchestrator_llm
 from langchain_core.messages import trim_messages
 from tools.planning_verfier import planning_verifier_tool
 
 planning_graph = create_agent(
-    model=specialist_llm,
+    model=orchestrator_llm,
     tools=[
         *CALENDAR_TOOLS,
         *TASK_TOOLS,

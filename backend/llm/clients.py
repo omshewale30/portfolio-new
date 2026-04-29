@@ -4,13 +4,13 @@ from settings.config import settings
 
 # Higher max_retries helps transient 429s inside a single completion; briefing also retries at runner level.
 orchestrator_llm = ChatOpenAI(
-    model="gpt-4o",
+    model="gpt-4.1",
     api_key=settings.openai_api_key,
     temperature=0,
     max_retries=2,
 )
 specialist_llm = ChatOpenAI(
-    model="gpt-4o-mini",
+    model="gpt-4.1-mini",
     api_key=settings.openai_api_key,
     temperature=0,
     max_retries=2,
