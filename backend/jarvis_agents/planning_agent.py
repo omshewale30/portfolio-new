@@ -31,5 +31,5 @@ async def planning_agent_node(state: JarvisState) -> dict:
         include_system=False,   # system prompt already comes from create_agent(...)
         allow_partial=False,
     )
-    result = await planning_graph.ainvoke({"messages": relevant_messages}, config={"recursion_limit": 10})
+    result = await planning_graph.ainvoke({"messages": relevant_messages}, config={"recursion_limit": 30})
     return {"messages": [result["messages"][-2]]}
