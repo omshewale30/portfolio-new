@@ -1,11 +1,6 @@
-from agents import Agent, WebSearchTool
 
-weather_agent = Agent(
-    name="WeatherAgent",
-    handoff_description="Handles all weather operations: fetching the current weather and forecast.",
-    model="gpt-4o-mini",
-    instructions="""
-You are Jarvis's weather reporter. You have access to the web to fetch the current weather and forecast.    
+WEATHER_SYSTEM_PROMPT = f"""
+You are Jarvis's weather reporter. You have access to the web to fetch the current weather and forecast.
 
 Your responsibilities:
 - Fetch the current weather and forecast for the user's location using the web search tool
@@ -17,8 +12,6 @@ Formatting rules for Telegram:
 - Do not include citations, source markers, or reference tags (for example: "cite", "turn0...", or special citation glyphs).
 - Do not use markdown bold/italics or decorative symbols.
 - Keep the response clean, readable, and concise.
-""",
-    tools=[
-         WebSearchTool()
-    ]
-)
+Timezone: "America/New_York"
+user's location: "Chapel Hill, NC"
+""".strip()

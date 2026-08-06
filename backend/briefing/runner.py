@@ -1,141 +1,127 @@
 import asyncio
 import logging
-from openai import AsyncOpenAI, RateLimitError
-from typing import Any
-from tools.task_tools import _list_overdue_tasks, _list_due_today_tasks
+import random
+import re
+from datetime import datetime
+
+import pytz
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
+from openai import RateLimitError
+
 from integrations.telegram import send_message
+from jarvis_agents.planning_agent import planning_graph
 from settings.config import settings
-from jarvis_agents.weather_agent import weather_agent
-from jarvis_agents.news_agent import ai_news_agent
-from jarvis_agents.planning_agent import planning_agent
-from agents import Runner
-import json
 
 logger = logging.getLogger(__name__)
-client = AsyncOpenAI(api_key=settings.openai_api_key)
 
-BRIEFING_SYSTEM_PROMPT = """
-You are Jarvis, a personal assistant delivering a morning briefing.
-You will receive overdue tasks, tasks due today, and a planning result.
-Write a concise, friendly morning briefing in plain text (no markdown headers).
-Structure it as:
-1. A brief greeting with the date, like "Good morning, Sir! Here's your morning briefing for today."
-2. Schedule overview — highlight key events, note any back-to-back meetings or conflicts
-3. Task snapshot — call out overdue tasks and anything due today, grouped by project if there are multiple
-4. Planning actions — summarize what was scheduled vs left unscheduled; if planning stayed draft-only, mention warnings clearly
-5. One closing practical note if relevant (e.g., early start, no meetings today)
+# Morning briefing runs many agent steps; org TPM can be saturated. Outer retries with
+# backoff that can span minute boundaries recover where SDK-only retries do not.
+_BRIEFING_RATE_LIMIT_ATTEMPTS = 10
+_RETRY_MS_RE = re.compile(r"try again in ([\d.]+)\s*ms", re.IGNORECASE)
 
-Keep the total under 250 words. Conversational, not corporate.
+MORNING_BRIEFING_MESSAGE = """
+Generate a complete morning briefing by following these steps in order:
+
+1. Get current datetime to anchor today's date
+2. Fetch today's calendar events
+3. Fetch open tasks (due today and overdue)
+4. Plan the day by scheduling appropriate time blocks for tasks and routine activities
+5. Verify the scheduled blocks using the planning_verifier_tool
+6. Generate the morning briefing using generate_morning_briefing tool with the planning result
+
+Return the final briefing text.
 """
 
-PLANNING_REQUEST = (
-    "Plan my day for the remainder of today using my existing calendar, today's and overdue "
-    "tasks"
-)
+
+def _extract_final_response(messages: list) -> str:
+    """Extract the final AI response text from message list."""
+    for msg in reversed(messages):
+        if isinstance(msg, ToolMessage) and msg.name == "generate_morning_briefing":
+            content = msg.content
+            if isinstance(content, str) and content.strip():
+                return content.strip()
+            if isinstance(content, list):
+                for item in content:
+                    if isinstance(item, dict) and item.get("text"):
+                        return str(item["text"]).strip()
+
+    for msg in reversed(messages):
+        if isinstance(msg, AIMessage):
+            content = msg.content
+            if isinstance(content, str) and content.strip():
+                return content.strip()
+            if isinstance(content, list):
+                for item in content:
+                    if isinstance(item, dict) and item.get("text"):
+                        return str(item["text"]).strip()
+    return ""
 
 
+def _rate_limit_backoff_seconds(attempt: int, exc: RateLimitError) -> float:
+    """Sleep long enough for TPM rolling window to recover; API 'try again in Xms' is often too short."""
+    msg = str(exc)
+    m = _RETRY_MS_RE.search(msg)
+    hint_sec = float(m.group(1)) / 1000.0 if m else 0.0
+    # Escalate: 4s, 8s, 16s, ... capped so we can cross into the next minute under heavy TPM use.
+    floor = min(120.0, 2.0 ** (attempt + 2))
+    return max(hint_sec + random.uniform(0, 0.5), floor)
 
 
-def _trim(label: str, text: str, max_chars: int) -> str:
-    cleaned = (text or "").strip()
-    if len(cleaned) <= max_chars:
-        return cleaned
-    return f"{cleaned[:max_chars]}\n...[{label} truncated for brevity]"
-
-
-def _to_jsonable(value: Any) -> Any:
-    if value is None or isinstance(value, (str, int, float, bool)):
-        return value
-    if isinstance(value, dict):
-        return {str(k): _to_jsonable(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple, set)):
-        return [_to_jsonable(v) for v in value]
-
-    # Pydantic v2
-    if hasattr(value, "model_dump"):
+async def _run_planning_briefing():
+    for attempt in range(_BRIEFING_RATE_LIMIT_ATTEMPTS):
         try:
-            return _to_jsonable(value.model_dump())
-        except Exception:
-            pass
-
-    # Pydantic v1 or similar objects
-    if hasattr(value, "dict"):
-        try:
-            return _to_jsonable(value.dict())
-        except Exception:
-            pass
-
-    return str(value)
-
-
-def _planning_context_json(run_result: Any) -> str:
-    final_output = getattr(run_result, "final_output", run_result)
-    jsonable = _to_jsonable(final_output)
-    return json.dumps(jsonable, indent=2, ensure_ascii=True)
-
-
-async def _run_with_retry(coro_factory, label: str, attempts: int = 4) -> object:
-    for attempt in range(1, attempts + 1):
-        try:
-            return await coro_factory()
-        except RateLimitError:
-            if attempt == attempts:
+            return await planning_graph.ainvoke({
+                "messages": [HumanMessage(content=MORNING_BRIEFING_MESSAGE)],
+            }, config={"recursion_limit": 50})
+        except RateLimitError as e:
+            if attempt >= _BRIEFING_RATE_LIMIT_ATTEMPTS - 1:
                 raise
-            delay_seconds = 2 * attempt
+            delay = _rate_limit_backoff_seconds(attempt, e)
             logger.warning(
-                "Rate limited during %s (attempt %s/%s); retrying in %ss",
-                label,
-                attempt,
-                attempts,
-                delay_seconds,
+                "Morning briefing rate limited (attempt %s/%s); retrying in %.1fs: %s",
+                attempt + 1,
+                _BRIEFING_RATE_LIMIT_ATTEMPTS,
+                delay,
+                e,
             )
-            await asyncio.sleep(delay_seconds)
+            await asyncio.sleep(delay)
+
 
 async def send_morning_briefing() -> None:
     """
-    Fetches calendar + weather + task data, runs day planning, synthesizes a morning briefing,
-    and sends it proactively to the user's Telegram.
+    Runs the morning briefing workflow:
+    1. Invokes the planning agent to plan the day
+    2. Planning agent schedules events in calendar
+    3. Planning agent verifies the schedule
+    4. Planning agent generates the briefing
+    5. Sends briefing to user via Telegram
+
     Called by APScheduler at the configured briefing time.
     """
-    logger.info("Running morning briefing...")
+    tz = pytz.timezone(settings.timezone)
+    now = datetime.now(tz)
+    logger.info("Running morning briefing for %s...", now.strftime("%Y-%m-%d %H:%M"))
 
     try:
-        planning_run = await _run_with_retry(
-            lambda: Runner.run(planning_agent, PLANNING_REQUEST),
-            "planning",
-        )
+        result = await _run_planning_briefing()
 
-        overdue_context = await _list_overdue_tasks()
-        due_today_context = await _list_due_today_tasks()
+        briefing_text = _extract_final_response(result.get("messages", []))
 
-        full_context = "\n\n".join([
-            _trim("Overdue tasks", overdue_context, 1200),
-            _trim("Due today tasks", due_today_context, 1200),
-            f"Planning result:\n{_trim('Planning', _planning_context_json(planning_run), 2200)}"
-        ])
-
-        response = await _run_with_retry(
-            lambda: client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": BRIEFING_SYSTEM_PROMPT},
-                    {"role": "user", "content": full_context},
-                ],
-                max_tokens=320,
-                temperature=0.5,
-            ),
-            "briefing synthesis",
-        )
-
-        briefing_text = (response.choices[0].message.content or "").strip()
         if not briefing_text:
-            briefing_text = "Good morning. I couldn't compile a full briefing, but your systems are online."
+            briefing_text = (
+                "Good morning! I encountered an issue generating your briefing today. "
+                "Please check your calendar and tasks manually."
+            )
+            logger.warning("Empty briefing response from planning agent")
+
         await send_message(settings.telegram_chat_id, briefing_text)
-        logger.info("Morning briefing sent successfully.")
+        logger.info("Morning briefing sent successfully")
 
     except Exception as e:
-        logger.error(f"Morning briefing failed: {e}", exc_info=True)
+        logger.exception("Failed to generate morning briefing: %s", e)
         await send_message(
             settings.telegram_chat_id,
-            "⚠️ Jarvis couldn't generate your morning briefing. Check the logs."
+            "Good morning! I encountered an error while preparing your briefing. "
+            "Please check your calendar and tasks manually."
         )
+

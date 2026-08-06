@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from agents import function_tool
+from langchain_core.tools import tool
 from settings.config import settings
 
 
-@function_tool
+@tool
 def get_current_datetime() -> str:
     """
     Returns the current local date/time in the configured user timezone.
@@ -18,5 +18,9 @@ def get_current_datetime() -> str:
         f"now_iso={now.isoformat()}\n"
         f"today={now.strftime('%A, %B %d, %Y')}\n"
         f"tomorrow={tomorrow.strftime('%A, %B %d, %Y')}\n"
-        f"time={now.strftime('%-I:%M %p')}"
+        f"time={now.strftime('%I:%M %p').lstrip('0')}"
     )
+
+TIME_TOOLS = [
+    get_current_datetime,
+]

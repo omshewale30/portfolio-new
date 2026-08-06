@@ -1,14 +1,12 @@
-from agents import function_tool
-from openai import OpenAI
+from langchain_core.tools import tool
 from settings.config import settings
 
-from agents import function_tool, RunContextWrapper
 from openai import AsyncOpenAI
 
 openai_client = AsyncOpenAI()
 VECTOR_STORE_ID = settings.vector_store_id
 
-@function_tool
+@tool
 async def get_personal_info(query: str, top_k: int = 8) -> str:
     """
     Search Jarvis's personal knowledge base for Om's personal information and relevant context about Om.
@@ -19,7 +17,7 @@ async def get_personal_info(query: str, top_k: int = 8) -> str:
         top_k: Number of results to retrieve (default 8)
     """
     response = await openai_client.responses.create(
-        model="gpt-4o-mini",  # cheap model just for retrieval
+        model="gpt-4.1-mini",  # cheap model just for retrieval
         input=query,
         tools=[{
             "type": "file_search",
