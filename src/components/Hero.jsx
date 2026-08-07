@@ -206,7 +206,7 @@ const Hero = () => {
                   Om Shewale
                 </p>
                 <p className="mt-1 font-mono text-xs uppercase tracking-[0.1em] text-[var(--color-primary)]">
-                  Applied AI
+                  Applied AI Engineer
                 </p>
 
                 <div className="mt-4 flex items-center gap-2 text-[var(--color-text-subtle)]">
@@ -243,13 +243,7 @@ const Hero = () => {
                 </div>
                 
 
-                {/* Availability pill */}
-                <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.06)] px-3 py-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" style={{ boxShadow: "0 0 6px rgba(52,211,153,0.7)" }} />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-meta)]">
-                    Building
-                  </span>
-                </div>
+
               </div>
             </div>
           </div>

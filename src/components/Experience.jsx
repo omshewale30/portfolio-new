@@ -6,10 +6,35 @@ import { fadeInUp } from "../utils/animations"
 const experienceDetails = [
 
   {
-    "title": "Business Analyst",
+    "title": "Applied AI Engineer",
+    "company": "Office of the Vice Chancellor for Finance and Operations, UNC-Chapel Hill",
+    "location": "Chapel Hill, NC, USA",
+    "duration": "06/2026 – Present",
+    "contributions": [
+      "Lead F&O's AI strategy end-to-end, reporting to the Vice Chancellor and partnering with the CFO and Associate Vice Chancellors to surface operational bottlenecks and prioritize the highest-ROI problems across the division.",
+      "Built an enterprise intake and evaluation framework to triage proposed use cases by feasibility and financial impact, concentrating engineering effort on the workflows driving the most administrative overhead.",
+      "Architecting Nimbus, an org-wide AI platform, and Heelper, a configurable department-specific AI tool, as the core in-house infrastructure for scaling AI capability across F&O business units.",
+      "Recruiting, hiring, and leading a small AI engineering team from the ground up, while running alignment sessions with senior leadership across F&O to build sponsorship and drive adoption."
+    ],
+    "technologies": [
+      "Python",
+      "Azure AI Foundry",
+      "Next.js",
+      "FastAPI",
+      "AI Strategy",
+      "Stakeholder Management",
+      "Enterprise Architecture",
+      "Change Management"
+    ],
+    "image": "../assets/UNC_FO.jpeg",
+    "type": "AI/development"
+  },
+
+  {
+    "title": "Applied AI intern",
     "company": "University of North Carolina - Chapel Hill",
     "location": "Chapel Hill, NC, USA",
-    "duration": "09/2024 – Present",
+    "duration": "09/2024 – 05/2026",
     "contributions": [
       "Pioneered an AI-driven transformation by developing an enterprise RAG (Retrieval Augmented Generation) chatbot using LangChain and Azure OpenAI, projected to eliminate hundreds of hours of manual research annually by providing instant answers from ~600-page policy manuals.",
       "Drove a 35% boost in departmental efficiency by developing a Python automation tool to track pharmacy insurance payments and optimizing deposit workflows, increasing overall office productivity by 20%.",
@@ -20,8 +45,7 @@ const experienceDetails = [
       "Python", 
       "LangChain", 
       "Azure OpenAI", 
-      "Excel", 
-      "EDI", 
+      "Excel",
       "Business Process Improvement", 
       "Financial Reporting", 
       "Data Reconciliation"
