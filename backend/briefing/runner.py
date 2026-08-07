@@ -2,10 +2,13 @@ import asyncio
 import logging
 import random
 import re
+import ssl
 from datetime import datetime
+from socket import timeout as SocketTimeout
 
 import pytz
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
+from langgraph.errors import GraphRecursionError
 from openai import RateLimitError
 
 from integrations.telegram import send_message
@@ -18,6 +21,7 @@ logger = logging.getLogger(__name__)
 # backoff that can span minute boundaries recover where SDK-only retries do not.
 _BRIEFING_RATE_LIMIT_ATTEMPTS = 10
 _RETRY_MS_RE = re.compile(r"try again in ([\d.]+)\s*ms", re.IGNORECASE)
+_NETWORK_EXCEPTIONS = (ssl.SSLError, ConnectionResetError, TimeoutError, SocketTimeout, ConnectionError)
 
 MORNING_BRIEFING_MESSAGE = """
 Generate a complete morning briefing by following these steps in order:
@@ -70,6 +74,12 @@ def _rate_limit_backoff_seconds(attempt: int, exc: RateLimitError) -> float:
 async def _run_planning_briefing():
     for attempt in range(_BRIEFING_RATE_LIMIT_ATTEMPTS):
         try:
+            logger.info(
+                "Morning briefing phase=planning_invoke_start attempt=%s/%s recursion_limit=%s",
+                attempt + 1,
+                _BRIEFING_RATE_LIMIT_ATTEMPTS,
+                50,
+            )
             return await planning_graph.ainvoke({
                 "messages": [HumanMessage(content=MORNING_BRIEFING_MESSAGE)],
             }, config={"recursion_limit": 50})
@@ -103,8 +113,14 @@ async def send_morning_briefing() -> None:
     logger.info("Running morning briefing for %s...", now.strftime("%Y-%m-%d %H:%M"))
 
     try:
+        logger.info("Morning briefing phase=planning_invoke")
         result = await _run_planning_briefing()
+        logger.info(
+            "Morning briefing phase=planning_invoke_done message_count=%s",
+            len(result.get("messages", [])),
+        )
 
+        logger.info("Morning briefing phase=extract_final_response")
         briefing_text = _extract_final_response(result.get("messages", []))
 
         if not briefing_text:
@@ -112,11 +128,29 @@ async def send_morning_briefing() -> None:
                 "Good morning! I encountered an issue generating your briefing today. "
                 "Please check your calendar and tasks manually."
             )
-            logger.warning("Empty briefing response from planning agent")
+            logger.warning(
+                "Morning briefing phase=extract_final_response_empty message_count=%s",
+                len(result.get("messages", [])),
+            )
 
+        logger.info("Morning briefing phase=telegram_send")
         await send_message(settings.telegram_chat_id, briefing_text)
-        logger.info("Morning briefing sent successfully")
+        logger.info("Morning briefing phase=done status=success")
 
+    except GraphRecursionError as e:
+        logger.exception("Morning briefing failed: recursion limit reached: %s", e)
+        await send_message(
+            settings.telegram_chat_id,
+            "Good morning! I hit a planning recursion limit while preparing your briefing. "
+            "Please check your calendar and tasks manually."
+        )
+    except _NETWORK_EXCEPTIONS as e:
+        logger.exception("Morning briefing failed: network/transport error: %s", e)
+        await send_message(
+            settings.telegram_chat_id,
+            "Good morning! A network error occurred while preparing your briefing. "
+            "Please check your calendar and tasks manually."
+        )
     except Exception as e:
         logger.exception("Failed to generate morning briefing: %s", e)
         await send_message(
