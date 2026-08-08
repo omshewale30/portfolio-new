@@ -179,10 +179,10 @@ const Header = () => {
             </li>
             <li>
               <a
-                href="#"
+                href="#jarvis"
                 onClick={(e) => {
                   e.preventDefault();
-                  window.location.assign("https://jarvis-interface.vercel.app/");
+                  handleNavigation("#jarvis");
                 }}
                 className="nav-link-glass group flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)] max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
                 style={{ padding: "0.875rem 1.5rem" }}
@@ -213,4 +213,3 @@ const Header = () => {
 };
 
 export default Header;
-

@@ -1,34 +1,38 @@
+const configuredApiUrl = import.meta.env.VITE_JARVIS_API_URL?.trim();
+const apiUrl = configuredApiUrl || (import.meta.env.DEV ? "http://localhost:8000" : "");
+const chatUrl = apiUrl ? (apiUrl.endsWith("/chat") ? apiUrl : `${apiUrl.replace(/\/$/, "")}/chat`) : "";
 
-// API wrapper for chat submission
-/**
- * Submits a chat message to the backend
- * @param {string} userInput - The user's message text
- * @returns {Promise} - Promise that resolves with the agent's response
- */
-// const API_URL = "https://portfolio-backend-16cp.onrender.com/chat"
-// const API_URL = "https://portfolio-dev-backend-flax.vercel.app/chat"
-// const API_URL = "https://jarvis-backend.mangorock-5b91e244.eastus.azurecontainerapps.io/chat"
-const ENV=process.env.NODE_ENV || "development"
-const API_URL = ENV === "production" ? "https://portfolio-backend-16cp.onrender.com/chat" : "http://localhost:8000/chat"
-export const submitChat = async (user_id, userInput) => {
-    const response = await fetch(API_URL, {
+export const submitChat = async (userId, userInput, previousResponseId = null) => {
+    if (!chatUrl) {
+        const error = new Error("Public Jarvis API is not configured.");
+        error.code = "configuration_error";
+        throw error;
+    }
+
+    const response = await fetch(chatUrl, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            user_id: user_id,
+            user_id: userId,
             user_input: userInput,
+            previous_response_id: previousResponseId || undefined,
         }),
-    })
+    });
 
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.detail || "Failed to send message")
+        const errorData = await response.json().catch(() => ({}));
+        const detail = errorData.detail;
+        const error = new Error(
+            (typeof detail === "object" && detail?.message) ||
+            (typeof detail === "string" && detail) ||
+            "Failed to send message",
+        );
+        error.code = typeof detail === "object" ? detail?.code : undefined;
+        error.status = response.status;
+        throw error;
     }
 
-    return await response.json()
-}
-
-
-
+    return response.json();
+};

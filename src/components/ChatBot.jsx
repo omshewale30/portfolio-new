@@ -6,14 +6,42 @@ import { submitChat } from "../chat.js";
 import { parseResponseWithSources } from "../utils/responseParser.js";
 import SourceDetails from "./SourceDetails.jsx";
 
+const CHAT_STORAGE_KEY = "portfolio-jarvis-chat-v1";
+
+const newSessionId = () => {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+    return `session-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
+
+const loadChatSession = () => {
+    const fallback = { sessionId: newSessionId(), messages: [], previousResponseId: null };
+    if (typeof window === "undefined") return fallback;
+
+    try {
+        const stored = window.sessionStorage.getItem(CHAT_STORAGE_KEY);
+        if (!stored) return fallback;
+        const parsed = JSON.parse(stored);
+        return {
+            sessionId: typeof parsed.sessionId === "string" ? parsed.sessionId : fallback.sessionId,
+            messages: Array.isArray(parsed.messages) ? parsed.messages : [],
+            previousResponseId:
+                typeof parsed.previousResponseId === "string" ? parsed.previousResponseId : null,
+        };
+    } catch {
+        return fallback;
+    }
+};
+
 const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }) => {
-    const sessionId = localStorage.getItem("sessionId");
-    const [messages, setMessages] = useState([]);
+    const [initialSession] = useState(loadChatSession);
+    const [sessionId] = useState(initialSession.sessionId);
+    const [messages, setMessages] = useState(initialSession.messages);
+    const [previousResponseId, setPreviousResponseId] = useState(initialSession.previousResponseId);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     
     const [selectedSource, setSelectedSource] = useState(null);
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(initialSession.messages.length > 0);
     const [isDetached, setIsDetached] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -32,6 +60,13 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
     ];
 
     const hasInteracted = messages.length > 0 || isLoading;
+
+    useEffect(() => {
+        window.sessionStorage.setItem(
+            CHAT_STORAGE_KEY,
+            JSON.stringify({ sessionId, messages, previousResponseId }),
+        );
+    }, [sessionId, messages, previousResponseId]);
 
     useEffect(() => {
         if (messagesContainerRef.current && isExpanded && !isMinimized) {
@@ -107,23 +142,32 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
 
     const handleCloseTerminal = () => {
         setMessages([]);
+        setPreviousResponseId(null);
         setInput("");
         setIsExpanded(false);
         setIsDetached(false);
         setIsMinimized(false);
+        setSelectedSource(null);
+        window.sessionStorage.removeItem(CHAT_STORAGE_KEY);
+    };
+
+    const handleClose = () => {
+        handleCloseTerminal();
+        onClose?.();
     };
 
     const handleSendMessage = async () => {
         if (!input.trim() || isLoading) return;
 
-        const userMessage = { role: "user", content: input };
+        const messageText = input.trim();
+        const userMessage = { role: "user", content: messageText };
         setMessages((prev) => [...prev, userMessage]);
         setInput("");
         setIsLoading(true);
         setIsExpanded(true);
 
         try {
-            const response = await submitChat(sessionId, input);
+            const response = await submitChat(sessionId, messageText, previousResponseId);
             const parsedResponse = parseResponseWithSources(response["response"]);
 
             const modelMessage = {
@@ -132,9 +176,20 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                 sources: parsedResponse.sources,
                 rawContent: response["response"],
             };
+            setPreviousResponseId(response.response_id);
             setMessages((prev) => [...prev, modelMessage]);
         } catch (error) {
             console.error("Error sending message:", error);
+            if (error.code === "conversation_expired") {
+                setPreviousResponseId(null);
+                setMessages([
+                    {
+                        role: "model",
+                        content: "That conversation expired. I cleared it—please send your question again.",
+                    },
+                ]);
+                return;
+            }
             setMessages((prev) => [
                 ...prev,
                 { role: "model", content: "Sorry, something went wrong. Please try again." },
@@ -394,7 +449,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                 {onClose ? (
                     <button
                         className="text-2xl text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)]"
-                        onClick={onClose}
+                        onClick={handleClose}
                     >
                         ×
                     </button>
@@ -490,4 +545,3 @@ Chatbot.propTypes = {
 };
 
 export default Chatbot;
-

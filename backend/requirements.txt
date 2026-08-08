@@ -1,40 +1,5 @@
-# Web server
 fastapi
-uvicorn
-
-# Settings
-pydantic-settings
-python-dotenv
-
-# AI runtimes
 openai
-langgraph
-langchain
-langchain-openai
-langchain-core
-langgraph-checkpoint-postgres
-psycopg[binary]
-openai-agents
-
-# Telegram
-python-telegram-bot
-
-# Google Calendar
-google-api-python-client
-google-auth-httplib2
-google-auth-oauthlib
-
-# Database
-asyncpg
-sqlalchemy[asyncio]
-supabase
-
-# Scheduling
-apscheduler
-
-# Utilities
-pytz
-httpx
-notion-client
-psycopg2-binary
 pydantic
+python-dotenv
+uvicorn

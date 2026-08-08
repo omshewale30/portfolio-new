@@ -1,142 +1,180 @@
-import asyncio
+import logging
 import os
+from typing import Any
+
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request, Response
-import uvicorn
+from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from openai import OpenAI
-from contextlib import asynccontextmanager
-from settings.config import settings
-from settings.logging import configure_logging, get_logger
-from integrations.telegram import parse_inbound, send_message
-from jarvis_agents.runner import init_agent_runtime, run_agent, shutdown_agent_runtime
 from fastapi.responses import JSONResponse
-from integrations.telegram import set_webhook
-from scheduler import start_scheduler
+from openai import APIError, AsyncOpenAI, BadRequestError, NotFoundError
+from pydantic import BaseModel, Field, field_validator
 
-openai_client = None
-logger = get_logger(__name__)
-PROMPT_ID = "pmpt_69ae2f5b1f988195a348525fe1a475f50f270f2f5fb69a34"
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    global openai_client
-    load_dotenv()  # ✅ FIX: Load .env inside lifespan, before reading env vars
-    configure_logging(level="INFO") 
-    print("Starting up...")
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set. Check your .env file.")
-    openai_client = OpenAI(api_key=api_key)
+load_dotenv()
+logger = logging.getLogger("portfolio_jarvis_api")
 
-    if settings.webhook_base_url:
-        webhook_url = f"{settings.webhook_base_url}/webhook"
-        result = await set_webhook(webhook_url)
-        logger.info(f"Webhook registered: {result}")
+DEFAULT_ALLOWED_ORIGINS = (
+    "https://omshewale.me",
+    "http://localhost:5173",
+    "https://jarvis-interface.vercel.app",
+)
 
-    await init_agent_runtime()
-    start_scheduler()
-    logger.info("Scheduler started")
-    yield
-    await shutdown_agent_runtime()
-    print("Shutting down...")
+
+def _allowed_origins() -> list[str]:
+    configured = os.getenv("CORS_ALLOWED_ORIGINS", "")
+    if not configured.strip():
+        return list(DEFAULT_ALLOWED_ORIGINS)
+    return [origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()]
 
 
 class ChatRequest(BaseModel):
-    user_id: str
-    user_input: str
+    user_id: str = Field(min_length=1, max_length=128)
+    user_input: str = Field(min_length=1, max_length=2000)
+    previous_response_id: str | None = Field(default=None, min_length=1, max_length=200)
+
+    @field_validator("user_id", "user_input")
+    @classmethod
+    def reject_blank_values(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("must not be blank")
+        return value
+
+
+class ChatResponse(BaseModel):
+    response: str
+    response_id: str
 
 
 app = FastAPI(
-    title="OpenAI Responses API",
-    description="API for OpenAI Responses",
-    version="1.0.0",
-    lifespan=lifespan
+    title="Portfolio Jarvis API",
+    description="Public, read-only Jarvis chat API for Om Shewale's portfolio",
+    version="2.0.0",
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://omshewale.me","http://localhost:5173","https://jarvis-interface.vercel.app"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_allowed_origins(),
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
-# ✅ FIX: Store previous_response_id per user, NOT a conversation object
-users_previous_response_id: dict[str, str | None] = {}
+_openai_client: AsyncOpenAI | None = None
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+def _error_detail(code: str, message: str) -> dict[str, str]:
+    return {"code": code, "message": message}
 
 
-@app.post("/chat")
-def chat(request: ChatRequest):
-    user_id = request.user_id
-    user_input = request.user_input
+def _configuration() -> tuple[str, str, str]:
+    return (
+        os.getenv("OPENAI_API_KEY", "").strip(),
+        os.getenv("OPENAI_PROMPT_ID", "").strip(),
+        os.getenv("OPENAI_CHAT_MODEL", "gpt-4o").strip() or "gpt-4o",
+    )
 
-    # Get the last response ID for this user (None on first turn)
-    previous_response_id = users_previous_response_id.get(user_id, None)
 
-    try:
-        # ✅ FIX: Use previous_response_id for multi-turn, not conversations.create()
-        response = openai_client.responses.create(
-            model="gpt-4o",
-            prompt={"id": PROMPT_ID},
-            input=[{"role": "user", "content": user_input}],
-            previous_response_id=previous_response_id,  # None = fresh conversation
-            store=True  # Required for previous_response_id chaining to work
+def _client() -> AsyncOpenAI:
+    global _openai_client
+    api_key, _, _ = _configuration()
+    if not api_key:
+        raise HTTPException(
+            status_code=503,
+            detail=_error_detail("configuration_error", "Jarvis is not configured."),
+        )
+    if _openai_client is None:
+        _openai_client = AsyncOpenAI(api_key=api_key)
+    return _openai_client
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(_, exc: RequestValidationError):
+    fields = sorted({str(error["loc"][-1]) for error in exc.errors() if error.get("loc")})
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": {
+                "code": "invalid_request",
+                "message": "The chat request is invalid.",
+                "fields": fields,
+            }
+        },
+    )
+
+
+@app.post("/chat", response_model=ChatResponse)
+async def chat(request: ChatRequest):
+    _, prompt_id, model = _configuration()
+    if not prompt_id:
+        raise HTTPException(
+            status_code=503,
+            detail=_error_detail("configuration_error", "Jarvis is not configured."),
         )
 
-        # Save the new response ID for the next turn
-        users_previous_response_id[user_id] = response.id
+    call: dict[str, Any] = {
+        "model": model,
+        "prompt": {"id": prompt_id},
+        "input": [{"role": "user", "content": request.user_input}],
+        "store": True,
+    }
+    if request.previous_response_id:
+        call["previous_response_id"] = request.previous_response_id
 
-        latest_response = response.output_text
-        print(f"Response for user {user_id}: {latest_response}")
+    try:
+        response = await _client().responses.create(**call)
+    except (BadRequestError, NotFoundError) as exc:
+        is_stale_conversation = request.previous_response_id and (
+            isinstance(exc, NotFoundError) or "previous_response_id" in str(exc).lower()
+        )
+        if is_stale_conversation:
+            logger.info("chat_rejected reason=conversation_expired")
+            raise HTTPException(
+                status_code=409,
+                detail=_error_detail(
+                    "conversation_expired",
+                    "This conversation has expired. Start a new conversation and try again.",
+                ),
+            ) from exc
+        logger.warning("chat_failed provider_error=%s", type(exc).__name__)
+        raise HTTPException(
+            status_code=502,
+            detail=_error_detail("provider_error", "Jarvis is temporarily unavailable."),
+        ) from exc
+    except APIError as exc:
+        logger.warning("chat_failed provider_error=%s", type(exc).__name__)
+        raise HTTPException(
+            status_code=502,
+            detail=_error_detail("provider_error", "Jarvis is temporarily unavailable."),
+        ) from exc
+    except Exception as exc:
+        logger.exception("chat_failed provider_error=unexpected")
+        raise HTTPException(
+            status_code=502,
+            detail=_error_detail("provider_error", "Jarvis is temporarily unavailable."),
+        ) from exc
 
-        return {"response": latest_response}
+    output_text = (response.output_text or "").strip()
+    if not output_text or not response.id:
+        logger.warning("chat_failed provider_error=empty_response")
+        raise HTTPException(
+            status_code=502,
+            detail=_error_detail("provider_error", "Jarvis returned an empty response."),
+        )
 
-    except Exception as e:
-        print(f"Error calling OpenAI Responses API: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    logger.info("chat_completed response_id=%s", response.id)
+    return ChatResponse(response=output_text, response_id=response.id)
 
-
-@app.post("/webhook")
-async def telegram_webhook(request: Request):
-    """
-    Receives inbound Telegram updates.
-    Telegram expects a 200 response quickly — run agent async.
-    """
-    update = await request.json()
-    parsed = parse_inbound(update)
-
-    if parsed is None:
-        return Response(status_code=200)
-
-    chat_id, user_message = parsed
-
-    if chat_id != settings.telegram_chat_id:
-        logger.warning(f"Ignored message from unknown chat_id: {chat_id}")
-        return Response(status_code=200)
-
-    logger.info(f"Received from {chat_id}: {user_message}")
-
-    async def _handle():
-        try:
-            response_text = await run_agent(chat_id, user_message)
-            await send_message(chat_id, response_text)
-        except Exception as e:
-            logger.error(f"Agent error: {e}", exc_info=True)
-            await send_message(chat_id, "⚠️ Something went wrong. Please try again.")
-
-    asyncio.create_task(_handle())
-    return Response(status_code=200)
 
 @app.get("/health")
 async def health():
-    return JSONResponse({"status": "ok"})
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    api_key, prompt_id, _ = _configuration()
+    configured = bool(api_key and prompt_id)
+    return JSONResponse(
+        status_code=200 if configured else 503,
+        content={
+            "status": "ok" if configured else "degraded",
+            "service": "portfolio-jarvis-api",
+        },
+    )

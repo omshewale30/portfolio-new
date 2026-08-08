@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import './App.css'
@@ -17,19 +17,6 @@ import EducationSection from "./components/EducationSection.jsx";
 function AppContent() {
     const location = useLocation();
     const navigate = useNavigate();
-    const [sessionId, setSessionId] = useState(null);
-
-    useEffect(() => {
-        const storedSessionId = localStorage.getItem('sessionId');
-        if (storedSessionId){
-            setSessionId(storedSessionId);
-        }else{
-            const newSessionId = crypto.randomUUID();
-            localStorage.setItem('sessionId', newSessionId);
-            setSessionId(newSessionId);
-        }
-    }, []);
-
     // Scroll to section when navigating to home with state.scrollTo (e.g. from Navbar hash links)
     useEffect(() => {
         if (location.pathname !== "/" || !location.state?.scrollTo) return;

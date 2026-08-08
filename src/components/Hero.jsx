@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Github, Instagram, Linkedin, MapPin } from "lucide-react";
 import ScheduleCallButton from "./ScheduleCallButton";
@@ -164,7 +164,7 @@ const Hero = () => {
             </p>
 
             {/* Terminal-style AI Chat */}
-            <div className="mt-10 w-full max-w-xl">
+            <div id="jarvis" className="mt-10 w-full max-w-xl scroll-mt-28">
               <ChatBot terminal />
             </div>
 
