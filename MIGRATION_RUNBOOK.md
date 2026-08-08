@@ -9,11 +9,13 @@ private Telegram service. Complete these external steps in order.
 1. Create a dedicated OpenAI project for public portfolio traffic.
 2. Upload only reviewed public resume, experience, education, skill, and project
    material. Do not copy transcripts, email, calendar, tasks, or personal notes.
-3. Recreate the hosted prompt and verify that citations still use the format
-   consumed by `src/utils/responseParser.js`.
-4. Create a project-scoped API key, budget, and usage alerts.
-5. Record the new prompt ID and model for the Vercel configuration below.
-6. Revoke or rotate the former `VITE_OPENAI_API_KEY` and
+3. Create a vector store, attach the reviewed files, and wait until every file
+   reports a `completed` status.
+4. Review the public-safe default instructions in `backend/main.py`, or set an
+   `OPENAI_SYSTEM_INSTRUCTIONS` override in Vercel.
+5. Create a project-scoped API key, budget, and usage alerts.
+6. Record the vector store ID and model for the Vercel configuration below.
+7. Revoke or rotate the former `VITE_OPENAI_API_KEY` and
    `VITE_GOOGLE_API_KEY` values if they were ever deployed; Vite variables are
    browser-visible and the local obsolete entries have been removed.
 
@@ -23,8 +25,9 @@ Create a Vercel project named `portfolio-jarvis-api` from this repository with
 `backend` as its root directory. Configure:
 
 - `OPENAI_API_KEY`
-- `OPENAI_PROMPT_ID`
+- `OPENAI_VECTOR_STORE_ID`
 - `OPENAI_CHAT_MODEL=gpt-4o`
+- `OPENAI_SYSTEM_INSTRUCTIONS` (optional)
 - `CORS_ALLOWED_ORIGINS=https://omshewale.me,http://localhost:5173,https://jarvis-interface.vercel.app`
 
 Deploy a preview and verify `GET /health` and `POST /chat`. Configure the
@@ -37,6 +40,10 @@ VITE_JARVIS_API_URL=https://<portfolio-jarvis-api-domain>
 The secondary UI remains compatible with the old request fields, but it must
 store `response_id` and send it as `previous_response_id` to retain multi-turn
 behavior.
+
+The Responses API emits file citations as structured annotations. The current
+compatibility response exposes only `output_text`; migrate the frontend to a
+structured `citations` field before treating source buttons as a release gate.
 
 Add a Vercel Firewall rate-limit rule for `POST /chat` at 10 requests per minute
 per source IP before production promotion.
@@ -80,7 +87,8 @@ Rollback Telegram independently by reactivating the prior Azure revision.
 - Retire the combined Azure revision and remove obsolete app secrets.
 - Confirm Vercel contains no Telegram, Google, Notion, Supabase, or database
   secrets.
-- Confirm Azure contains no public hosted-prompt configuration.
+- Confirm Azure contains no public vector-store or system-instruction
+  configuration.
 - If the portfolio repository is public, coordinate a `git filter-repo` history
   rewrite to purge the deleted raw knowledge documents; the current working tree
   no longer contains them, but normal deletion does not erase Git history.

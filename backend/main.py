@@ -1,18 +1,18 @@
-import logging
-import os
 from typing import Any
 
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from openai import APIError, AsyncOpenAI, BadRequestError, NotFoundError
-from pydantic import BaseModel, Field, field_validator
+from open_ai_client import OpenAIClient
+from settings import settings
+from prompts import PUBLIC_JARVIS_INSTRUCTIONS
+from logging_config import configure_logging, get_logger
+from schemas import ChatRequest, ChatResponse, error_detail
 
-
-load_dotenv()
-logger = logging.getLogger("portfolio_jarvis_api")
+configure_logging()
+logger = get_logger(__name__)
 
 DEFAULT_ALLOWED_ORIGINS = (
     "https://omshewale.me",
@@ -20,31 +20,15 @@ DEFAULT_ALLOWED_ORIGINS = (
     "https://jarvis-interface.vercel.app",
 )
 
+FILE_SEARCH_MAX_RESULTS = 8
+
+
 
 def _allowed_origins() -> list[str]:
-    configured = os.getenv("CORS_ALLOWED_ORIGINS", "")
+    configured = settings.cors_allowed_origins
     if not configured.strip():
         return list(DEFAULT_ALLOWED_ORIGINS)
     return [origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()]
-
-
-class ChatRequest(BaseModel):
-    user_id: str = Field(min_length=1, max_length=128)
-    user_input: str = Field(min_length=1, max_length=2000)
-    previous_response_id: str | None = Field(default=None, min_length=1, max_length=200)
-
-    @field_validator("user_id", "user_input")
-    @classmethod
-    def reject_blank_values(cls, value: str) -> str:
-        value = value.strip()
-        if not value:
-            raise ValueError("must not be blank")
-        return value
-
-
-class ChatResponse(BaseModel):
-    response: str
-    response_id: str
 
 
 app = FastAPI(
@@ -61,32 +45,24 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 
-_openai_client: AsyncOpenAI | None = None
-
-
-def _error_detail(code: str, message: str) -> dict[str, str]:
-    return {"code": code, "message": message}
-
-
-def _configuration() -> tuple[str, str, str]:
-    return (
-        os.getenv("OPENAI_API_KEY", "").strip(),
-        os.getenv("OPENAI_PROMPT_ID", "").strip(),
-        os.getenv("OPENAI_CHAT_MODEL", "gpt-4o").strip() or "gpt-4o",
-    )
+_openai_client: OpenAIClient | None = None
 
 
 def _client() -> AsyncOpenAI:
     global _openai_client
-    api_key, _, _ = _configuration()
+    api_key = settings.openai_api_key
     if not api_key:
         raise HTTPException(
             status_code=503,
-            detail=_error_detail("configuration_error", "Jarvis is not configured."),
+            detail=error_detail("configuration_error", "Jarvis is not configured."),
         )
     if _openai_client is None:
-        _openai_client = AsyncOpenAI(api_key=api_key)
-    return _openai_client
+        _openai_client = OpenAIClient(api_key)
+    return _openai_client.client
+
+
+
+
 
 
 @app.exception_handler(RequestValidationError)
@@ -106,17 +82,24 @@ async def validation_error_handler(_, exc: RequestValidationError):
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    _, prompt_id, model = _configuration()
-    if not prompt_id:
+    _, vector_store_id, model, instructions = settings.openai_api_key, settings.openai_vector_store_id, settings.openai_chat_model, PUBLIC_JARVIS_INSTRUCTIONS
+    if not vector_store_id:
         raise HTTPException(
             status_code=503,
-            detail=_error_detail("configuration_error", "Jarvis is not configured."),
+            detail=error_detail("configuration_error", "Jarvis is not configured."),
         )
 
     call: dict[str, Any] = {
         "model": model,
-        "prompt": {"id": prompt_id},
+        "instructions": instructions,
         "input": [{"role": "user", "content": request.user_input}],
+        "tools": [
+            {
+                "type": "file_search",
+                "vector_store_ids": [vector_store_id],
+                "max_num_results": FILE_SEARCH_MAX_RESULTS,
+            }
+        ],
         "store": True,
     }
     if request.previous_response_id:
@@ -132,7 +115,7 @@ async def chat(request: ChatRequest):
             logger.info("chat_rejected reason=conversation_expired")
             raise HTTPException(
                 status_code=409,
-                detail=_error_detail(
+                detail=error_detail(
                     "conversation_expired",
                     "This conversation has expired. Start a new conversation and try again.",
                 ),
@@ -140,19 +123,19 @@ async def chat(request: ChatRequest):
         logger.warning("chat_failed provider_error=%s", type(exc).__name__)
         raise HTTPException(
             status_code=502,
-            detail=_error_detail("provider_error", "Jarvis is temporarily unavailable."),
+            detail=error_detail("provider_error", "Jarvis is temporarily unavailable."),
         ) from exc
     except APIError as exc:
         logger.warning("chat_failed provider_error=%s", type(exc).__name__)
         raise HTTPException(
             status_code=502,
-            detail=_error_detail("provider_error", "Jarvis is temporarily unavailable."),
+            detail=error_detail("provider_error", "Jarvis is temporarily unavailable."),
         ) from exc
     except Exception as exc:
         logger.exception("chat_failed provider_error=unexpected")
         raise HTTPException(
             status_code=502,
-            detail=_error_detail("provider_error", "Jarvis is temporarily unavailable."),
+            detail=error_detail("provider_error", "Jarvis is temporarily unavailable."),
         ) from exc
 
     output_text = (response.output_text or "").strip()
@@ -160,7 +143,7 @@ async def chat(request: ChatRequest):
         logger.warning("chat_failed provider_error=empty_response")
         raise HTTPException(
             status_code=502,
-            detail=_error_detail("provider_error", "Jarvis returned an empty response."),
+            detail=error_detail("provider_error", "Jarvis returned an empty response."),
         )
 
     logger.info("chat_completed response_id=%s", response.id)
@@ -169,8 +152,8 @@ async def chat(request: ChatRequest):
 
 @app.get("/health")
 async def health():
-    api_key, prompt_id, _ = _configuration()
-    configured = bool(api_key and prompt_id)
+    api_key, vector_store_id, _, _ = settings.openai_api_key, settings.openai_vector_store_id, settings.openai_chat_model, PUBLIC_JARVIS_INSTRUCTIONS
+    configured = bool(api_key and vector_store_id)
     return JSONResponse(
         status_code=200 if configured else 503,
         content={

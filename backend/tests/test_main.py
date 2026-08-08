@@ -29,7 +29,11 @@ class PublicApiContractTests(unittest.TestCase):
     def setUp(self):
         self.env = patch.dict(
             os.environ,
-            {"OPENAI_API_KEY": "test-key", "OPENAI_PROMPT_ID": "pmpt_public"},
+            {
+                "OPENAI_API_KEY": "test-key",
+                "OPENAI_VECTOR_STORE_ID": "vs_public",
+                "OPENAI_SYSTEM_INSTRUCTIONS": "Test public instructions",
+            },
         )
         self.env.start()
         self.fake = SimpleNamespace(responses=FakeResponses())
@@ -46,7 +50,21 @@ class PublicApiContractTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"response": "Hello from Jarvis", "response_id": "resp_test"})
-        self.assertNotIn("previous_response_id", self.fake.responses.calls[0])
+        call = self.fake.responses.calls[0]
+        self.assertNotIn("previous_response_id", call)
+        self.assertNotIn("prompt", call)
+        self.assertEqual(call["instructions"], "Test public instructions")
+        self.assertEqual(
+            call["tools"],
+            [
+                {
+                    "type": "file_search",
+                    "vector_store_ids": ["vs_public"],
+                    "max_num_results": 8,
+                }
+            ],
+        )
+        self.assertTrue(call["store"])
 
     def test_chained_conversation_forwards_response_id(self):
         response = self.client.post(
@@ -60,6 +78,7 @@ class PublicApiContractTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.fake.responses.calls[0]["previous_response_id"], "resp_previous")
+        self.assertEqual(self.fake.responses.calls[0]["instructions"], "Test public instructions")
 
     def test_rejects_blank_and_oversized_messages(self):
         blank = self.client.post("/chat", json={"user_id": "browser", "user_input": "   "})
@@ -89,7 +108,7 @@ class PublicApiContractTests(unittest.TestCase):
             {"status": "ok", "service": "portfolio-jarvis-api"},
         )
 
-        with patch.dict(os.environ, {"OPENAI_PROMPT_ID": ""}):
+        with patch.dict(os.environ, {"OPENAI_VECTOR_STORE_ID": ""}):
             degraded = self.client.get("/health")
 
         self.assertEqual(degraded.status_code, 503)

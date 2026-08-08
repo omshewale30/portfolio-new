@@ -1,36 +1,38 @@
+# Dependencies
+node_modules/
+.venv/
+backend/.venv/
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+backend/credentials/
+*.local
+*.enc.local
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# Editor and OS files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 *.sw?
-.env
-.enc.local
-backend/find_azure_resources.py
-backend/setup_azure_auth.md
-backend/test_azure_auth.py
-src/utils/responseParser.test.js
-backend/.env
-
-backend/credentials/*
-backend/__pycache__/*.pyc
-
-backend/__pycache__/main.cpython-311.pyc
