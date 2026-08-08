@@ -1,7 +1,5 @@
-
-
-const ENV = process.env.NODE_ENV || "development";
-const chatUrl = ENV === "production" ? process.env.PUBLIC_JARVIS_API_URL : "http://localhost:8000/chat";
+const apiUrl = import.meta.env.VITE_JARVIS_API_URL || "http://localhost:8000";
+const chatUrl = `${apiUrl.replace(/\/$/, "")}/chat`;
 
 export const submitChat = async (userId, userInput, previousResponseId = null) => {
     if (!chatUrl) {
