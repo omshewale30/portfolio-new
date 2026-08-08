@@ -29,7 +29,7 @@ const experienceDetails = [
     "image": "../assets/UNC_FO.jpeg",
     "type": "AI/development"
   },
-
+  
   {
     "title": "Applied AI intern",
     "company": "University of North Carolina - Chapel Hill",

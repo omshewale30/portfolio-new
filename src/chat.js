@@ -7,7 +7,9 @@
  */
 // const API_URL = "https://portfolio-backend-16cp.onrender.com/chat"
 // const API_URL = "https://portfolio-dev-backend-flax.vercel.app/chat"
-const API_URL = "https://jarvis-backend.mangorock-5b91e244.eastus.azurecontainerapps.io/chat"
+// const API_URL = "https://jarvis-backend.mangorock-5b91e244.eastus.azurecontainerapps.io/chat"
+const ENV=process.env.NODE_ENV || "development"
+const API_URL = ENV === "production" ? "https://portfolio-backend-16cp.onrender.com/chat" : "http://localhost:8000/chat"
 export const submitChat = async (user_id, userInput) => {
     const response = await fetch(API_URL, {
         method: "POST",
