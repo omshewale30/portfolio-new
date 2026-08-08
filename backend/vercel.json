@@ -5,11 +5,7 @@
       "use": "@vercel/python"
     }
   ],
-  "functions": {
-    "main.py": {
-      "maxDuration": 60
-    }
-  },
+
   "rewrites": [
     {
       "source": "/(.*)",
