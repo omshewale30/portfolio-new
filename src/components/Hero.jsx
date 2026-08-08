@@ -191,7 +191,7 @@ const Hero = () => {
                 <img
                   src="/assets/Hero.jpeg"
                   alt="Om Shewale"
-                  className="h-full w-full object-cover object-[center_top] transition-transform duration-700 hover:scale-[1.03]"
+                  className="h-full w-full object-cover object-[center_35%] transition-transform duration-700 hover:scale-[1.03]"
                 />
                 {/* Subtle gradient fade at the bottom so it merges into the card info */}
                 <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[rgba(22,18,13,0.92)] to-transparent" />
