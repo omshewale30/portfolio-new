@@ -1,4 +1,3 @@
-import os
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -16,40 +15,101 @@ class FakeResponses:
 
     async def create(self, **kwargs):
         self.calls.append(kwargs)
-        return SimpleNamespace(id="resp_test", output_text="Hello from Jarvis")
+        return SimpleNamespace(
+            id="resp_test",
+            output_text="Hello from Jarvis",
+            output=[
+                SimpleNamespace(
+                    content=[
+                        SimpleNamespace(
+                            annotations=[
+                                SimpleNamespace(
+                                    type="file_citation",
+                                    file_id="file_resume",
+                                    filename="Om_Shewale.pdf",
+                                    quote="Om leads applied AI strategy.",
+                                ),
+                                SimpleNamespace(
+                                    type="file_citation",
+                                    file_id="file_resume",
+                                    filename="Om_Shewale.pdf",
+                                    quote="Duplicate citation",
+                                ),
+                                SimpleNamespace(type="url_citation"),
+                            ]
+                        )
+                    ]
+                )
+            ],
+            usage=SimpleNamespace(
+                input_tokens=1000,
+                output_tokens=500,
+                total_tokens=1500,
+            ),
+        )
 
 
 class ExpiredResponses:
     async def create(self, **_):
-        response = httpx.Response(404, request=httpx.Request("POST", "https://api.openai.com/v1/responses"))
+        response = httpx.Response(
+            404,
+            request=httpx.Request("POST", "https://api.openai.com/v1/responses"),
+        )
         raise NotFoundError("previous_response_id was not found", response=response, body={})
 
 
 class PublicApiContractTests(unittest.TestCase):
     def setUp(self):
-        self.env = patch.dict(
-            os.environ,
-            {
-                "OPENAI_API_KEY": "test-key",
-                "OPENAI_VECTOR_STORE_ID": "vs_public",
-                "OPENAI_SYSTEM_INSTRUCTIONS": "Test public instructions",
-            },
-        )
-        self.env.start()
+        self.setting_patches = [
+            patch.object(main.settings, "openai_api_key", "test-key"),
+            patch.object(main.settings, "openai_vector_store_id", "vs_public"),
+            patch.object(main.settings, "openai_chat_model", "gpt-4o"),
+            patch.object(main, "PUBLIC_JARVIS_INSTRUCTIONS", "Test public instructions"),
+        ]
+        for setting_patch in self.setting_patches:
+            setting_patch.start()
+
         self.fake = SimpleNamespace(responses=FakeResponses())
-        self.openai = patch.object(main, "_openai_client", self.fake)
+        self.openai = patch.object(
+            main, "_openai_client", SimpleNamespace(client=self.fake)
+        )
         self.openai.start()
         self.client = TestClient(main.app)
 
     def tearDown(self):
         self.openai.stop()
-        self.env.stop()
+        for setting_patch in reversed(self.setting_patches):
+            setting_patch.stop()
 
     def test_new_conversation_contract(self):
-        response = self.client.post("/chat", json={"user_id": "browser", "user_input": "Hello"})
+        with patch.object(main, "perf_counter", side_effect=[10.0, 10.25]):
+            response = self.client.post(
+                "/chat", json={"user_id": "browser", "user_input": "Hello"}
+            )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"response": "Hello from Jarvis", "response_id": "resp_test"})
+        self.assertEqual(
+            response.json(),
+            {
+                "response": "Hello from Jarvis",
+                "response_id": "resp_test",
+                "model": "gpt-4o",
+                "sources": [
+                    {
+                        "id": "file_resume",
+                        "filename": "Om_Shewale.pdf",
+                        "quote": "Om leads applied AI strategy.",
+                    }
+                ],
+                "latency_ms": 250,
+                "usage": {
+                    "input_tokens": 1000,
+                    "output_tokens": 500,
+                    "total_tokens": 1500,
+                },
+                "cost_usd": 0.0075,
+            },
+        )
         call = self.fake.responses.calls[0]
         self.assertNotIn("previous_response_id", call)
         self.assertNotIn("prompt", call)
@@ -77,19 +137,24 @@ class PublicApiContractTests(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.fake.responses.calls[0]["previous_response_id"], "resp_previous")
+        self.assertEqual(
+            self.fake.responses.calls[0]["previous_response_id"], "resp_previous"
+        )
         self.assertEqual(self.fake.responses.calls[0]["instructions"], "Test public instructions")
 
     def test_rejects_blank_and_oversized_messages(self):
         blank = self.client.post("/chat", json={"user_id": "browser", "user_input": "   "})
-        oversized = self.client.post("/chat", json={"user_id": "browser", "user_input": "x" * 2001})
+        oversized = self.client.post(
+            "/chat", json={"user_id": "browser", "user_input": "x" * 2001}
+        )
 
         self.assertEqual(blank.status_code, 422)
         self.assertEqual(blank.json()["detail"]["code"], "invalid_request")
         self.assertEqual(oversized.status_code, 422)
 
     def test_stale_conversation_has_stable_error(self):
-        with patch.object(main, "_openai_client", SimpleNamespace(responses=ExpiredResponses())):
+        expired_client = SimpleNamespace(client=SimpleNamespace(responses=ExpiredResponses()))
+        with patch.object(main, "_openai_client", expired_client):
             response = self.client.post(
                 "/chat",
                 json={
@@ -108,7 +173,7 @@ class PublicApiContractTests(unittest.TestCase):
             {"status": "ok", "service": "portfolio-jarvis-api"},
         )
 
-        with patch.dict(os.environ, {"OPENAI_VECTOR_STORE_ID": ""}):
+        with patch.object(main.settings, "openai_vector_store_id", ""):
             degraded = self.client.get("/health")
 
         self.assertEqual(degraded.status_code, 503)
@@ -118,17 +183,27 @@ class PublicApiContractTests(unittest.TestCase):
         self.assertEqual(self.client.post("/webhook", json={}).status_code, 404)
 
     def test_cors_allows_only_configured_public_clients(self):
+        allowed_origin = main._allowed_origins()[0]
         allowed = self.client.options(
             "/chat",
-            headers={"Origin": "https://omshewale.me", "Access-Control-Request-Method": "POST"},
+            headers={"Origin": allowed_origin, "Access-Control-Request-Method": "POST"},
         )
         denied = self.client.options(
             "/chat",
             headers={"Origin": "https://example.com", "Access-Control-Request-Method": "POST"},
         )
 
-        self.assertEqual(allowed.headers["access-control-allow-origin"], "https://omshewale.me")
+        self.assertEqual(allowed.headers["access-control-allow-origin"], allowed_origin)
         self.assertNotIn("access-control-allow-origin", denied.headers)
+
+    def test_unknown_model_omits_cost_without_failing(self):
+        with patch.object(main.settings, "openai_chat_model", "unpriced-model"):
+            response = self.client.post(
+                "/chat", json={"user_id": "browser", "user_input": "Hello"}
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json()["cost_usd"])
 
 
 if __name__ == "__main__":

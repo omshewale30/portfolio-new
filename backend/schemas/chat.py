@@ -16,7 +16,23 @@ class ChatRequest(BaseModel):
         return value
 
 
+class SourceRef(BaseModel):
+    id: str
+    filename: str
+    quote: str | None = None
+
+
+class ChatUsage(BaseModel):
+    input_tokens: int
+    output_tokens: int
+    total_tokens: int
+
+
 class ChatResponse(BaseModel):
     response: str
     response_id: str
-
+    model: str
+    sources: list[SourceRef] = Field(default_factory=list)
+    latency_ms: int
+    usage: ChatUsage | None = None
+    cost_usd: float | None = None

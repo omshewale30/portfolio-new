@@ -1,12 +1,11 @@
-import { useRef, useEffect, useState, Fragment, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import PropTypes from "prop-types";
 import { Send, Terminal, Sparkles, Minus, Maximize2, X } from "lucide-react";
 import { submitChat } from "../chat.js";
-import { parseResponseWithSources } from "../utils/responseParser.js";
 import SourceDetails from "./SourceDetails.jsx";
 
-const CHAT_STORAGE_KEY = "portfolio-jarvis-chat-v1";
+const CHAT_STORAGE_KEY = "portfolio-jarvis-chat-v2";
 
 const newSessionId = () => {
     if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
@@ -32,6 +31,76 @@ const loadChatSession = () => {
     }
 };
 
+const formatLatency = (latencyMs) => {
+    if (!Number.isFinite(latencyMs)) return null;
+    return `${(latencyMs / 1000).toFixed(1)}s`;
+};
+
+const formatCost = (costUsd) => {
+    if (!Number.isFinite(costUsd)) return "cost unavailable";
+    if (costUsd > 0 && costUsd < 0.0001) return "<$0.0001";
+    return `$${costUsd.toFixed(4)}`;
+};
+
+const MessageEvidence = ({ message }) => {
+    const sources = Array.isArray(message.sources) ? message.sources : [];
+    const latency = formatLatency(message.latencyMs);
+    if (sources.length === 0 && latency === null) return null;
+
+    const usage = message.usage;
+    const hasCompleteUsage = [
+        usage?.input_tokens,
+        usage?.output_tokens,
+        usage?.total_tokens,
+    ].every(Number.isFinite);
+    const usageLabel = hasCompleteUsage
+        ? `${usage.total_tokens.toLocaleString()} tokens (${usage.input_tokens.toLocaleString()} input, ${usage.output_tokens.toLocaleString()} output)`
+        : undefined;
+
+    return (
+        <div className="mt-3 border-t border-[var(--color-border-muted)] pt-2.5">
+            {sources.length > 0 ? (
+                <div className="mb-2 flex flex-col items-start gap-1.5" aria-label="Sources">
+                    {sources.map((source, index) => (
+                        <SourceDetails key={source.id} source={source} index={index} />
+                    ))}
+                </div>
+            ) : null}
+            {latency !== null ? (
+                <p
+                    className="m-0 font-mono text-xs leading-relaxed text-[var(--color-text-meta)]"
+                    title={usageLabel}
+                    aria-label={`Response metadata: ${latency}, ${formatCost(message.costUsd)}, ${message.model || "model unavailable"}${usageLabel ? `, ${usageLabel}` : ""}`}
+                >
+                    <span aria-hidden="true">
+                        ⋯ {latency} · {formatCost(message.costUsd)} · {message.model || "model unavailable"}
+                    </span>
+                </p>
+            ) : null}
+        </div>
+    );
+};
+
+MessageEvidence.propTypes = {
+    message: PropTypes.shape({
+        sources: PropTypes.arrayOf(
+            PropTypes.shape({
+                id: PropTypes.string.isRequired,
+                filename: PropTypes.string.isRequired,
+                quote: PropTypes.string,
+            }),
+        ),
+        latencyMs: PropTypes.number,
+        costUsd: PropTypes.number,
+        model: PropTypes.string,
+        usage: PropTypes.shape({
+            input_tokens: PropTypes.number.isRequired,
+            output_tokens: PropTypes.number.isRequired,
+            total_tokens: PropTypes.number.isRequired,
+        }),
+    }).isRequired,
+};
+
 const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }) => {
     const [initialSession] = useState(loadChatSession);
     const [sessionId] = useState(initialSession.sessionId);
@@ -40,7 +109,6 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     
-    const [selectedSource, setSelectedSource] = useState(null);
     const [isExpanded, setIsExpanded] = useState(initialSession.messages.length > 0);
     const [isDetached, setIsDetached] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
@@ -147,7 +215,6 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
         setIsExpanded(false);
         setIsDetached(false);
         setIsMinimized(false);
-        setSelectedSource(null);
         window.sessionStorage.removeItem(CHAT_STORAGE_KEY);
     };
 
@@ -168,13 +235,15 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
 
         try {
             const response = await submitChat(sessionId, messageText, previousResponseId);
-            const parsedResponse = parseResponseWithSources(response["response"]);
 
             const modelMessage = {
                 role: "model",
-                content: parsedResponse.text,
-                sources: parsedResponse.sources,
-                rawContent: response["response"],
+                content: response.response,
+                sources: Array.isArray(response.sources) ? response.sources : [],
+                latencyMs: Number.isFinite(response.latency_ms) ? response.latency_ms : null,
+                costUsd: Number.isFinite(response.cost_usd) ? response.cost_usd : null,
+                usage: response.usage ?? null,
+                model: typeof response.model === "string" ? response.model : null,
             };
             setPreviousResponseId(response.response_id);
             setMessages((prev) => [...prev, modelMessage]);
@@ -209,14 +278,6 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
             e.preventDefault();
             handleSendMessage();
         }
-    };
-
-    const handleSourceClick = (source) => {
-        setSelectedSource(source);
-    };
-
-    const closeSourceDetails = () => {
-        setSelectedSource(null);
     };
 
     if (terminal) {
@@ -280,13 +341,13 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                         </div>
                         <div className="ml-2 flex items-center gap-1.5">
                             <Terminal size={12} className="text-[var(--color-primary)] opacity-70" />
-                            <span className="font-mono text-[11px] tracking-wide text-[var(--color-text-meta)]">
+                            <span className="font-mono text-xs tracking-wide text-[var(--color-text-meta)]">
                                 jarvis ~ {isDetached ? "floating" : "docked"}
                             </span>
                         </div>
                     </div>
                     {isDetached && (
-                        <span className="font-mono text-[10px] text-[var(--color-text-subtle)] opacity-60">
+                        <span className="font-mono text-xs text-[var(--color-text-subtle)] opacity-60">
                             drag to move
                         </span>
                     )}
@@ -319,21 +380,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                                     }`}
                                 >
                                     <p className="m-0 whitespace-pre-wrap">{msg.content}</p>
-                                    {msg.sources && msg.sources.length > 0 && (
-                                        <div className="mt-2 flex flex-wrap gap-1 border-t border-[var(--color-border-muted)] pt-2">
-                                            {msg.sources.map((source, sourceIndex) => (
-                                                <Fragment key={source.id}>
-                                                    <button
-                                                        className="rounded-md border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wide text-[var(--color-primary)] transition-colors hover:border-[var(--color-primary)]"
-                                                        onClick={() => handleSourceClick(source)}
-                                                    >
-                                                        {source.label}
-                                                    </button>
-                                                    {sourceIndex < msg.sources.length - 1 ? " " : null}
-                                                </Fragment>
-                                            ))}
-                                        </div>
-                                    )}
+                                    {msg.role === "model" ? <MessageEvidence message={msg} /> : null}
                                 </div>
                             </div>
                         ))}
@@ -404,9 +451,6 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                     </div>
                 </div>
 
-                {selectedSource && (
-                    <SourceDetails source={selectedSource} onClose={closeSourceDetails} />
-                )}
             </div>
         );
 
@@ -466,25 +510,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                         }`}
                     >
                         <p className="m-0">{msg.content}</p>
-                        {msg.sources && msg.sources.length > 0 && (
-                            <div className="mt-2 border-t border-[var(--color-border-muted)] pt-2 text-xs text-[var(--color-text-subtle)]">
-                                <small className="block leading-snug">
-                                    Sources:{" "}
-                                    {msg.sources.map((source, sourceIndex) => (
-                                        <Fragment key={source.id}>
-                                            <button
-                                                className="mx-0.5 rounded-md border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2 py-0.5 font-mono text-[11px] font-medium uppercase tracking-[0.05em] text-[var(--color-primary)] transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-primary-hover)]"
-                                                onClick={() => handleSourceClick(source)}
-                                                title="Click for source details"
-                                            >
-                                                {source.label}
-                                            </button>
-                                            {sourceIndex < msg.sources.length - 1 ? ", " : null}
-                                        </Fragment>
-                                    ))}
-                                </small>
-                            </div>
-                        )}
+                        {msg.role === "model" ? <MessageEvidence message={msg} /> : null}
                     </div>
                 ))}
                 {isLoading && (
@@ -531,8 +557,6 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                     ))}
                 </div>
             )}
-
-            {selectedSource && <SourceDetails source={selectedSource} onClose={closeSourceDetails} />}
         </div>
     );
 };

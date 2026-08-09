@@ -17,10 +17,10 @@ const ContactSection = () => {
 
     try {
       const result = await emailjs.sendForm(
-        "service_zfvhjwe", // Replace with your EmailJS service ID
-        "template_qt3tvqw", // Replace with your EmailJS template ID
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
         form.current,
-        "G5A2_HEaFryYJN8RH", // Replace with your EmailJS public key
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
       )
 
       setSubmitStatus("success")

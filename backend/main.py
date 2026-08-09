@@ -1,3 +1,4 @@
+from time import perf_counter
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -9,7 +10,9 @@ from open_ai_client import OpenAIClient
 from settings import settings
 from prompts import PUBLIC_JARVIS_INSTRUCTIONS
 from logging_config import configure_logging, get_logger
+from pricing import calculate_cost_usd
 from schemas import ChatRequest, ChatResponse, error_detail
+from schemas.chat import ChatUsage, SourceRef
 
 configure_logging()
 logger = get_logger(__name__)
@@ -22,6 +25,56 @@ DEFAULT_ALLOWED_ORIGINS = (
 
 FILE_SEARCH_MAX_RESULTS = 8
 
+
+def _field(value: Any, name: str, default: Any = None) -> Any:
+    if isinstance(value, dict):
+        return value.get(name, default)
+    return getattr(value, name, default)
+
+
+def _extract_sources(output: Any) -> list[SourceRef]:
+    sources: list[SourceRef] = []
+    seen_file_ids: set[str] = set()
+
+    for item in output or []:
+        for content in _field(item, "content", []) or []:
+            for annotation in _field(content, "annotations", []) or []:
+                if _field(annotation, "type") != "file_citation":
+                    continue
+
+                file_id = _field(annotation, "file_id")
+                filename = _field(annotation, "filename")
+                if not file_id or not filename or file_id in seen_file_ids:
+                    continue
+
+                quote = _field(annotation, "quote")
+                sources.append(
+                    SourceRef(
+                        id=file_id,
+                        filename=filename,
+                        quote=quote if isinstance(quote, str) and quote.strip() else None,
+                    )
+                )
+                seen_file_ids.add(file_id)
+
+    return sources
+
+
+def _extract_usage(response_usage: Any) -> ChatUsage | None:
+    if response_usage is None:
+        return None
+
+    input_tokens = _field(response_usage, "input_tokens")
+    output_tokens = _field(response_usage, "output_tokens")
+    total_tokens = _field(response_usage, "total_tokens")
+    if input_tokens is None or output_tokens is None or total_tokens is None:
+        return None
+
+    return ChatUsage(
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        total_tokens=total_tokens,
+    )
 
 
 def _allowed_origins() -> list[str]:
@@ -61,10 +114,6 @@ def _client() -> AsyncOpenAI:
     return _openai_client.client
 
 
-
-
-
-
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(_, exc: RequestValidationError):
     fields = sorted({str(error["loc"][-1]) for error in exc.errors() if error.get("loc")})
@@ -82,7 +131,12 @@ async def validation_error_handler(_, exc: RequestValidationError):
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    _, vector_store_id, model, instructions = settings.openai_api_key, settings.openai_vector_store_id, settings.openai_chat_model, PUBLIC_JARVIS_INSTRUCTIONS
+    _, vector_store_id, model, instructions = (
+        settings.openai_api_key,
+        settings.openai_vector_store_id,
+        settings.openai_chat_model,
+        PUBLIC_JARVIS_INSTRUCTIONS,
+    )
     if not vector_store_id:
         raise HTTPException(
             status_code=503,
@@ -106,7 +160,9 @@ async def chat(request: ChatRequest):
         call["previous_response_id"] = request.previous_response_id
 
     try:
-        response = await _client().responses.create(**call)
+        client = _client()
+        started_at = perf_counter()
+        response = await client.responses.create(**call)
     except (BadRequestError, NotFoundError) as exc:
         is_stale_conversation = request.previous_response_id and (
             isinstance(exc, NotFoundError) or "previous_response_id" in str(exc).lower()
@@ -137,22 +193,50 @@ async def chat(request: ChatRequest):
             status_code=502,
             detail=error_detail("provider_error", "Jarvis is temporarily unavailable."),
         ) from exc
+    latency_ms = round((perf_counter() - started_at) * 1000)
 
-    output_text = (response.output_text or "").strip()
-    if not output_text or not response.id:
+    output_text = (_field(response, "output_text", "") or "").strip()
+    response_id = _field(response, "id")
+    if not output_text or not response_id:
         logger.warning("chat_failed provider_error=empty_response")
         raise HTTPException(
             status_code=502,
             detail=error_detail("provider_error", "Jarvis returned an empty response."),
         )
 
-    logger.info("chat_completed response_id=%s", response.id)
-    return ChatResponse(response=output_text, response_id=response.id)
+    sources = _extract_sources(_field(response, "output", []))
+    usage = _extract_usage(_field(response, "usage"))
+    cost_usd = (
+        calculate_cost_usd(model, usage.input_tokens, usage.output_tokens)
+        if usage is not None
+        else None
+    )
+
+    logger.info(
+        "chat_completed response_id=%s latency_ms=%s source_count=%s",
+        response_id,
+        latency_ms,
+        len(sources),
+    )
+    return ChatResponse(
+        response=output_text,
+        response_id=response_id,
+        model=model,
+        sources=sources,
+        latency_ms=latency_ms,
+        usage=usage,
+        cost_usd=cost_usd,
+    )
 
 
 @app.get("/health")
 async def health():
-    api_key, vector_store_id, _, _ = settings.openai_api_key, settings.openai_vector_store_id, settings.openai_chat_model, PUBLIC_JARVIS_INSTRUCTIONS
+    api_key, vector_store_id, _, _ = (
+        settings.openai_api_key,
+        settings.openai_vector_store_id,
+        settings.openai_chat_model,
+        PUBLIC_JARVIS_INSTRUCTIONS,
+    )
     configured = bool(api_key and vector_store_id)
     return JSONResponse(
         status_code=200 if configured else 503,

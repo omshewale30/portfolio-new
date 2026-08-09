@@ -1,6 +1,77 @@
-/* Fonts: DM Serif Display (headings), Crimson Pro (body), IBM Plex Mono (eyebrows/tags/meta) */
-@import url("https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
+
+/* Self-hosted Latin font subsets; critical faces are preloaded in index.html. */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Serif Display";
+  src: url("/fonts/dm-serif-display-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Serif Display";
+  src: url("/fonts/dm-serif-display-italic-latin.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Crimson Pro";
+  src: url("/fonts/crimson-pro-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Crimson Pro";
+  src: url("/fonts/crimson-pro-italic-latin.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/ibm-plex-mono-regular-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/ibm-plex-mono-medium-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/ibm-plex-mono-semibold-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+}
 
 /* Warm Dark design tokens */
 :root {
@@ -58,7 +129,8 @@
 
   /* Typography – font families */
   --font-display: "DM Serif Display", Georgia, serif;
-  --font-body: "Crimson Pro", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-essay: "Crimson Pro", Georgia, serif;
   --font-mono: "IBM Plex Mono", "SF Mono", Consolas, monospace;
 
   /* Motion */
@@ -66,6 +138,72 @@
   --duration-fast: 0.2s;
   --duration-normal: 0.35s;
   --duration-slow: 0.5s;
+
+  /* Navbar-scoped tokens (dark default) */
+  --color-nav-border: rgba(255, 255, 255, 0.06);
+  --color-nav-border-scrolled: rgba(255, 255, 255, 0.08);
+  --color-nav-bg: linear-gradient(135deg, rgba(30, 24, 16, 0.65) 0%, rgba(22, 18, 13, 0.55) 100%);
+  --color-nav-bg-scrolled: linear-gradient(135deg, rgba(22, 18, 13, 0.88) 0%, rgba(30, 24, 16, 0.82) 100%);
+  --color-nav-shadow: 0 4px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --color-nav-shadow-scrolled: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --color-nav-dropdown-bg: rgba(22, 18, 13, 0.92);
+  --color-nav-dropdown-gradient: linear-gradient(180deg, rgba(30, 24, 16, 0.95) 0%, rgba(22, 18, 13, 0.98) 100%);
+  --color-nav-dropdown-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --color-nav-item-hover-bg: rgba(255, 255, 255, 0.06);
+  --color-nav-item-active-bg: rgba(200, 168, 130, 0.12);
+  --color-nav-item-active-shadow: inset 0 0 0 1px rgba(200, 168, 130, 0.2);
+  --color-nav-item-hover-shadow: inset 0 0 0 1px rgba(200, 168, 130, 0.15);
+  --color-nav-toggle-border: rgba(255, 255, 255, 0.08);
+  --color-nav-toggle-bg: rgba(255, 255, 255, 0.04);
+  --color-nav-shimmer: rgba(255, 255, 255, 0.03);
+}
+
+/* Light theme – palette swap, same amber through-line */
+:root[data-theme="light"] {
+  --color-primary: #a8763f;
+  --color-primary-hover: #96652f;
+  --color-primary-muted: rgba(168, 118, 63, 0.55);
+  --color-accent: #a8763f;
+  --color-accent-hover: #96652f;
+
+  --color-bg-base: #faf7f2;
+  --color-bg-surface: #f2ede3;
+  --color-bg-elevated: #e9e1d2;
+
+  --color-text-primary: #241d14;
+  --color-text-muted: #3a3020;
+  --color-text-subtle: #5c5138;
+  --color-text-meta: #786c50;
+
+  --color-border-subtle: rgba(168, 118, 63, 0.22);
+  --color-border-muted: rgba(168, 118, 63, 0.14);
+  --color-border-focus: rgba(168, 118, 63, 0.45);
+
+  --gradient-brand: linear-gradient(135deg, var(--color-primary), #8a6230);
+  --gradient-brand-hover: linear-gradient(135deg, var(--color-primary-hover), #a8763f);
+
+  --shadow-glass: 0 8px 32px rgba(90, 70, 40, 0.12);
+  --shadow-glass-strong: 0 8px 32px rgba(90, 70, 40, 0.18);
+  --shadow-button: 0 4px 20px rgba(168, 118, 63, 0.2);
+  --shadow-button-hover: 0 6px 24px rgba(168, 118, 63, 0.3);
+  --shadow-glow: 0 8px 25px rgba(168, 118, 63, 0.16);
+
+  --color-nav-border: rgba(36, 29, 20, 0.08);
+  --color-nav-border-scrolled: rgba(36, 29, 20, 0.1);
+  --color-nav-bg: linear-gradient(135deg, rgba(255, 253, 249, 0.75) 0%, rgba(242, 237, 227, 0.65) 100%);
+  --color-nav-bg-scrolled: linear-gradient(135deg, rgba(255, 253, 249, 0.92) 0%, rgba(242, 237, 227, 0.88) 100%);
+  --color-nav-shadow: 0 4px 24px rgba(90, 70, 40, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --color-nav-shadow-scrolled: 0 8px 32px rgba(90, 70, 40, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --color-nav-dropdown-bg: rgba(255, 253, 249, 0.96);
+  --color-nav-dropdown-gradient: linear-gradient(180deg, rgba(255, 253, 249, 0.98) 0%, rgba(242, 237, 227, 0.98) 100%);
+  --color-nav-dropdown-shadow: 0 12px 40px rgba(90, 70, 40, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --color-nav-item-hover-bg: rgba(36, 29, 20, 0.05);
+  --color-nav-item-active-bg: rgba(168, 118, 63, 0.14);
+  --color-nav-item-active-shadow: inset 0 0 0 1px rgba(168, 118, 63, 0.28);
+  --color-nav-item-hover-shadow: inset 0 0 0 1px rgba(168, 118, 63, 0.2);
+  --color-nav-toggle-border: rgba(36, 29, 20, 0.1);
+  --color-nav-toggle-bg: rgba(36, 29, 20, 0.04);
+  --color-nav-shimmer: rgba(36, 29, 20, 0.03);
 }
 
 /* ----- Shared utility classes ----- */
@@ -178,6 +316,37 @@
   transition: color var(--duration-fast) var(--ease-out-smooth);
 }
 
+/* Nav item hover – token-driven so it re-themes with the navbar */
+.nav-item-warm:hover {
+  background-color: var(--color-nav-item-hover-bg);
+  color: var(--color-primary) !important;
+  box-shadow: var(--color-nav-item-hover-shadow);
+}
+
+.nav-item-warm-active {
+  background-color: var(--color-nav-item-active-bg);
+  box-shadow: var(--color-nav-item-active-shadow);
+}
+
+/* Nav icon button – borderless, circular, matches the pill's glass hover language */
+.nav-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-subtle);
+  transition: background-color var(--duration-normal) var(--ease-out-smooth),
+    color var(--duration-normal) var(--ease-out-smooth);
+}
+.nav-icon-btn:hover {
+  background-color: var(--color-nav-item-hover-bg);
+  color: var(--color-primary);
+}
+
 /* Glassmorphism nav link effects */
 .nav-link-glass {
   position: relative;
@@ -212,7 +381,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.03) 50%,
+    var(--color-nav-shimmer) 50%,
     transparent 100%
   );
   opacity: 0;
@@ -257,49 +426,15 @@
 
 .ai-badge {
   border-radius: 999px;
-  border: 1px solid transparent;
+  border: 1px solid var(--color-border-subtle);
   padding: 0.28rem 0.62rem;
   font-family: var(--font-mono);
   font-size: 0.625rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   line-height: 1;
-}
-
-.ai-badge-default {
-  background: rgba(200, 168, 130, 0.14);
-  border-color: rgba(200, 168, 130, 0.32);
-  color: #f0deca;
-}
-
-.ai-badge-gpt4 {
-  background: rgba(34, 197, 94, 0.14);
-  border-color: rgba(74, 222, 128, 0.42);
-  color: #b7f7cd;
-}
-
-.ai-badge-rag {
-  background: rgba(59, 130, 246, 0.14);
-  border-color: rgba(96, 165, 250, 0.4);
-  color: #c6deff;
-}
-
-.ai-badge-langchain {
-  background: rgba(249, 115, 22, 0.14);
-  border-color: rgba(251, 146, 60, 0.45);
-  color: #ffd2a3;
-}
-
-.ai-badge-azure {
-  background: rgba(14, 165, 233, 0.14);
-  border-color: rgba(56, 189, 248, 0.42);
-  color: #bdefff;
-}
-
-.ai-badge-multi-agent {
-  background: rgba(168, 85, 247, 0.15);
-  border-color: rgba(192, 132, 252, 0.42);
-  color: #e4ccff;
+  background: rgba(200, 168, 130, 0.1);
+  color: var(--color-primary);
 }
 
 .schedule-call-btn {
@@ -685,6 +820,13 @@ body {
 
 .font-mono {
   font-family: var(--font-mono);
+}
+
+/* Essay prose – Crimson Pro, reserved for long-form /notes bodies */
+.prose-essay {
+  font-family: var(--font-essay);
+  font-size: 1.0625rem;
+  line-height: 1.7;
 }
 
 code {

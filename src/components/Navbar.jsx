@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "../context/ThemeContext.jsx";
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
@@ -67,31 +70,38 @@ const Header = () => {
 
   return (
     <nav
-      className={`navbar-bar fixed left-1/2 top-4 z-[1050] flex w-auto max-w-[calc(100%-2rem)] -translate-x-1/2 items-center rounded-full px-10 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] md:top-3 md:min-w-[480px] md:w-auto md:max-w-[min(56vw,900px)] md:rounded-[22px] md:px-10 ${
-        scrolled
-          ? "border border-[rgba(255,255,255,0.08)] bg-[rgba(22,18,13,0.85)] py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-[20px] backdrop-saturate-[1.8] md:py-4"
-          : "border border-[rgba(255,255,255,0.06)] bg-[rgba(30,24,16,0.6)] py-3 shadow-[0_4px_24px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-[24px] backdrop-saturate-[1.5] md:py-4"
+      className={`navbar-bar fixed left-1/2 top-4 z-[1050] flex w-auto max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center rounded-full border px-5 py-3 backdrop-saturate-[1.8] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] md:top-3 md:min-w-[480px] md:max-w-[calc(100vw-2rem)] md:rounded-[22px] md:px-5 md:py-4 ${
+        scrolled ? "backdrop-blur-[20px]" : "backdrop-blur-[24px]"
       } ${
         isVisible
           ? "translate-y-0 opacity-100"
           : "-translate-y-full opacity-0"
       }`}
       style={{
-        background: scrolled
-          ? "linear-gradient(135deg, rgba(22,18,13,0.88) 0%, rgba(30,24,16,0.82) 100%)"
-          : "linear-gradient(135deg, rgba(30,24,16,0.65) 0%, rgba(22,18,13,0.55) 100%)",
+        borderColor: scrolled ? "var(--color-nav-border-scrolled)" : "var(--color-nav-border)",
+        background: scrolled ? "var(--color-nav-bg-scrolled)" : "var(--color-nav-bg)",
+        boxShadow: scrolled ? "var(--color-nav-shadow-scrolled)" : "var(--color-nav-shadow)",
       }}
     >
       <div className="flex w-full items-center justify-between md:justify-center">
         <div
           className={`flex w-auto flex-row items-center gap-2 border-0 bg-transparent opacity-100 transition-all duration-300 ${
             isMobileMenuOpen
-              ? "flex max-md:absolute max-md:left-1/2 max-md:top-[calc(100%+0.75rem)] max-md:w-[280px] max-md:max-w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:flex-col max-md:rounded-2xl max-md:border max-md:border-[rgba(255,255,255,0.08)] max-md:bg-[rgba(22,18,13,0.92)] max-md:p-3 max-md:shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)] max-md:backdrop-blur-[24px] max-md:backdrop-saturate-[1.8]"
+              ? "flex max-md:absolute max-md:left-1/2 max-md:top-[calc(100%+0.75rem)] max-md:w-[280px] max-md:max-w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:flex-col max-md:rounded-2xl max-md:border max-md:p-3 max-md:backdrop-blur-[24px] max-md:backdrop-saturate-[1.8]"
               : "hidden"
           } md:flex`}
           id="navbarNav"
+          style={
+            isMobileMenuOpen
+              ? {
+                  borderColor: "var(--color-nav-toggle-border)",
+                  backgroundColor: "var(--color-nav-dropdown-bg)",
+                  boxShadow: "var(--color-nav-dropdown-shadow)",
+                }
+              : undefined
+          }
         >
-          <ul className="flex flex-row items-center gap-5 max-md:w-full max-md:flex-col max-md:items-stretch max-md:gap-1.5 max-md:p-3 md:flex-row md:gap-5 md:min-h-0">
+          <ul className="flex flex-row items-center gap-2 max-md:w-full max-md:flex-col max-md:items-stretch max-md:gap-1.5 max-md:p-3 md:min-h-0 md:flex-row lg:gap-3">
             <li
               className={`relative ${isDropdownOpen ? "show" : ""}`}
               onMouseEnter={() => !isMobileView && setIsDropdownOpen(true)}
@@ -103,20 +113,26 @@ const Header = () => {
                   e.preventDefault();
                   if (isMobileView) toggleDropdown();
                 }}
-                className="nav-link-glass relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)] max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:inline-flex md:w-auto md:text-[1.2rem]"
-                style={{ padding: "0.875rem 1.5rem" }}
+                className="nav-link-glass nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:inline-flex md:w-auto md:text-[1.2rem]"
+                style={{ padding: "0.75rem 1rem" }}
               >
                 Home
               </a>
               <div
                 className={`${isDropdownOpen ? "show" : ""} ${
                   isMobileView
-                    ? "static mt-1 flex flex-col gap-1 rounded-xl border-0 bg-[rgba(255,255,255,0.04)] p-4 shadow-none"
-                    : `absolute left-1/2 top-full z-[1051] min-w-[220px] -translate-x-1/2 flex flex-col gap-1 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(22,18,13,0.92)] pt-4 px-5 pb-4 shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[24px] backdrop-saturate-[1.8] transition-all duration-300 ${isDropdownOpen ? "block opacity-100 translate-y-0" : "hidden opacity-0 -translate-y-2"}`
+                    ? "static mt-1 flex flex-col gap-1 rounded-xl border-0 p-4 shadow-none"
+                    : `absolute left-1/2 top-full z-[1051] min-w-[220px] -translate-x-1/2 flex flex-col gap-1 rounded-2xl border pt-4 px-5 pb-4 backdrop-blur-[24px] backdrop-saturate-[1.8] transition-all duration-300 ${isDropdownOpen ? "block opacity-100 translate-y-0" : "hidden opacity-0 -translate-y-2"}`
                 }`}
-                style={!isMobileView ? {
-                  background: "linear-gradient(180deg, rgba(30,24,16,0.95) 0%, rgba(22,18,13,0.98) 100%)",
-                } : {}}
+                style={
+                  isMobileView
+                    ? { backgroundColor: "var(--color-nav-toggle-bg)" }
+                    : {
+                        borderColor: "var(--color-nav-toggle-border)",
+                        background: "var(--color-nav-dropdown-gradient)",
+                        boxShadow: "var(--color-nav-dropdown-shadow)",
+                      }
+                }
               >
                 {[
                   ["#about", "About Me"],
@@ -127,7 +143,7 @@ const Header = () => {
                   <a
                     key={href}
                     href={href}
-                    className="block rounded-lg px-5 py-3.5 font-mono text-[1.05rem] uppercase tracking-[0.06em] !text-[var(--color-text-subtle)] !no-underline transition-all duration-200 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.12)]"
+                    className="nav-item-warm block rounded-lg px-5 py-3.5 font-mono text-[1.05rem] uppercase tracking-[0.06em] !text-[var(--color-text-subtle)] !no-underline transition-all duration-200"
                     onClick={(e) => {
                       e.preventDefault();
                       handleNavigation(href);
@@ -142,12 +158,12 @@ const Header = () => {
               <a
                 href="#"
                 onClick={() => handleNavigation("/experience")}
-                className={`flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
+                className={`nav-item-warm flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
                   location.pathname === "/experience"
-                    ? "bg-[rgba(200,168,130,0.12)] font-semibold !text-[var(--color-primary)] shadow-[inset_0_0_0_1px_rgba(200,168,130,0.2)]"
-                    : "!text-[var(--color-text-muted)] hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)]"
+                    ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
+                    : "!text-[var(--color-text-muted)]"
                 }`}
-                style={{ padding: "0.875rem 1.5rem" }}
+                style={{ padding: "0.75rem 1rem" }}
               >
                 Experience
               </a>
@@ -156,14 +172,28 @@ const Header = () => {
               <a
                 href="#"
                 onClick={() => handleNavigation("/projects")}
-                className={`relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
+                className={`nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
                   location.pathname === "/projects"
-                    ? "bg-[rgba(200,168,130,0.12)] font-semibold !text-[var(--color-primary)] shadow-[inset_0_0_0_1px_rgba(200,168,130,0.2)]"
-                    : "!text-[var(--color-text-muted)] hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)]"
+                    ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
+                    : "!text-[var(--color-text-muted)]"
                 }`}
-                style={{ padding: "0.875rem 1.5rem" }}
+                style={{ padding: "0.75rem 1rem" }}
               >
                 Projects
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                onClick={() => handleNavigation("/notes")}
+                className={`nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
+                  location.pathname.startsWith("/notes")
+                    ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
+                    : "!text-[var(--color-text-muted)]"
+                }`}
+                style={{ padding: "0.75rem 1rem" }}
+              >
+                Notes
               </a>
             </li>
             <li>
@@ -171,8 +201,8 @@ const Header = () => {
                 href="https://drive.google.com/file/d/12nH9Tl4pyx8Wt3Y0S9YGngcIMR5IAsix/view?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="nav-link-glass flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)] max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
-                style={{ padding: "0.875rem 1.5rem" }}
+                className="nav-link-glass nav-item-warm flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
+                style={{ padding: "0.75rem 1rem" }}
               >
                 Resume
               </a>
@@ -184,8 +214,8 @@ const Header = () => {
                   e.preventDefault();
                   handleNavigation("#jarvis");
                 }}
-                className="nav-link-glass group flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)] hover:!text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_rgba(200,168,130,0.15)] max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
-                style={{ padding: "0.875rem 1.5rem" }}
+                className="nav-link-glass nav-item-warm group flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
+                style={{ padding: "0.75rem 1rem" }}
               >
                 Jarvis
               </a>
@@ -194,8 +224,16 @@ const Header = () => {
         </div>
         <button
           type="button"
+          onClick={toggleTheme}
+          className="nav-icon-btn ml-auto shrink-0 outline-none focus:shadow-none md:ml-2"
+          aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+        >
+          {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+        </button>
+        <button
+          type="button"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="ml-auto rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] p-2.5 shadow-none outline-none transition-all duration-300 hover:border-[rgba(200,168,130,0.2)] hover:bg-[rgba(255,255,255,0.08)] focus:shadow-none md:hidden"
+          className="nav-icon-btn ml-1 shrink-0 outline-none focus:shadow-none md:!hidden"
           aria-label="Toggle menu"
         >
           <span

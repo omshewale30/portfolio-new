@@ -1,136 +1,9 @@
 "use client"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { experienceDetails } from "../data/experience"
 import { fadeInUp } from "../utils/animations"
-
-const experienceDetails = [
-
-  {
-    "title": "Applied AI Engineer",
-    "company": "Office of the Vice Chancellor for Finance and Operations, UNC-Chapel Hill",
-    "location": "Chapel Hill, NC, USA",
-    "duration": "06/2026 – Present",
-    "contributions": [
-      "Lead F&O's AI strategy end-to-end, reporting to the Vice Chancellor and partnering with the CFO and Associate Vice Chancellors to surface operational bottlenecks and prioritize the highest-ROI problems across the division.",
-      "Built an enterprise intake and evaluation framework to triage proposed use cases by feasibility and financial impact, concentrating engineering effort on the workflows driving the most administrative overhead.",
-      "Architecting Nimbus, an org-wide AI platform, and Heelper, a configurable department-specific AI tool, as the core in-house infrastructure for scaling AI capability across F&O business units.",
-      "Recruiting, hiring, and leading a small AI engineering team from the ground up, while running alignment sessions with senior leadership across F&O to build sponsorship and drive adoption."
-    ],
-    "technologies": [
-      "Python",
-      "Azure AI Foundry",
-      "Next.js",
-      "FastAPI",
-      "AI Strategy",
-      "Stakeholder Management",
-      "Enterprise Architecture",
-      "Change Management"
-    ],
-    "image": "../assets/UNC_FO.jpeg",
-    "type": "AI/development"
-  },
-  
-  {
-    "title": "Applied AI intern",
-    "company": "University of North Carolina - Chapel Hill",
-    "location": "Chapel Hill, NC, USA",
-    "duration": "09/2024 – 05/2026",
-    "contributions": [
-      "Pioneered an AI-driven transformation by developing an enterprise RAG (Retrieval Augmented Generation) chatbot using LangChain and Azure OpenAI, projected to eliminate hundreds of hours of manual research annually by providing instant answers from ~600-page policy manuals.",
-      "Drove a 35% boost in departmental efficiency by developing a Python automation tool to track pharmacy insurance payments and optimizing deposit workflows, increasing overall office productivity by 20%.",
-      "Analyzed and streamlined core financial processes, such as payment tracking and deposit recording, by consolidating EDI reports and leveraging vector indexing for rapid transaction lookups.",
-      "Managed and reconciled over $3M in weekly university deposits, ensuring 100% accuracy and strict compliance with financial policies to safeguard university operations."
-    ],
-    "technologies": [
-      "Python", 
-      "LangChain", 
-      "Azure OpenAI", 
-      "Excel",
-      "Business Process Improvement", 
-      "Financial Reporting", 
-      "Data Reconciliation"
-    ],
-    "image": "../assets/UNC_FO.jpeg",
-    "type": "finance"
-  },
-  {
-    "title": "AI Intern",
-    "company": "yAI",
-    "location": "Remote - NYC, NY",
-    "duration": "07/2025 – 10/2025",
-    "contributions": [
-      "Engineered and optimized a proprietary Retrieval Augmented Generation (RAG) based AI tool for comprehensive financial analysis, significantly reducing the manual research time for investment banking and private equity firms from hundreds of hours to a matter of minutes.",
-      "Spearheaded the design and deployment of the entire Azure cloud infrastructure, including implementing robust on-premises deployment solutions to ensure high availability, data security, and seamless integration for enterprise clients.",
-      "Developed a novel, multi-faceted 5-way scoring system to provide a quantifiable quality assessment of AI-generated responses, enhancing model trustworthiness and accuracy by meticulously evaluating citation reliability and relevance.",
-      "Collaborated with the founder to iterate on core product features, utilizing user feedback from financial analysts to improve the tool's performance and ensure its alignment with industry-specific needs and workflows."
-    ],
-    "technologies": [
-      "Azure Cloud",
-      "Python",
-      "LangChain",
-      "Retrieval Augmented Generation (RAG)",
-      "Financial Technology (FinTech)",
-      "Large Language Models (LLMs)"
-    ],
-    "image": "../assets/yAI.png",
-    "type": "AI/development"
-  },
-  {
-    title: "Lead Software Developer",
-    company: "UNC Eshelman School of Pharmacy",
-    location: "Chapel Hill, NC",
-    duration: "10/2024 – 01/2025",
-    contributions: [
-      "Designed and developed a web-based 2D escape room game to enhance clinical education through interactive, puzzle-based learning.",
-      "Led a team to implement core functionality using Flutter, laying the foundation for an engaging user experience.",
-      "Developed an authoring tool to enable faculty to customize clinical content, supporting adaptable and scalable teaching methods across institutions.",
-    ],
-    technologies: ["Flutter", "Dart", "Web Development"],
-    image: "../assets/UNC_Pharmacy.jpg",
-    type: "development",
-  },
-  {
-    title: "Software Developer",
-    company: "NASA Psyche Mission",
-    location: "Tempe, AZ",
-    duration: "09/2023 – 04/2024",
-    contributions: [
-      "Collaborated as team lead on a web-based game promoting awareness of NASA's Psyche mission.",
-      "Designed realistic space environments and incorporated authentic NASA data, enhancing project immersion.",
-      "Delivered the project ahead of schedule, receiving positive feedback from NASA sponsors.",
-    ],
-    technologies: ["Unity", "Game Development", "C#"],
-    image: "assets/Pysche_logo.png",
-    report: "reports/nasa_project.pdf",
-    type: "development",
-  },
-  {
-    title: "Tutor",
-    company: "Arizona State University",
-    location: "Tempe, AZ",
-    duration: "08/2021 – 05/2024",
-    contributions: [
-      "Provided comprehensive tutoring in Mathematics, Chemistry, Statistics, and programming languages such as Python and C++, emphasizing both theoretical understanding and practical application.",
-      "Simplified complex topics into manageable concepts, creating a tailored approach to meet individual learning needs and enhance academic performance.",
-    ],
-    technologies: ["Mathematics", "Chemistry", "Python", "C++"],
-    image: "../assets/ASN.png",
-    type: "education",
-  },
-  {
-    title: "Teaching Assistant",
-    company: "Arizona State University",
-    location: "Tempe, AZ",
-    duration: "08/2022 – 05/2024",
-    contributions: [
-      "Mentored 100+ freshmen engineering students in Calculus, boosting academic performance with customized guidance programs.",
-      "Delivered calculus concepts effectively, leveraging clear communication and hands-on problem-solving exercises.",
-    ],
-    technologies: ["Mentoring", "Teaching", "Calculus", "Engineering"],
-    image: "../assets/ASU.png",
-    type: "education",
-  },
-]
+import EducationSection from "./EducationSection"
 
 const Experience = () => {
   const [expandedCards, setExpandedCards] = useState({})
@@ -169,6 +42,7 @@ const Experience = () => {
   }
 
   return (
+    <>
     <section id="experience" className="relative overflow-hidden bg-[var(--color-bg-base)] py-20 sm:py-32">
       <div className="section-shell relative z-10 max-w-6xl mx-auto px-6 sm:px-10">
         <motion.div
@@ -179,9 +53,9 @@ const Experience = () => {
           viewport={{ once: true, margin: "-80px" }}
           style={{ marginBottom: "2rem" }}
         >
-          <p className="eyebrow-label mb-3">// Experience</p>
+          <p className="eyebrow-label mb-3">{"// Experience"}</p>
           <h2 className="font-display text-4xl tracking-tight text-[var(--color-text-primary)] sm:text-5xl md:text-6xl">
-            Where I've Built.
+            Where I’ve Built.
           </h2>
         </motion.div>
 
@@ -209,7 +83,7 @@ const Experience = () => {
                   <div className="font-mono text-[var(--color-text-muted)] group-hover:text-[var(--color-primary)] transition-colors">
                     {exp.duration}
                   </div>
-                  <div className="text-[10px] text-[var(--color-text-subtle)] flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-subtle)]">
                     <span className="shrink-0">{getTypeIcon(exp.type)}</span>
                     {exp.location}
                   </div>
@@ -220,7 +94,7 @@ const Experience = () => {
                       <div className="h-14 w-14 overflow-hidden rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-1.5 opacity-60 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 group-hover:border-[var(--color-primary)]/50">
                         <img 
                           src={exp.image} 
-                          alt={`${exp.company} logo`} 
+                          alt=""
                           className="h-full w-full object-contain rounded-lg" 
                           loading="lazy" 
                         />
@@ -308,7 +182,7 @@ const Experience = () => {
                     {exp.technologies.map((tech, techIndex) => (
                       <li
                         key={techIndex}
-                        className="rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.03)] font-mono text-[10px] uppercase tracking-wider text-[var(--color-text-subtle)] transition-colors duration-300 group-hover:border-[var(--color-border-focus)] group-hover:bg-[rgba(200,168,130,0.1)] group-hover:text-[var(--color-primary)]"
+                        className="rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.03)] font-mono text-xs uppercase tracking-wider text-[var(--color-text-subtle)] transition-colors duration-300 group-hover:border-[var(--color-border-focus)] group-hover:bg-[rgba(200,168,130,0.1)] group-hover:text-[var(--color-primary)]"
                         style={{ padding: "0.1rem 0.1rem" }}
                       >
                         {tech}
@@ -339,6 +213,9 @@ const Experience = () => {
         </div>
       </div>
     </section>
+
+    <EducationSection />
+    </>
   )
 }
 

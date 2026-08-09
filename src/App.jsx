@@ -1,22 +1,48 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import './App.css'
 import Hero from "./components/Hero.jsx";
 import Navbar from "./components/Navbar.jsx";
-import ProjectSection from "./components/ProjectSection.jsx";
-import Experience from "./components/Experience.jsx";
-import ProjectPreview from "./components/ProjectPreview.jsx";
 import TechMarquee from "./components/TechMarquee.jsx";
-
+import ProofStrip from "./components/ProofStrip.jsx";
+import SelectedWork from "./components/SelectedWork.jsx";
+import CurrentRoleSummary from "./components/CurrentRoleSummary.jsx";
 import SkillSection from "./components/SkillsSection.jsx";
 import ContactSection from "./components/ContactSection.jsx";
 import EducationSection from "./components/EducationSection.jsx";
+const ProjectSection = lazy(() => import("./components/ProjectSection.jsx"));
+const Experience = lazy(() => import("./components/Experience.jsx"));
+const CaseStudy = lazy(() => import("./pages/CaseStudy.jsx"));
+const NotesIndex = lazy(() => import("./pages/NotesIndex.jsx"));
+const NoteDetail = lazy(() => import("./pages/NoteDetail.jsx"));
 
+const RouteLoadingFallback = () => (
+    <main
+        className="flex min-h-[60vh] items-center justify-center bg-[var(--color-bg-base)] px-6 pt-24"
+        aria-live="polite"
+        aria-busy="true"
+    >
+        <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
+            Loading page…
+        </p>
+    </main>
+);
 
 function AppContent() {
     const location = useLocation();
     const navigate = useNavigate();
+    const previousPathRef = useRef(null);
+
+    // New routes always begin at the top. Homepage section links are handled below.
+    useEffect(() => {
+        const pathChanged = previousPathRef.current !== location.pathname;
+        previousPathRef.current = location.pathname;
+
+        if (!pathChanged || (location.pathname === "/" && location.state?.scrollTo)) return;
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }, [location.pathname, location.state?.scrollTo]);
+
     // Scroll to section when navigating to home with state.scrollTo (e.g. from Navbar hash links)
     useEffect(() => {
         if (location.pathname !== "/" || !location.state?.scrollTo) return;
@@ -34,23 +60,27 @@ function AppContent() {
     return (
         <div className="App">
             <Navbar />
-            <Routes>
+            <Suspense fallback={<RouteLoadingFallback />}>
+                <Routes>
                     {/* Home Page */}
                     <Route
                         path="/"
                         element={
                             <main>
                                 <Hero />
-                                <TechMarquee />
+                                <ProofStrip />
                                 <div className="section-transition section-transition-delay-1">
-                                    <EducationSection />
+                                    <SelectedWork />
                                 </div>
                                 <div className="section-transition section-transition-delay-2">
-                                    <ProjectPreview />
+                                    <CurrentRoleSummary />
+                                </div>
+                                <div className="section-transition section-transition-delay-3">
+                                    <EducationSection compact />
                                 </div>
                                 <TechMarquee />
                                 <div className="section-transition section-transition-delay-3">
-                                    <SkillSection/>
+                                    <SkillSection />
                                 </div>
                                 <div className="section-transition section-transition-delay-3">
                                     <ContactSection />
@@ -62,9 +92,14 @@ function AppContent() {
                     <Route path="/projects" element={<ProjectSection />} />
                     {/* Experience Page */}
                     <Route path="/experience" element={<Experience />} />
+                    {/* Case Study Page */}
+                    <Route path="/work/:slug" element={<CaseStudy />} />
+                    {/* Notes */}
+                    <Route path="/notes" element={<NotesIndex />} />
+                    <Route path="/notes/:slug" element={<NoteDetail />} />
 
-
-            </Routes>
+                </Routes>
+            </Suspense>
         </div>
     );
 }
