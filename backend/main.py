@@ -162,9 +162,7 @@ async def validation_error_handler(_, exc: RequestValidationError):
     )
 
 
-@app.post("/")
-async def root():
-    return {"message": "Portfolio Jarvis API is running. Use the /chat endpoint to interact with Jarvis."}
+
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest, http_request: Request, response: Response):
@@ -283,15 +281,13 @@ async def chat(request: ChatRequest, http_request: Request, response: Response):
     )
 
 
+@app.get("/", include_in_schema=False)
 @app.get("/health")
 async def health():
-    api_key, vector_store_id, _, _ = (
-        settings.openai_api_key,
-        settings.openai_vector_store_id,
-        settings.openai_chat_model,
-        PUBLIC_JARVIS_INSTRUCTIONS,
-    )
+    api_key = settings.openai_api_key
+    vector_store_id = settings.openai_vector_store_id
     configured = bool(api_key and vector_store_id)
+
     return JSONResponse(
         status_code=200 if configured else 503,
         content={
@@ -299,3 +295,4 @@ async def health():
             "service": "portfolio-jarvis-api",
         },
     )
+
