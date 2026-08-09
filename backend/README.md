@@ -26,6 +26,14 @@ Required runtime configuration:
 - `OPENAI_VECTOR_STORE_ID`
 - `OPENAI_CHAT_MODEL` (defaults to `gpt-4o`)
 - `CORS_ALLOWED_ORIGINS`
+- `CHAT_RATE_LIMIT_REQUESTS` (defaults to `10`)
+- `CHAT_RATE_LIMIT_WINDOW_SECONDS` (defaults to `60`)
+
+`POST /chat` applies a per-client-IP sliding-window rate limit. Successful
+responses include `RateLimit-*` headers; rejected requests return `429` with a
+`Retry-After` header. The limiter is process-local, which is appropriate for a
+small single-instance deployment. Use a shared store such as Redis if the API
+is scaled across multiple long-lived instances and needs a global quota.
 
 The compatibility response currently returns `output_text` and `response_id`.
 File-search citations are structured annotations in the OpenAI response and

@@ -1,7 +1,8 @@
 from time import perf_counter
 from typing import Any
+from ipaddress import ip_address
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -11,6 +12,7 @@ from settings import settings
 from prompts import PUBLIC_JARVIS_INSTRUCTIONS
 from logging_config import configure_logging, get_logger
 from pricing import calculate_cost_usd
+from rate_limiter import SlidingWindowRateLimiter
 from schemas import ChatRequest, ChatResponse, error_detail
 from schemas.chat import ChatUsage, SourceRef
 
@@ -24,6 +26,11 @@ DEFAULT_ALLOWED_ORIGINS = (
 )
 
 FILE_SEARCH_MAX_RESULTS = 8
+
+chat_rate_limiter = SlidingWindowRateLimiter(
+    limit=settings.chat_rate_limit_requests,
+    window_seconds=settings.chat_rate_limit_window_seconds,
+)
 
 
 def _field(value: Any, name: str, default: Any = None) -> Any:
@@ -84,6 +91,25 @@ def _allowed_origins() -> list[str]:
     return [origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()]
 
 
+def _client_identifier(request: Request) -> str:
+    """Return the proxy-provided client IP, falling back to the socket peer."""
+    forwarded_for = request.headers.get("x-forwarded-for", "")
+    candidates = [
+        request.headers.get("x-real-ip", ""),
+        forwarded_for.split(",", 1)[0].strip(),
+        request.client.host if request.client else "",
+    ]
+
+    for candidate in candidates:
+        try:
+            return str(ip_address(candidate))
+        except ValueError:
+            continue
+
+    # TestClient and some local ASGI servers use a hostname instead of an IP.
+    return (request.client.host if request.client else "unknown")[:128]
+
+
 app = FastAPI(
     title="Portfolio Jarvis API",
     description="Public, read-only Jarvis chat API for Om Shewale's portfolio",
@@ -96,6 +122,13 @@ app.add_middleware(
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
+    expose_headers=[
+        "RateLimit-Limit",
+        "RateLimit-Remaining",
+        "RateLimit-Reset",
+        "RateLimit-Policy",
+        "Retry-After",
+    ],
 )
 
 _openai_client: OpenAIClient | None = None
@@ -129,8 +162,29 @@ async def validation_error_handler(_, exc: RequestValidationError):
     )
 
 
+@app.post("/")
+async def root():
+    return {"message": "Portfolio Jarvis API is running. Use the /chat endpoint to interact with Jarvis."}
+
 @app.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, http_request: Request, response: Response):
+    rate_limit = chat_rate_limiter.check(_client_identifier(http_request))
+    rate_limit_headers = rate_limit.headers(chat_rate_limiter.window_seconds)
+    if not rate_limit.allowed:
+        logger.info("chat_rejected reason=rate_limited")
+        raise HTTPException(
+            status_code=429,
+            detail=error_detail(
+                "rate_limit_exceeded",
+                "Too many requests. Please wait before asking Jarvis again.",
+            ),
+            headers={
+                **rate_limit_headers,
+                "Retry-After": str(rate_limit.reset_after_seconds),
+            },
+        )
+    response.headers.update(rate_limit_headers)
+
     _, vector_store_id, model, instructions = (
         settings.openai_api_key,
         settings.openai_vector_store_id,

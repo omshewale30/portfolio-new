@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from openai import NotFoundError
 
 import main
+from rate_limiter import SlidingWindowRateLimiter
 
 
 class FakeResponses:
@@ -60,6 +61,7 @@ class ExpiredResponses:
 
 class PublicApiContractTests(unittest.TestCase):
     def setUp(self):
+        main.chat_rate_limiter.clear()
         self.setting_patches = [
             patch.object(main.settings, "openai_api_key", "test-key"),
             patch.object(main.settings, "openai_vector_store_id", "vs_public"),
@@ -77,6 +79,7 @@ class PublicApiContractTests(unittest.TestCase):
         self.client = TestClient(main.app)
 
     def tearDown(self):
+        main.chat_rate_limiter.clear()
         self.openai.stop()
         for setting_patch in reversed(self.setting_patches):
             setting_patch.stop()
@@ -88,6 +91,9 @@ class PublicApiContractTests(unittest.TestCase):
             )
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["ratelimit-limit"], "10")
+        self.assertEqual(response.headers["ratelimit-remaining"], "9")
+        self.assertEqual(response.headers["ratelimit-policy"], "10;w=60")
         self.assertEqual(
             response.json(),
             {
@@ -204,6 +210,56 @@ class PublicApiContractTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.json()["cost_usd"])
+
+    def test_chat_rate_limit_rejects_excess_requests_per_client_ip(self):
+        limiter = SlidingWindowRateLimiter(limit=2, window_seconds=60)
+        client_headers = {"X-Forwarded-For": "203.0.113.10"}
+
+        with patch.object(main, "chat_rate_limiter", limiter):
+            first = self.client.post(
+                "/chat",
+                json={"user_id": "browser", "user_input": "First"},
+                headers=client_headers,
+            )
+            second = self.client.post(
+                "/chat",
+                json={"user_id": "browser", "user_input": "Second"},
+                headers=client_headers,
+            )
+            rejected = self.client.post(
+                "/chat",
+                json={"user_id": "browser", "user_input": "Third"},
+                headers=client_headers,
+            )
+            other_client = self.client.post(
+                "/chat",
+                json={"user_id": "browser", "user_input": "Independent"},
+                headers={"X-Forwarded-For": "203.0.113.11"},
+            )
+
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(first.headers["ratelimit-remaining"], "1")
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(second.headers["ratelimit-remaining"], "0")
+        self.assertEqual(rejected.status_code, 429)
+        self.assertEqual(rejected.json()["detail"]["code"], "rate_limit_exceeded")
+        self.assertEqual(rejected.headers["retry-after"], "60")
+        self.assertEqual(rejected.headers["ratelimit-remaining"], "0")
+        self.assertEqual(other_client.status_code, 200)
+        self.assertEqual(len(self.fake.responses.calls), 3)
+
+
+class SlidingWindowRateLimiterTests(unittest.TestCase):
+    def test_requests_are_allowed_again_after_the_window(self):
+        limiter = SlidingWindowRateLimiter(limit=2, window_seconds=60)
+
+        self.assertTrue(limiter.check("client", now=0).allowed)
+        self.assertTrue(limiter.check("client", now=1).allowed)
+        self.assertFalse(limiter.check("client", now=2).allowed)
+
+        reset = limiter.check("client", now=61)
+        self.assertTrue(reset.allowed)
+        self.assertEqual(reset.remaining, 1)
 
 
 if __name__ == "__main__":
