@@ -2,7 +2,9 @@
 node_modules/
 .venv/
 backend/.venv/
-
+.agents/
+.claude/*
+CLAUDE.md
 # Build output
 dist/
 dist-ssr/

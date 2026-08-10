@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 
 // ─── Skill data with years spent using each technology ───────────────────────
 // layer: 0 = input, 1 = hidden, 2 = output — the 3 categories double as NN layers.
@@ -70,67 +71,135 @@ const MOBILE_BREAKPOINT = 768;
 
 const formatYears = (years) => `${years} year${years === 1 ? "" : "s"}`;
 
-const SkillsList = () => (
-  <div
-    className="mx-auto mt-8 max-w-[1100px] px-6 sm:px-10"
-    aria-labelledby="skills-heading"
-  >
-    <p className="font-mono mb-4 text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
-      Time spent per technology, not a proficiency score
-    </p>
+// Mobile node diameter: same "years = weight" signal as the desktop canvas radius,
+// just tuned for a much smaller, wrap-friendly footprint.
+const mobileNodeSize = (years) => 46 + years * 7;
 
-    <div className="grid gap-4 md:grid-cols-3">
-      {Object.entries(CATEGORIES).map(([name, category]) => {
+const SkillNode = ({ skill, category }) => {
+  const size = mobileNodeSize(skill.years);
+  return (
+    <div
+      role="group"
+      className="flex flex-col items-center gap-1.5"
+      style={{ width: size + 18 }}
+      aria-label={`${skill.name}, ${formatYears(skill.years)}`}
+    >
+      <div
+        className="flex shrink-0 items-center justify-center rounded-full"
+        style={{
+          width: size,
+          height: size,
+          background: `radial-gradient(circle at 35% 32%, rgba(${category.rgb},0.42), rgba(${category.rgb},0.12) 60%, rgba(${category.rgb},0.04))`,
+          border: `1.5px solid rgba(${category.rgb},0.65)`,
+          boxShadow: `0 0 14px rgba(${category.rgb},0.22)`,
+        }}
+      >
+        <span
+          className="font-mono text-[10px] font-semibold"
+          style={{ color: category.color }}
+          aria-hidden="true"
+        >
+          {skill.years}y
+        </span>
+      </div>
+      <span className="text-center text-xs leading-tight text-[var(--color-text-primary)]" aria-hidden="true">
+        {skill.name}
+      </span>
+    </div>
+  );
+};
+
+// Decorative fan connector between two stacked layers — a static echo of the
+// desktop canvas's weight-edges, without needing real node coordinates.
+const LayerConnector = ({ fromColor, toColor, connectorId }) => (
+  <div className="relative mx-auto my-2 h-9 w-full max-w-[280px]" aria-hidden="true">
+    <svg width="100%" height="100%" viewBox="0 0 100 36" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={connectorId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={fromColor} stopOpacity="0.5" />
+          <stop offset="100%" stopColor={toColor} stopOpacity="0.5" />
+        </linearGradient>
+      </defs>
+      {[8, 26, 50, 74, 92].map((x) => (
+        <line
+          key={x}
+          x1={x}
+          y1="0"
+          x2="50"
+          y2="36"
+          stroke={`url(#${connectorId})`}
+          strokeWidth="0.6"
+        />
+      ))}
+    </svg>
+    <span className="skills-pulse-dot" style={{ background: toColor, boxShadow: `0 0 6px ${toColor}` }} />
+  </div>
+);
+
+SkillNode.propTypes = {
+  skill: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    years: PropTypes.number.isRequired,
+  }).isRequired,
+  category: PropTypes.shape({
+    color: PropTypes.string.isRequired,
+    rgb: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
+LayerConnector.propTypes = {
+  fromColor: PropTypes.string.isRequired,
+  toColor: PropTypes.string.isRequired,
+  connectorId: PropTypes.string.isRequired,
+};
+
+const SkillsFlow = () => {
+  const entries = Object.entries(CATEGORIES);
+  return (
+    <div className="mx-auto mt-8 max-w-[520px] px-6" aria-labelledby="skills-heading">
+      <p className="font-mono mb-6 text-center text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
+        Node size = years spent, not a proficiency score
+      </p>
+
+      {entries.map(([name, category], i) => {
         const headingId = `skills-${name.toLowerCase()}`;
-
+        const next = entries[i + 1]?.[1];
         return (
-          <section
-            key={name}
-            className="surface-card"
-            style={{ padding: "1.25rem" }}
-            aria-labelledby={headingId}
-          >
-            <div className="mb-4 flex items-center gap-2">
-              <span
-                aria-hidden="true"
-                className="h-2 w-2 shrink-0 rounded-full"
-                style={{
-                  background: category.color,
-                  boxShadow: `0 0 8px rgba(${category.rgb},0.9)`,
-                }}
-              />
-              <h3
-                id={headingId}
-                className="font-mono m-0 text-xs uppercase tracking-[0.08em] text-[var(--color-text-subtle)]"
-              >
-                {name}
-              </h3>
-              <span className="font-mono ml-auto text-xs uppercase tracking-[0.06em] text-[var(--color-text-meta)]">
-                {LAYER_LABELS[category.layer]}
-              </span>
-            </div>
-
-            <ul className="m-0 list-none space-y-1 p-0">
-              {category.skills.map((skill) => (
-                <li
-                  key={skill.name}
-                  className="flex items-center justify-between gap-4 border-b border-[var(--color-border-muted)] py-2.5 last:border-b-0"
+          <div key={name}>
+            <section aria-labelledby={headingId}>
+              <div className="mb-4 flex items-center justify-center gap-2">
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ background: category.color, boxShadow: `0 0 8px rgba(${category.rgb},0.9)` }}
+                  aria-hidden="true"
+                />
+                <h3
+                  id={headingId}
+                  className="font-mono m-0 text-xs uppercase tracking-[0.1em] text-[var(--color-text-subtle)]"
                 >
-                  <span className="text-sm font-medium text-[var(--color-text-primary)]">
-                    {skill.name}
-                  </span>
-                  <span className="font-mono whitespace-nowrap text-xs text-[var(--color-primary)]">
-                    {formatYears(skill.years)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
+                  {LAYER_LABELS[category.layer]} · {name}
+                </h3>
+              </div>
+              <div className="flex flex-wrap justify-center gap-x-3 gap-y-4">
+                {category.skills.map((skill) => (
+                  <SkillNode key={skill.name} skill={skill} category={category} />
+                ))}
+              </div>
+            </section>
+
+            {next ? (
+              <LayerConnector
+                connectorId={`connector-${i}`}
+                fromColor={category.color}
+                toColor={next.color}
+              />
+            ) : null}
+          </div>
         );
       })}
     </div>
-  </div>
-);
+  );
+};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function SkillsSection() {
@@ -817,7 +886,31 @@ export default function SkillsSection() {
         </>
       ) : null}
 
-      {isMobile ? <SkillsList /> : null}
+      {isMobile ? <SkillsFlow /> : null}
+
+      {isMobile ? (
+        <style>{`
+          .skills-pulse-dot {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            animation: skills-pulse-flow 2.6s ease-in-out infinite;
+          }
+          @keyframes skills-pulse-flow {
+            0%   { top: 4%; opacity: 0; }
+            15%  { opacity: 0.9; }
+            85%  { opacity: 0.9; }
+            100% { top: 92%; opacity: 0; }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .skills-pulse-dot { animation: none; opacity: 0.6; top: 45%; }
+          }
+        `}</style>
+      ) : null}
 
     </section>
   );
