@@ -10,6 +10,7 @@ from open_ai_client import OpenAIClient
 from settings import settings
 from prompts import PUBLIC_JARVIS_INSTRUCTIONS
 from logging_config import configure_logging, get_logger
+from analytics_router import router as analytics_router
 from notes_router import router as notes_router
 from pricing import calculate_cost_usd
 from rate_limiter import SlidingWindowRateLimiter
@@ -114,6 +115,7 @@ app.add_middleware(
 )
 
 app.include_router(notes_router)
+app.include_router(analytics_router)
 
 _openai_client: OpenAIClient | None = None
 

@@ -4,6 +4,7 @@ import { ArrowLeft, ThumbsUp, ThumbsDown } from "lucide-react";
 import { notes } from "../data/notes";
 import { getAnonId } from "../utils/anonId";
 import { getReactions, submitReaction, getComments, submitComment } from "../notesApi";
+import { getNoteViewCount } from "../analytics";
 
 const COMMENT_MAX_LENGTH = 1000;
 
@@ -24,6 +25,8 @@ const NoteDetail = () => {
   const [comments, setComments] = useState(null);
   const [commentsError, setCommentsError] = useState(null);
 
+  const [viewCount, setViewCount] = useState(null);
+
   const [authorName, setAuthorName] = useState("");
   const [commentBody, setCommentBody] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
@@ -42,6 +45,11 @@ const NoteDetail = () => {
     getComments(slug)
       .then((data) => !cancelled && setComments(data.comments))
       .catch(() => !cancelled && setCommentsError("Couldn't load comments."));
+
+    // Decorative metric — failure just hides the label, never shown as an error.
+    getNoteViewCount(slug)
+      .then((count) => !cancelled && setViewCount(count))
+      .catch(() => {});
 
     return () => {
       cancelled = true;
@@ -96,6 +104,9 @@ const NoteDetail = () => {
 
         <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
           {note.date}
+          {viewCount !== null && (
+            <span> · {viewCount} {viewCount === 1 ? "view" : "views"}</span>
+          )}
         </p>
         <h1 className="font-display mt-3 text-4xl leading-tight text-[var(--color-text-primary)] md:text-5xl">
           {note.title}

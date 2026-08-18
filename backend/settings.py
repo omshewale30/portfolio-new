@@ -25,5 +25,8 @@ class Settings(BaseSettings):
     reaction_rate_limit_requests: int = 20
     reaction_rate_limit_window_seconds: int = 60
 
+    pageview_rate_limit_requests: int = 60
+    pageview_rate_limit_window_seconds: int = 60
+
 
 settings = Settings()

@@ -1,3 +1,4 @@
+from .analytics import PageViewRequest, ViewCountResponse
 from .chat import ChatRequest, ChatResponse
 from .errors import error_detail, ErrorResponse
 from .notes import (
@@ -18,4 +19,6 @@ __all__ = [
     "CommentRequest",
     "ReactionRequest",
     "ReactionSummary",
+    "PageViewRequest",
+    "ViewCountResponse",
 ]
