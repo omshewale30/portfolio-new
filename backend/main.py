@@ -1,6 +1,5 @@
 from time import perf_counter
 from typing import Any
-from ipaddress import ip_address
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.exceptions import RequestValidationError
@@ -11,8 +10,10 @@ from open_ai_client import OpenAIClient
 from settings import settings
 from prompts import PUBLIC_JARVIS_INSTRUCTIONS
 from logging_config import configure_logging, get_logger
+from notes_router import router as notes_router
 from pricing import calculate_cost_usd
 from rate_limiter import SlidingWindowRateLimiter
+from request_utils import client_identifier
 from schemas import ChatRequest, ChatResponse, error_detail
 from schemas.chat import ChatUsage, SourceRef
 
@@ -91,25 +92,6 @@ def _allowed_origins() -> list[str]:
     return [origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()]
 
 
-def _client_identifier(request: Request) -> str:
-    """Return the proxy-provided client IP, falling back to the socket peer."""
-    forwarded_for = request.headers.get("x-forwarded-for", "")
-    candidates = [
-        request.headers.get("x-real-ip", ""),
-        forwarded_for.split(",", 1)[0].strip(),
-        request.client.host if request.client else "",
-    ]
-
-    for candidate in candidates:
-        try:
-            return str(ip_address(candidate))
-        except ValueError:
-            continue
-
-    # TestClient and some local ASGI servers use a hostname instead of an IP.
-    return (request.client.host if request.client else "unknown")[:128]
-
-
 app = FastAPI(
     title="Portfolio Jarvis API",
     description="Public, read-only Jarvis chat API for Om Shewale's portfolio",
@@ -130,6 +112,8 @@ app.add_middleware(
         "Retry-After",
     ],
 )
+
+app.include_router(notes_router)
 
 _openai_client: OpenAIClient | None = None
 
@@ -166,7 +150,7 @@ async def validation_error_handler(_, exc: RequestValidationError):
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest, http_request: Request, response: Response):
-    rate_limit = chat_rate_limiter.check(_client_identifier(http_request))
+    rate_limit = chat_rate_limiter.check(client_identifier(http_request))
     rate_limit_headers = rate_limit.headers(chat_rate_limiter.window_seconds)
     if not rate_limit.allowed:
         logger.info("chat_rejected reason=rate_limited")
@@ -295,4 +279,5 @@ async def health():
             "service": "portfolio-jarvis-api",
         },
     )
+
 

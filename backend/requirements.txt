@@ -3,4 +3,5 @@ openai
 pydantic
 pydantic-settings
 python-dotenv
+supabase>=2.0,<3.0
 uvicorn
