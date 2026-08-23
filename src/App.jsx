@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useRef } from 'react'
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import './App.css'
+import { trackPageView } from "./analytics.js";
 import Hero from "./components/Hero.jsx";
 import Navbar from "./components/Navbar.jsx";
 import TechMarquee from "./components/TechMarquee.jsx";
@@ -42,6 +43,12 @@ function AppContent() {
         if (!pathChanged || (location.pathname === "/" && location.state?.scrollTo)) return;
         window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }, [location.pathname, location.state?.scrollTo]);
+
+    // Fire-and-forget page view tracking on every route change.
+    useEffect(() => {
+        const noteMatch = location.pathname.match(/^\/notes\/([^/]+)$/);
+        trackPageView(location.pathname, noteMatch ? noteMatch[1] : null);
+    }, [location.pathname]);
 
     // Scroll to section when navigating to home with state.scrollTo (e.g. from Navbar hash links)
     useEffect(() => {

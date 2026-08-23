@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
 import { ArrowLeft, ThumbsUp, ThumbsDown } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { notes } from "../data/notes";
 import { getAnonId } from "../utils/anonId";
 import { getReactions, submitReaction, getComments, submitComment } from "../notesApi";
+import { getNoteViewCount } from "../analytics";
 
 const COMMENT_MAX_LENGTH = 1000;
 
@@ -24,6 +26,8 @@ const NoteDetail = () => {
   const [comments, setComments] = useState(null);
   const [commentsError, setCommentsError] = useState(null);
 
+  const [viewCount, setViewCount] = useState(null);
+
   const [authorName, setAuthorName] = useState("");
   const [commentBody, setCommentBody] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
@@ -42,6 +46,11 @@ const NoteDetail = () => {
     getComments(slug)
       .then((data) => !cancelled && setComments(data.comments))
       .catch(() => !cancelled && setCommentsError("Couldn't load comments."));
+
+    // Decorative metric — failure just hides the label, never shown as an error.
+    getNoteViewCount(slug)
+      .then((count) => !cancelled && setViewCount(count))
+      .catch(() => {});
 
     return () => {
       cancelled = true;
@@ -96,16 +105,22 @@ const NoteDetail = () => {
 
         <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
           {note.date}
+          {viewCount !== null && (
+            <span> · {viewCount} {viewCount === 1 ? "view" : "views"}</span>
+          )}
         </p>
         <h1 className="font-display mt-3 text-4xl leading-tight text-[var(--color-text-primary)] md:text-5xl">
           {note.title}
         </h1>
 
         <div
-          className={note.tier === "essay" ? "prose-essay mt-8 text-[var(--color-text-muted)]" : "mt-8 text-base leading-relaxed text-[var(--color-text-muted)]"}
-          style={{ whiteSpace: "pre-wrap" }}
+          className={
+            note.tier === "essay"
+              ? "prose-content prose-essay mt-8 text-[var(--color-text-muted)]"
+              : "prose-content mt-8 text-base leading-relaxed text-[var(--color-text-muted)]"
+          }
         >
-          {note.body}
+          <ReactMarkdown>{note.body}</ReactMarkdown>
         </div>
 
         <div className="mt-12 flex items-center gap-3 border-t border-[var(--color-border-muted)] pt-8">

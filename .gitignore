@@ -9,7 +9,6 @@ CLAUDE.md
 dist/
 dist-ssr/
 graphify-out/
-
 # Environment and secrets
 .env
 .env.*
