@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
 import { ArrowLeft, ThumbsUp, ThumbsDown } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { notes } from "../data/notes";
 import { getAnonId } from "../utils/anonId";
 import { getReactions, submitReaction, getComments, submitComment } from "../notesApi";
@@ -113,10 +114,13 @@ const NoteDetail = () => {
         </h1>
 
         <div
-          className={note.tier === "essay" ? "prose-essay mt-8 text-[var(--color-text-muted)]" : "mt-8 text-base leading-relaxed text-[var(--color-text-muted)]"}
-          style={{ whiteSpace: "pre-wrap" }}
+          className={
+            note.tier === "essay"
+              ? "prose-content prose-essay mt-8 text-[var(--color-text-muted)]"
+              : "prose-content mt-8 text-base leading-relaxed text-[var(--color-text-muted)]"
+          }
         >
-          {note.body}
+          <ReactMarkdown>{note.body}</ReactMarkdown>
         </div>
 
         <div className="mt-12 flex items-center gap-3 border-t border-[var(--color-border-muted)] pt-8">

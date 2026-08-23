@@ -829,6 +829,57 @@ body {
   line-height: 1.7;
 }
 
+/* Markdown output for note bodies – headings/lists/links are otherwise unstyled by Tailwind preflight */
+.prose-content > * + * {
+  margin-top: 1.25em;
+}
+.prose-content h1,
+.prose-content h2,
+.prose-content h3,
+.prose-content h4 {
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+  line-height: 1.25;
+  margin-top: 1.75em;
+}
+.prose-content h1 { font-size: 1.75em; }
+.prose-content h2 { font-size: 1.4em; }
+.prose-content h3 { font-size: 1.15em; }
+.prose-content h4 { font-size: 1em; }
+.prose-content ul,
+.prose-content ol {
+  padding-left: 1.25em;
+}
+.prose-content li + li {
+  margin-top: 0.4em;
+}
+.prose-content a {
+  color: var(--color-primary);
+  text-decoration: underline !important;
+}
+.prose-content blockquote {
+  border-left: 2px solid var(--color-border-muted);
+  padding-left: 1em;
+  color: var(--color-text-meta);
+  font-style: italic;
+}
+.prose-content code {
+  background: var(--color-bg-elevated);
+  padding: 0.15em 0.4em;
+  border-radius: 0.3em;
+  font-size: 0.9em;
+}
+.prose-content pre {
+  background: var(--color-bg-elevated);
+  padding: 1em;
+  border-radius: 0.6em;
+  overflow-x: auto;
+}
+.prose-content pre code {
+  background: none;
+  padding: 0;
+}
+
 code {
   font-family: var(--font-mono);
 }
