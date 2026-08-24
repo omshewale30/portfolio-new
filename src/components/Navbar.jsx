@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "../context/ThemeContext.jsx";
 
+const preferredScrollBehavior = () =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,7 +18,7 @@ const Header = () => {
   const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const handleResize = () => setIsMobileView(window.innerWidth <= 768);
+    const handleResize = () => setIsMobileView(window.innerWidth < 768);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -42,7 +45,7 @@ const Header = () => {
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
     if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
+      section.scrollIntoView({ behavior: preferredScrollBehavior(), block: "start" });
     }
   };
 
@@ -58,7 +61,7 @@ const Header = () => {
       }
     } else if (path === "/") {
       if (location.pathname !== "/") navigate("/");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: preferredScrollBehavior() });
     } else {
       if (location.pathname !== path) navigate(path);
     }
@@ -106,19 +109,27 @@ const Header = () => {
               className={`relative ${isDropdownOpen ? "show" : ""}`}
               onMouseEnter={() => !isMobileView && setIsDropdownOpen(true)}
               onMouseLeave={() => !isMobileView && setIsDropdownOpen(false)}
+              onFocus={() => !isMobileView && setIsDropdownOpen(true)}
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget)) setIsDropdownOpen(false);
+              }}
             >
               <a
-                href="#"
+                href="/"
                 onClick={(e) => {
                   e.preventDefault();
                   if (isMobileView) toggleDropdown();
+                  else handleNavigation("/");
                 }}
+                aria-expanded={isDropdownOpen}
+                aria-controls="home-navigation-menu"
                 className="nav-link-glass nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:inline-flex md:w-auto md:text-[1.2rem]"
                 style={{ padding: "0.75rem 1rem" }}
               >
                 Home
               </a>
               <div
+                id="home-navigation-menu"
                 className={`${isDropdownOpen ? "show" : ""} ${
                   isMobileView
                     ? "static mt-1 flex flex-col gap-1 rounded-xl border-0 p-4 shadow-none"
@@ -142,7 +153,7 @@ const Header = () => {
                 ].map(([href, label]) => (
                   <a
                     key={href}
-                    href={href}
+                    href={`/${href}`}
                     className="nav-item-warm block rounded-lg px-5 py-3.5 font-mono text-[1.05rem] uppercase tracking-[0.06em] !text-[var(--color-text-subtle)] !no-underline transition-all duration-200"
                     onClick={(e) => {
                       e.preventDefault();
@@ -156,8 +167,12 @@ const Header = () => {
             </li>
             <li>
               <a
-                href="#"
-                onClick={() => handleNavigation("/experience")}
+                href="/experience"
+                onClick={(event) => {
+                  event.preventDefault();
+                  handleNavigation("/experience");
+                }}
+                aria-current={location.pathname === "/experience" ? "page" : undefined}
                 className={`nav-item-warm flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
                   location.pathname === "/experience"
                     ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
@@ -170,8 +185,12 @@ const Header = () => {
             </li>
             <li>
               <a
-                href="#"
-                onClick={() => handleNavigation("/projects")}
+                href="/projects"
+                onClick={(event) => {
+                  event.preventDefault();
+                  handleNavigation("/projects");
+                }}
+                aria-current={location.pathname === "/projects" ? "page" : undefined}
                 className={`nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
                   location.pathname === "/projects"
                     ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
@@ -184,8 +203,12 @@ const Header = () => {
             </li>
             <li>
               <a
-                href="#"
-                onClick={() => handleNavigation("/notes")}
+                href="/notes"
+                onClick={(event) => {
+                  event.preventDefault();
+                  handleNavigation("/notes");
+                }}
+                aria-current={location.pathname.startsWith("/notes") ? "page" : undefined}
                 className={`nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
                   location.pathname.startsWith("/notes")
                     ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
@@ -209,7 +232,7 @@ const Header = () => {
             </li>
             <li>
               <a
-                href="#jarvis"
+                href="/#jarvis"
                 onClick={(e) => {
                   e.preventDefault();
                   handleNavigation("#jarvis");
@@ -225,16 +248,18 @@ const Header = () => {
         <button
           type="button"
           onClick={toggleTheme}
-          className="nav-icon-btn ml-auto shrink-0 outline-none focus:shadow-none md:ml-2"
+          className="nav-icon-btn ml-auto shrink-0 md:ml-2"
           aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
         >
-          {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+          {theme === "dark" ? <Sun size={17} aria-hidden="true" /> : <Moon size={17} aria-hidden="true" />}
         </button>
         <button
           type="button"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="nav-icon-btn ml-1 shrink-0 outline-none focus:shadow-none md:!hidden"
-          aria-label="Toggle menu"
+          className="nav-icon-btn ml-1 shrink-0 md:!hidden"
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="navbarNav"
         >
           <span
             className={`relative block h-0.5 w-[22px] transition-all duration-300 ${

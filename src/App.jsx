@@ -18,6 +18,9 @@ const CaseStudy = lazy(() => import("./pages/CaseStudy.jsx"));
 const NotesIndex = lazy(() => import("./pages/NotesIndex.jsx"));
 const NoteDetail = lazy(() => import("./pages/NoteDetail.jsx"));
 
+const preferredScrollBehavior = () =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+
 const RouteLoadingFallback = () => (
     <main
         className="flex min-h-[60vh] items-center justify-center bg-[var(--color-bg-base)] px-6 pt-24"
@@ -42,6 +45,10 @@ function AppContent() {
 
         if (!pathChanged || (location.pathname === "/" && location.state?.scrollTo)) return;
         window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        const frameId = window.requestAnimationFrame(() => {
+            document.getElementById("main-content")?.focus({ preventScroll: true });
+        });
+        return () => window.cancelAnimationFrame(frameId);
     }, [location.pathname, location.state?.scrollTo]);
 
     // Fire-and-forget page view tracking on every route change.
@@ -57,7 +64,7 @@ function AppContent() {
         const timer = requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 const el = document.getElementById(sectionId);
-                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                if (el) el.scrollIntoView({ behavior: preferredScrollBehavior(), block: "start" });
                 navigate(".", { replace: true, state: {} });
             });
         });
@@ -66,9 +73,11 @@ function AppContent() {
 
     return (
         <div className="App">
+            <a href="#main-content" className="skip-link">Skip to content</a>
             <Navbar />
-            <Suspense fallback={<RouteLoadingFallback />}>
-                <Routes>
+            <div id="main-content" tabIndex="-1">
+                <Suspense fallback={<RouteLoadingFallback />}>
+                    <Routes>
                     {/* Home Page */}
                     <Route
                         path="/"
@@ -105,8 +114,9 @@ function AppContent() {
                     <Route path="/notes" element={<NotesIndex />} />
                     <Route path="/notes/:slug" element={<NoteDetail />} />
 
-                </Routes>
-            </Suspense>
+                    </Routes>
+                </Suspense>
+            </div>
         </div>
     );
 }
