@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run validate:notes && vite build && node scripts/prerender-notes.mjs",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "validate:notes": "node scripts/validate-notes.mjs"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

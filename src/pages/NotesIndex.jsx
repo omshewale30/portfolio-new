@@ -1,10 +1,17 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { notes } from "../data/notes";
+import { usePageMetadata } from "../utils/seo";
 
 const NotesIndex = () => {
   const essays = notes.filter((n) => n.tier === "essay");
   const shortNotes = notes.filter((n) => n.tier === "note");
+
+  usePageMetadata({
+    title: "Notes — Om Shewale",
+    description: "Longer essays and shorter working notes on building and evaluating AI systems.",
+    path: "/notes",
+  });
 
   return (
     <main className="bg-[var(--color-bg-base)]">
@@ -22,13 +29,13 @@ const NotesIndex = () => {
         <div className="divider-warm my-10" />
 
         {notes.length === 0 ? (
-          <div className="surface-card max-w-xl p-8">
+          <div className="surface-card notes-empty-card max-w-xl">
             <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">
               Coming soon
             </p>
             <p className="mt-3 mb-0 text-base leading-relaxed text-[var(--color-text-muted)]">
               Notes are being written. Check back soon, or{" "}
-              <Link to="/work/redesign-dont-redecorate" className="text-[var(--color-primary)]">
+              <Link to="/work/redesign-dont-redecorate" className="note-interactive text-[var(--color-primary)]">
                 read the research paper case study
               </Link>{" "}
               in the meantime.
@@ -38,27 +45,37 @@ const NotesIndex = () => {
           <div className="flex flex-col gap-14">
             {essays.length ? (
               <section>
-                <p className="eyebrow-label mb-5">{"// Essays"}</p>
+                <h2 id="essays-heading" className="eyebrow-label mb-5">{"// Essays"}</h2>
                 <div className="flex flex-col gap-6">
                   {essays.map((note) => (
                     <Link
                       key={note.slug}
                       to={`/notes/${note.slug}`}
-                      className="surface-card block p-6 no-underline transition-colors hover:border-[var(--color-border-focus)]"
+                      className="surface-card notes-essay-card note-interactive block no-underline transition-colors hover:border-[var(--color-primary)]"
                     >
-                      <span className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
-                        {note.date}
-                      </span>
-                      <h2 className="font-display mt-2 text-2xl text-[var(--color-text-primary)]">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
+                        <span className="note-tier-badge">Essay</span>
+                        <time dateTime={note.publishedAt}>{note.date}</time>
+                        <span aria-hidden="true">·</span>
+                        <span>{note.readingMinutes} min read</span>
+                      </div>
+                      <h3 className="font-display mt-3 text-2xl text-[var(--color-text-primary)]">
                         {note.title}
-                      </h2>
-                      <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-muted)]">
+                      </h3>
+                      <p className="mt-3 text-base leading-relaxed text-[var(--color-text-muted)]">
                         {note.excerpt}
                       </p>
-                      <span className="mt-4 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">
-                        Read
-                        <ArrowUpRight size={14} aria-hidden="true" />
-                      </span>
+                      <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+                        {note.tags.length ? (
+                          <ul className="note-tag-list note-tag-list-compact" aria-label={`Topics for ${note.title}`}>
+                            {note.tags.map((tag) => <li key={tag}>{tag}</li>)}
+                          </ul>
+                        ) : <span />}
+                        <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">
+                          Read essay
+                          <ArrowUpRight size={14} aria-hidden="true" />
+                        </span>
+                      </div>
                     </Link>
                   ))}
                 </div>
@@ -67,17 +84,17 @@ const NotesIndex = () => {
 
             {shortNotes.length ? (
               <section>
-                <p className="eyebrow-label mb-5">{"// Notes"}</p>
+                <h2 id="short-notes-heading" className="eyebrow-label mb-5">{"// Notes"}</h2>
                 <ul className="m-0 flex list-none flex-col gap-1 p-0">
                   {shortNotes.map((note) => (
                     <li key={note.slug}>
                       <Link
                         to={`/notes/${note.slug}`}
-                        className="flex items-center justify-between gap-4 border-b border-[var(--color-border-muted)] py-3 no-underline transition-colors hover:text-[var(--color-primary)]"
+                        className="note-interactive flex min-h-11 flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border-muted)] py-3 no-underline transition-colors hover:text-[var(--color-primary)]"
                       >
-                        <span className="text-sm text-[var(--color-text-primary)]">{note.title}</span>
+                        <span className="text-base text-[var(--color-text-primary)]">{note.title}</span>
                         <span className="font-mono text-xs uppercase tracking-[0.06em] text-[var(--color-text-meta)]">
-                          {note.date}
+                          <time dateTime={note.publishedAt}>{note.date}</time> · {note.readingMinutes} min
                         </span>
                       </Link>
                     </li>
