@@ -1,7 +1,7 @@
 ---
 tier: essay
 name: note001
-title: "RAD's Resurrection: Why a 20th-Century Method Still Matters in the Age of AI Slop"
+title: "RAD's ressurection; Why the 20th century methodolgy is ever relevant in this age where the AI slop index is on a bull run?"
 summary: A short essay on the first-principles software development methodology that prioritizes speed, evidence, and iteration.
 tags: ["software development", "methodology" ]
 date: 2026-08-23
@@ -17,9 +17,9 @@ Why does that late-20th-century development philosophy seem so relevant today?
 
 It is tempting to say that we finally have tools Martin’s generation did not have, but that is only partly true. RAD already relied on CASE tools, fourth-generation languages, code generators, reusable components, and visual application builders. What we have today is a much more powerful combination: general-purpose coding agents, cloud infrastructure, mature open-source frameworks, APIs, automated testing, and continuous delivery.
 
-That advantage is cheap exploration. A small team can explore several implementations in parallel—i.e., AI psychosis cranked up to the max, jk :)—and discard weak options without treating the discarded code as a major sunk cost. Until the advent of coding agents, the cost of producing code was high. Remember the days when you had to handwrite code and switch between vague Stack Overflow articles just to get a simple login flow working?
+That advantage is cheap exploration. A small team can explore several implementations in parallel i.e., AI psychosis cranked up to the max, jk :) and discard weak options without treating the discarded code as a major sunk cost. Until the advent of coding agents, the cost of producing code was high. Remember the days when you had to handwrite code and switch between vague Stack Overflow articles just to get a simple login flow working?
 
-But today, the cost of producing code is trivial, which lets us implement RAD and embrace the speed and fast iteration which is core of this methodology (Generating code is cheap. Owning code is not — more on that in a bit.)
+But today, the cost of producing code is trivial, which lets us implement RAD and embrace the speed and fast iteration which is core of this methodology (Generating code is cheap. Owning code is not; more on that in a bit.)
 
 What are the core principles of RAD?
 
@@ -30,9 +30,9 @@ What are the core principles of RAD?
 - iterative construction
 - Using that prototype as the baseline for prod
 
-That last one is the principle I keep chewing on. Once you have a satisfactory pilot, why not promote it to be the production baseline instead of starting fresh in another worktree? It needs hardening first, of course — your password-reset link shouldn't display the user's current password.
+That last one is the principle I keep chewing on. Once you have a satisfactory pilot, why not promote it to be the production baseline instead of starting fresh in another worktree? It needs hardening first, of course; your password-reset link shouldn't display the user's current password.
 
-And here's the thesis of this whole essay: the most important consequence of coding agents is not fewer keystrokes. It is a lower cost of changing your mind after seeing evidence. That is the economic heart of RAD.
+And here's the thesis of this whole essay: **the most important consequence of coding agents is not fewer keystrokes. **It is a lower cost of changing your mind after seeing evidence.** That is the economic heart of RAD.**
 
 ## What is the lifecycle of RAD?
 1. **Requirements planning.** Define the business problem, intended users, essential capabilities, major constraints, integrations, and success criteria. Do enough analysis to start intelligently, but do not pretend every requirement can be known in advance.
@@ -54,7 +54,7 @@ A mentor once told me, “Show, don’t tell.” The same principle applies to a
 
 RAD pushes you to turn a rough PRD — or even just a starting point, since agentic systems lower the bar for how polished the upfront spec has to be — into an MVP that executives, leadership, and users can see and interact with.
 
-AI ideas all sound like magic solutions. But if this magic solution never makes it out of the concept phase, the next AI idea — the one that really could have been magic — never makes it to a concept phase. Move fast enough, push out enough MVPs, and you learn what works and what doesn't; next time, that dead-end path is already pruned from your design space.
+AI ideas all sound like magic solutions. But if this magic solution never makes it out of the concept phase, the next AI idea, the one that really could have been magic, never makes it to a concept phase. Move fast enough, push out enough MVPs, and you learn what works and what doesn't; next time, that dead-end path is already pruned from your design space.
 
 As Corita Kent put it:
 
@@ -72,7 +72,7 @@ When construction becomes cheaper, the scarcest resources become:
 - human review and validation;
 - security, privacy, accessibility, and records obligations;
 - production ownership and support capacity; and
-- trustworthy measurement of whether the application improved the work—the business-use-case cornerstone.
+- trustworthy measurement of whether the application improved the work <--the business-use-case cornerstone.
 
 ## Om's guardrailed RAD approach in enterprise AI native Applications
 
@@ -81,7 +81,7 @@ I am a big proponent of separation of implementation. As they say, if you have a
 
 For example, an agent may draft a journal-entry description and propose accounts based on policy and prior examples. A deterministic service validates that the period is open, accounts are valid, debits equal credits, required documentation exists, the user has authority, and the preparer is not the final approver. The system of record—not the model—commits the entry.
 
-This separation is what buys reliability, security, and durability at enterprise scale. If users find the output untrustworthy, adoption takes a hit — and the cultural change the organization badly needs loses traction right along with it. No trust, no transformation.
+This separation is what buys reliability, security, and durability at enterprise scale. If users find the output untrustworthy, adoption takes a hit, and the cultural change the organization badly needs loses traction right along with it. No trust, no transformation.
 
 
 ### Separate the agent from systems of record
@@ -113,7 +113,7 @@ Evaluation-based loops are an adapter on the RAD lifecycle. I think of them as t
 
 **AI behavior:** task success, groundedness/citation validity, tool-call correctness, overrides, escalations, policy violations, drift, latency, and cost per completed task.
 
-Did you notice I have cost in each of the three classes of metrics? That's deliberate. I treat an AI project as a resource-allocation decision, not a cost center — and if it can't show a return against what it consumes, there's no business case for letting it run past the pilot.
+Did you notice I have cost in each of the three classes of metrics? That's deliberate. I treat an AI project as a resource-allocation decision, not a cost center; and if it can't show a return against what it consumes, there's no business case for letting it run past the pilot.
 
 ## My two cents
 The return of RAD is therefore not a return to speed for its own sake. It is a shift from treating code as the scarce asset to treating attention, evidence, and trust as scarce assets.
