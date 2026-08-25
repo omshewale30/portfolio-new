@@ -27,7 +27,8 @@ DEFAULT_ALLOWED_ORIGINS = (
     "https://jarvis-interface.vercel.app",
 )
 
-FILE_SEARCH_MAX_RESULTS = 8
+FILE_SEARCH_MAX_RESULTS = 4
+MAX_OUTPUT_TOKENS = 300
 
 chat_rate_limiter = SlidingWindowRateLimiter(
     limit=settings.chat_rate_limit_requests,
@@ -192,6 +193,7 @@ async def chat(request: ChatRequest, http_request: Request, response: Response):
                 "max_num_results": FILE_SEARCH_MAX_RESULTS,
             }
         ],
+        "max_output_tokens": MAX_OUTPUT_TOKENS,
         "store": True,
     }
     if request.previous_response_id:
@@ -281,5 +283,4 @@ async def health():
             "service": "portfolio-jarvis-api",
         },
     )
-
 

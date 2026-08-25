@@ -126,10 +126,11 @@ class PublicApiContractTests(unittest.TestCase):
                 {
                     "type": "file_search",
                     "vector_store_ids": ["vs_public"],
-                    "max_num_results": 8,
+                    "max_num_results": 4,
                 }
             ],
         )
+        self.assertEqual(call["max_output_tokens"], 300)
         self.assertTrue(call["store"])
 
     def test_chained_conversation_forwards_response_id(self):
