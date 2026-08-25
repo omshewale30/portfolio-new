@@ -192,6 +192,7 @@ async def chat(request: ChatRequest, http_request: Request, response: Response):
                 "max_num_results": FILE_SEARCH_MAX_RESULTS,
             }
         ],
+        "max_output_tokens": MAX_OUTPUT_TOKENS,
         "store": True,
     }
     if request.previous_response_id:

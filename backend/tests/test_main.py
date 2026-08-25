@@ -139,6 +139,7 @@ class PublicApiContractTests(unittest.TestCase):
                     "type": "file_search",
                     "vector_store_ids": ["vs_public"],
                     "max_num_results": 4,
+                    "max_num_results": 4,
                 }
             ],
         )
