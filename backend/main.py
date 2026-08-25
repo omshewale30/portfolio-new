@@ -23,6 +23,8 @@ logger = get_logger(__name__)
 
 DEFAULT_ALLOWED_ORIGINS = (
     "https://omshewale.me",
+    "https://omshewale.com",
+    "https://www.omshewale.com",
     "http://localhost:5173",
     "https://jarvis-interface.vercel.app",
 )
@@ -87,10 +89,12 @@ def _extract_usage(response_usage: Any) -> ChatUsage | None:
 
 
 def _allowed_origins() -> list[str]:
-    configured = settings.cors_allowed_origins
-    if not configured.strip():
-        return list(DEFAULT_ALLOWED_ORIGINS)
-    return [origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()]
+    configured = [
+        origin.strip().rstrip("/")
+        for origin in settings.cors_allowed_origins.split(",")
+        if origin.strip()
+    ]
+    return list(dict.fromkeys((*DEFAULT_ALLOWED_ORIGINS, *configured)))
 
 
 app = FastAPI(
@@ -192,7 +196,6 @@ async def chat(request: ChatRequest, http_request: Request, response: Response):
                 "max_num_results": FILE_SEARCH_MAX_RESULTS,
             }
         ],
-        "max_output_tokens": MAX_OUTPUT_TOKENS,
         "store": True,
     }
     if request.previous_response_id:
@@ -298,4 +301,3 @@ async def health():
             "service": "portfolio-jarvis-api",
         },
     )
-

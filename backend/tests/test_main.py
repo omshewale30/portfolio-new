@@ -215,18 +215,43 @@ class PublicApiContractTests(unittest.TestCase):
         self.assertEqual(self.client.post("/webhook", json={}).status_code, 404)
 
     def test_cors_allows_only_configured_public_clients(self):
-        allowed_origin = main._allowed_origins()[0]
-        allowed = self.client.options(
-            "/chat",
-            headers={"Origin": allowed_origin, "Access-Control-Request-Method": "POST"},
-        )
+        for allowed_origin in (
+            "https://omshewale.me",
+            "https://omshewale.com",
+            "https://www.omshewale.com",
+        ):
+            allowed = self.client.options(
+                "/chat",
+                headers={"Origin": allowed_origin, "Access-Control-Request-Method": "POST"},
+            )
+            self.assertEqual(
+                allowed.headers["access-control-allow-origin"], allowed_origin
+            )
+
         denied = self.client.options(
             "/chat",
             headers={"Origin": "https://example.com", "Access-Control-Request-Method": "POST"},
         )
 
-        self.assertEqual(allowed.headers["access-control-allow-origin"], allowed_origin)
         self.assertNotIn("access-control-allow-origin", denied.headers)
+
+    def test_configured_cors_origins_extend_safe_defaults(self):
+        with patch.object(
+            main.settings,
+            "cors_allowed_origins",
+            "https://custom.example/, https://www.omshewale.com",
+        ):
+            self.assertEqual(
+                main._allowed_origins(),
+                [
+                    "https://omshewale.me",
+                    "https://omshewale.com",
+                    "https://www.omshewale.com",
+                    "http://localhost:5173",
+                    "https://jarvis-interface.vercel.app",
+                    "https://custom.example",
+                ],
+            )
 
     def test_unknown_model_omits_cost_without_failing(self):
         with patch.object(main.settings, "openai_chat_model", "unpriced-model"):

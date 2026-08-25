@@ -28,7 +28,7 @@ Create a Vercel project named `portfolio-jarvis-api` from this repository with
 - `OPENAI_VECTOR_STORE_ID`
 - `OPENAI_CHAT_MODEL=gpt-4o`
 - `OPENAI_SYSTEM_INSTRUCTIONS` (optional)
-- `CORS_ALLOWED_ORIGINS=https://omshewale.me,http://localhost:5173,https://jarvis-interface.vercel.app`
+- `CORS_ALLOWED_ORIGINS=https://omshewale.me,https://omshewale.com,https://www.omshewale.com,http://localhost:5173,https://jarvis-interface.vercel.app`
 
 Deploy a preview and verify `GET /health` and `POST /chat`. Configure the
 frontend project and the secondary Jarvis UI with:
