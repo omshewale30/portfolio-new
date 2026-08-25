@@ -27,7 +27,7 @@ DEFAULT_ALLOWED_ORIGINS = (
     "https://jarvis-interface.vercel.app",
 )
 
-FILE_SEARCH_MAX_RESULTS = 8
+FILE_SEARCH_MAX_RESULTS = 4
 
 chat_rate_limiter = SlidingWindowRateLimiter(
     limit=settings.chat_rate_limit_requests,
@@ -233,6 +233,22 @@ async def chat(request: ChatRequest, http_request: Request, response: Response):
         ) from exc
     latency_ms = round((perf_counter() - started_at) * 1000)
 
+    response_status = _field(response, "status")
+    incomplete_reason = _field(_field(response, "incomplete_details"), "reason")
+    if response_status == "incomplete":
+        logger.warning(
+            "chat_failed provider_error=incomplete_response reason=%s latency_ms=%s",
+            incomplete_reason or "unknown",
+            latency_ms,
+        )
+        raise HTTPException(
+            status_code=502,
+            detail=error_detail(
+                "incomplete_response",
+                "Jarvis could not finish that response. Please try again.",
+            ),
+        )
+
     output_text = (_field(response, "output_text", "") or "").strip()
     response_id = _field(response, "id")
     if not output_text or not response_id:
@@ -281,5 +297,4 @@ async def health():
             "service": "portfolio-jarvis-api",
         },
     )
-
 

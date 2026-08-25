@@ -59,6 +59,18 @@ class ExpiredResponses:
         raise NotFoundError("previous_response_id was not found", response=response, body={})
 
 
+class IncompleteResponses:
+    async def create(self, **_):
+        return SimpleNamespace(
+            id="resp_incomplete",
+            status="incomplete",
+            incomplete_details=SimpleNamespace(reason="max_output_tokens"),
+            output_text="",
+            output=[],
+            usage=None,
+        )
+
+
 class PublicApiContractTests(unittest.TestCase):
     def setUp(self):
         main.chat_rate_limiter.clear()
@@ -126,10 +138,11 @@ class PublicApiContractTests(unittest.TestCase):
                 {
                     "type": "file_search",
                     "vector_store_ids": ["vs_public"],
-                    "max_num_results": 8,
+                    "max_num_results": 4,
                 }
             ],
         )
+        self.assertNotIn("max_output_tokens", call)
         self.assertTrue(call["store"])
 
     def test_chained_conversation_forwards_response_id(self):
@@ -172,6 +185,18 @@ class PublicApiContractTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 409)
         self.assertEqual(response.json()["detail"]["code"], "conversation_expired")
+
+    def test_incomplete_response_has_stable_error(self):
+        incomplete_client = SimpleNamespace(
+            client=SimpleNamespace(responses=IncompleteResponses())
+        )
+        with patch.object(main, "_openai_client", incomplete_client):
+            response = self.client.post(
+                "/chat", json={"user_id": "browser", "user_input": "Tell me about Om"}
+            )
+
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(response.json()["detail"]["code"], "incomplete_response")
 
     def test_health_reflects_configuration(self):
         self.assertEqual(

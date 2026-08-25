@@ -12,7 +12,10 @@ It uses the OpenAI Responses API directly with the hosted `file_search` tool.
 Create a public-only vector store, upload reviewed portfolio material, and set
 `OPENAI_VECTOR_STORE_ID`. The service sends the public instructions on every
 request because instructions are not inherited through `previous_response_id`.
-You can override the safe defaults with `OPENAI_SYSTEM_INSTRUCTIONS`.
+
+File search returns at most four results to keep retrieved context focused. The
+system instructions control answer length instead of a hard output-token cap,
+because tool use can consume that budget before a visible answer is produced.
 
 Copy `.env.example` to `.env` for local development, then run:
 
