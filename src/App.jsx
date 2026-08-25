@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar.jsx";
 import TechMarquee from "./components/TechMarquee.jsx";
 import ProofStrip from "./components/ProofStrip.jsx";
 import SelectedWork from "./components/SelectedWork.jsx";
+import RecentNotes from "./components/RecentNotes.jsx";
 import CurrentRoleSummary from "./components/CurrentRoleSummary.jsx";
 import SkillSection from "./components/SkillsSection.jsx";
 import ContactSection from "./components/ContactSection.jsx";
@@ -89,6 +90,9 @@ function AppContent() {
                                     <SelectedWork />
                                 </div>
                                 <div className="section-transition section-transition-delay-2">
+                                    <RecentNotes />
+                                </div>
+                                <div className="section-transition section-transition-delay-3">
                                     <CurrentRoleSummary />
                                 </div>
                                 <div className="section-transition section-transition-delay-3">
