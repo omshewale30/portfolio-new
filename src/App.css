@@ -22,7 +22,6 @@ main {
 /* Scroll margin so fixed navbar doesn't cover section headings */
 #about,
 #education,
-#skills,
 #contact {
   scroll-margin-top: 6rem;
 }

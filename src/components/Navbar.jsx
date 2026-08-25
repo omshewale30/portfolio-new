@@ -148,7 +148,6 @@ const Header = () => {
                 {[
                   ["#about", "About Me"],
                   ["#education", "Education"],
-                  ["#skills", "Skills"],
                   ["#contact", "Contact"],
                 ].map(([href, label]) => (
                   <a

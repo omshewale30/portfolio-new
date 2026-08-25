@@ -10,7 +10,7 @@ import ProofStrip from "./components/ProofStrip.jsx";
 import SelectedWork from "./components/SelectedWork.jsx";
 import RecentNotes from "./components/RecentNotes.jsx";
 import CurrentRoleSummary from "./components/CurrentRoleSummary.jsx";
-import SkillSection from "./components/SkillsSection.jsx";
+import JarvisCTA from "./components/JarvisCTA.jsx";
 import ContactSection from "./components/ContactSection.jsx";
 import EducationSection from "./components/EducationSection.jsx";
 const ProjectSection = lazy(() => import("./components/ProjectSection.jsx"));
@@ -100,7 +100,7 @@ function AppContent() {
                                 </div>
                                 <TechMarquee />
                                 <div className="section-transition section-transition-delay-3">
-                                    <SkillSection />
+                                    <JarvisCTA />
                                 </div>
                                 <div className="section-transition section-transition-delay-3">
                                     <ContactSection />
