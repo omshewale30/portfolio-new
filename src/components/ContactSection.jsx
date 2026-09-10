@@ -2,7 +2,6 @@
 import { useRef, useState } from "react"
 import emailjs from "@emailjs/browser"
 import { motion } from "framer-motion"
-import ScheduleCallButton from "./ScheduleCallButton"
 import { cardReveal, fadeInUp, staggerContainer } from "../utils/animations"
 
 const ContactSection = () => {
@@ -146,12 +145,6 @@ const ContactSection = () => {
                   </div>
                 </a>
               ))}
-            </div>
-
-            <div className="mb-10 flex flex-wrap items-center gap-3"
-              style={{ marginTop: "0.5rem" }}
-            >
-              <ScheduleCallButton inline />
             </div>
 
             <div className="border-t border-[var(--color-border-muted)] pt-8">

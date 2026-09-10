@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Github, Instagram, Linkedin, MapPin } from "lucide-react";
-import ScheduleCallButton from "./ScheduleCallButton";
+import { Github, Instagram, Linkedin, Mail, MapPin } from "lucide-react";
 import ChatBot from "./ChatBot";
 
 const Hero = () => {
@@ -124,11 +123,11 @@ const Hero = () => {
                   >
                     <Linkedin size={16} />
                   </a>
-                  <ScheduleCallButton inline />
+                  <span className="flex select-all items-center gap-2 font-mono text-xs tracking-[0.06em] text-[var(--color-text-subtle)]">
+                    <Mail size={13} className="flex-shrink-0 text-[var(--color-primary)] opacity-70" />
+                    omshewale030@gmail.com
+                  </span>
                 </div>
-                
-
-
               </div>
             </div>
           </div>
