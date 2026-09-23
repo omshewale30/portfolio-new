@@ -16,7 +16,7 @@ const SelectedWork = () => (
       >
         <p className="eyebrow-label mb-3">{"// Selected work"}</p>
         <h2 className="font-display text-4xl leading-tight text-[var(--color-text-primary)] md:text-5xl">
-          Three workflows, redesigned.
+          Systems built, then measured.
         </h2>
         <p className="mt-4 text-lg leading-relaxed text-[var(--color-text-muted)]">
           Each case study starts with the operating problem, shows the intervention, and ends with the evidence.
@@ -24,7 +24,7 @@ const SelectedWork = () => (
       </motion.header>
 
       <motion.div
-        className="grid gap-6 lg:grid-cols-3"
+        className="grid gap-6 md:grid-cols-2"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
