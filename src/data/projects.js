@@ -1,4 +1,4 @@
-// The three flagships live in caseStudies.js because they carry a richer shape.
+// The flagships live in caseStudies.js because they carry a richer shape.
 // Every other project is maintained once here and grouped by its tier at export.
 export const projects = [
   {

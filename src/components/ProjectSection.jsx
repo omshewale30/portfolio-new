@@ -65,7 +65,7 @@ const ProjectsSection = () => {
           <p className="eyebrow-label">{"// Flagship case studies"}</p>
         </div>
         <motion.div
-          className="mb-16 grid grid-cols-1 gap-6 lg:grid-cols-3"
+          className="mb-16 grid grid-cols-1 gap-6 md:grid-cols-2"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"

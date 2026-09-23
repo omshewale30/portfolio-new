@@ -1,6 +1,121 @@
 import { useParams, useNavigate, Navigate, Link } from "react-router-dom";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import PropTypes from "prop-types";
 import { caseStudies } from "../data/caseStudies";
+
+const CaseStudyTable = ({ table }) => (
+  <figure className="m-0 mt-8">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--color-border-subtle)]">
+      <table className="w-full min-w-[36rem] border-collapse text-left text-sm">
+        <thead className="bg-[var(--color-bg-elevated)]">
+          <tr>
+            {table.columns.map((column) => (
+              <th
+                key={column}
+                scope="col"
+                className="whitespace-nowrap px-4 py-3 font-mono text-xs font-normal uppercase tracking-[0.06em] text-[var(--color-text-meta)]"
+              >
+                {column}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {table.rows.map((row, rowIndex) => {
+            const highlighted = table.highlightRows?.includes(rowIndex);
+            return (
+              <tr
+                key={row[0]}
+                className={`border-t border-[var(--color-border-muted)] ${
+                  highlighted ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)]"
+                }`}
+              >
+                {row.map((cell, cellIndex) =>
+                  cellIndex === 0 ? (
+                    <th key={cellIndex} scope="row" className="whitespace-nowrap px-4 py-3 font-medium">
+                      {cell}
+                    </th>
+                  ) : (
+                    <td key={cellIndex} className="whitespace-nowrap px-4 py-3 tabular-nums">
+                      {cell}
+                    </td>
+                  ),
+                )}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    {table.caption ? (
+      <figcaption className="mt-3 text-xs leading-relaxed text-[var(--color-text-subtle)]">{table.caption}</figcaption>
+    ) : null}
+  </figure>
+);
+
+CaseStudyTable.propTypes = {
+  table: PropTypes.shape({
+    caption: PropTypes.string,
+    columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+    rows: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
+    highlightRows: PropTypes.arrayOf(PropTypes.number),
+  }).isRequired,
+};
+
+const CaseStudySection = ({ section }) => (
+  <section>
+    {section.eyebrow ? <p className="eyebrow-label mb-3">{`// ${section.eyebrow}`}</p> : null}
+    <h2 className="max-w-3xl font-display text-2xl text-[var(--color-text-primary)] md:text-3xl">
+      {section.heading}
+    </h2>
+    <div className="mt-4 flex max-w-3xl flex-col gap-4">
+      {section.paragraphs?.map((paragraph, index) => (
+        <p key={index} className="m-0 text-base leading-relaxed text-[var(--color-text-muted)]">
+          {paragraph}
+        </p>
+      ))}
+    </div>
+    {section.table ? <CaseStudyTable table={section.table} /> : null}
+    {section.figures?.length ? (
+      <div className="mt-8 grid gap-6 md:grid-cols-2">
+        {section.figures.map((figure) => (
+          <figure key={figure.src} className="m-0">
+            <a href={figure.src} target="_blank" rel="noopener noreferrer" aria-label={`Open full size: ${figure.alt}`}>
+              <img
+                src={figure.src}
+                alt={figure.alt}
+                loading="lazy"
+                decoding="async"
+                className="w-full rounded-2xl border border-[var(--color-border-subtle)] bg-white"
+              />
+            </a>
+            {figure.caption ? (
+              <figcaption className="mt-3 text-sm leading-relaxed text-[var(--color-text-subtle)]">
+                {figure.caption}
+              </figcaption>
+            ) : null}
+          </figure>
+        ))}
+      </div>
+    ) : null}
+  </section>
+);
+
+CaseStudySection.propTypes = {
+  section: PropTypes.shape({
+    eyebrow: PropTypes.string,
+    heading: PropTypes.string.isRequired,
+    paragraphs: PropTypes.arrayOf(PropTypes.string),
+    table: PropTypes.object,
+    figures: PropTypes.arrayOf(
+      PropTypes.shape({
+        src: PropTypes.string.isRequired,
+        alt: PropTypes.string.isRequired,
+        caption: PropTypes.string,
+      }),
+    ),
+  }).isRequired,
+};
 
 const CaseStudy = () => {
   const { slug } = useParams();
@@ -174,6 +289,19 @@ const CaseStudy = () => {
             )}
           </div>
         </div>
+
+        {/* ── Long-form analysis (optional) ── */}
+        {study.sections?.length ? (
+          <div className="mt-16">
+            <div className="divider-warm mb-12" />
+            <p className="eyebrow-label mb-10">{"// The analysis"}</p>
+            <div className="flex flex-col gap-16">
+              {study.sections.map((section) => (
+                <CaseStudySection key={section.heading} section={section} />
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-14">
           <Link to="/projects" className="btn-ghost inline-flex items-center gap-2 no-underline">
