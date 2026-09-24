@@ -2,8 +2,8 @@ import PropTypes from "prop-types";
 import DataTable from "./DataTable";
 import FigureButton from "./FigureButton";
 
-// One long-form `sections[]` entry: centred eyebrow and heading, left-aligned prose, then its
-// table and figure grid, which break out wider than the reading column.
+// One long-form `sections[]` entry: centred eyebrow and heading, left-aligned prose and an
+// optional numbered list, then its table and figure grid, which break out wider than the reading column.
 const AnalysisSection = ({ section, onOpenFigure, className = "" }) => (
   <section id={section.id} aria-labelledby={`${section.id}-heading`} className={`case-flow scroll-mt-28 ${className}`}>
     <header className="text-center">
@@ -16,13 +16,22 @@ const AnalysisSection = ({ section, onOpenFigure, className = "" }) => (
       </h2>
     </header>
 
-    {section.paragraphs?.length ? (
+    {section.paragraphs?.length || section.list?.length ? (
       <div className="mt-6 flex flex-col gap-4">
-        {section.paragraphs.map((paragraph, index) => (
+        {section.paragraphs?.map((paragraph, index) => (
           <p key={index} className="m-0 text-base leading-relaxed text-[var(--color-text-muted)]">
             {paragraph}
           </p>
         ))}
+        {section.list?.length ? (
+          <ol className="m-0 flex list-decimal flex-col gap-3 pl-6 text-base leading-relaxed text-[var(--color-text-muted)] marker:text-[var(--color-primary)]">
+            {section.list.map((item) => (
+              <li key={item} className="pl-1">
+                {item}
+              </li>
+            ))}
+          </ol>
+        ) : null}
       </div>
     ) : null}
 
@@ -52,6 +61,7 @@ AnalysisSection.propTypes = {
     eyebrow: PropTypes.string,
     heading: PropTypes.string.isRequired,
     paragraphs: PropTypes.arrayOf(PropTypes.string),
+    list: PropTypes.arrayOf(PropTypes.string),
     table: PropTypes.object,
     figures: PropTypes.arrayOf(
       PropTypes.shape({

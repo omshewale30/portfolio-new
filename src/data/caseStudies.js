@@ -3,7 +3,8 @@
 // the fields every page relies on, and orders them newest first.
 //
 // Optional fields the detail page renders when present: role, timeline,
-// stack (string[]), keyTakeaways (string[]), sections[].table.columnGroups.
+// stack (string[]), keyTakeaways (string[]), sections[].list (string[], numbered),
+// sections[].table.columnGroups.
 import { WORDS_PER_MINUTE, countWords } from "../utils/text";
 
 const files = import.meta.glob("./caseStudies/*.js", {

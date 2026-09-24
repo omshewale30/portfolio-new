@@ -41,10 +41,10 @@ export default {
     },
   ],
   stats: [
-    { label: "Test items, 3 tasks", value: "1,973" },
-    { label: "FOLIO accuracy, zero reasoning tokens", value: "0.837" },
-    { label: "Faster median than reasoning LLMs", value: "~10×" },
-    { label: "Cheaper than GPT-6 Sol (high) on FOLIO", value: "102×" },
+    { label: "Test items", value: "1,973" },
+    { label: "FOLIO accuracy, no reasoning", value: "0.837" },
+    { label: "Faster than reasoning LLMs", value: "~10×" },
+    { label: "Cheaper than Sol-high", value: "102×" },
   ],
   tags: [
     "LLM Evaluation",
@@ -56,7 +56,6 @@ export default {
   externalLink: null,
   sections: [
     {
-      eyebrow: "Architecture",
       heading: "Two contracts: decide versus generate",
       paragraphs: [
         "Jev is TypeSafe's first “System One” model. Its API has no text output: you send a state and a set of options, and it “returns decisions and probabilities.” TypeSafe documents two properties that matter here. It is “trained with RLCD to return calibrated decisions,” and it “ingests the state once and evaluates every question against it in parallel.” The billing reflects that shape. Output tokens are FREE, thats right it's freeee!, and the reported output count scaled with the number of options (41 for FOLIO's 3 labels, 72 for Gmail's 7, 828 for Banking77's 77), consistent with scoring options rather than writing an answer.",
@@ -120,7 +119,6 @@ export default {
       },
     },
     {
-      eyebrow: "Axis 2 · FOLIO",
       heading: "No chain of thought required, up to a point",
       paragraphs: [
         "FOLIO asks whether a conclusion is True, False, or Uncertain given a set of first-order-logic premises. It is the task a System One model should lose. Denied a scratchpad, GPT-6 Luna scored 0.576, not far above the one-in-three baseline, because it retreated to the safe answer: it predicted “Uncertain” for 141 of 203 items. Jev, also with no reasoning step, scored 0.837.",
@@ -185,12 +183,6 @@ export default {
       },
       figures: [
         {
-          src: "/assets/case-studies/no-chain-of-thought-required/folio/cost_vs_f1.png",
-          alt: "FOLIO macro-F1 with 95% intervals against cost per 1,000 items on a log scale for five models",
-          caption:
-            "Macro-F1 against cost (log scale). Jev sits at the reasoning models' accuracy at the price floor; Luna without reasoning collapses.",
-        },
-        {
           src: "/assets/case-studies/no-chain-of-thought-required/folio/coverage_curves.png",
           alt: "FOLIO accuracy on the most-confident fraction of items for each model",
           caption:
@@ -211,7 +203,6 @@ export default {
       ],
     },
     {
-      eyebrow: "Axis 1 · Email triage",
       heading:
         "One of my seven personal inboxs (yeah, I have 7 personal inboxes): real cost gap",
       paragraphs: [
@@ -247,7 +238,6 @@ export default {
       ],
     },
     {
-      eyebrow: "Axis 1 · Banking77",
       heading: "Where Jev loses: 77 near-synonymous intents",
       paragraphs: [
         "Banking77 is short customer messages across 77 intents, many of them near-neighbours such as pending_transfer and transfer_timing. Here GPT-6 Sol was clearly better: 0.831 against Jev's 0.786, and 51 items to 16 in the paired comparison (p = 2×10⁻⁵). Jev and Luna were statistically tied (0.786 vs 0.805, p = 0.09).",
@@ -312,9 +302,11 @@ export default {
 
         "In almost every AI-powered flow, there's a decision/triage/routing mechanism, and cheap models like GPT-4o are the go-to models for it, since they give fast, reliable predictions for low-stakes decisions.",
         "However, I see System One models becoming the standard for these mechanisms going forward, because:",
-        "1. The output is near real-time. Folks are already building real-time dynamic UIs with Jev.",
-        "2. They cost a fraction of even the cheaper LLMs, except in prompt-caching scenarios like the one we saw in the Banking77 experiment.",
-        "3. Unlike a hand-written rule, they return a probability you can route on. On FOLIO, all 67 of Jev's answers at 0.99 confidence or higher were correct. On my inbox calibration was poor (ECE 0.22), so check it on your own data before trusting a threshold.",
+      ],
+      list: [
+        "The output is near real-time. Folks are already building real-time dynamic UIs with Jev.",
+        "They cost a fraction of even the cheaper LLMs, except in prompt-caching scenarios like the one we saw in the Banking77 experiment.",
+        "Unlike a hand-written rule, they return a probability you can route on. On FOLIO, all 67 of Jev's answers at 0.99 confidence or higher were correct. On my inbox calibration was poor (ECE 0.22), so check it on your own data before trusting a threshold.",
       ],
     },
   ],

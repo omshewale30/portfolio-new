@@ -57,8 +57,6 @@ const toListItems = (text) =>
     .filter(Boolean)
     .map((item) => item.charAt(0).toUpperCase() + item.slice(1));
 
-const padIndex = (value) => String(value).padStart(2, "0");
-
 const revealItem = {
   hidden: { opacity: 0, y: 8 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: easing } },
@@ -118,16 +116,15 @@ PageSection.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-const GLANCE_COLUMNS = { 4: "sm:grid-cols-4", 5: "sm:grid-cols-5", 6: "sm:grid-cols-3" };
+const GLANCE_COLUMNS = { 3: "sm:grid-cols-3", 4: "sm:grid-cols-4", 5: "sm:grid-cols-5" };
 
-const GlanceStrip = ({ study, sectionCount }) => {
+const GlanceStrip = ({ study }) => {
   const facts = [
     { label: "Category", value: study.category },
     { label: "Year", value: study.year },
     study.role && { label: "Role", value: study.role },
     study.timeline && { label: "Timeline", value: study.timeline },
     { label: "Reading time", value: `${study.readingMinutes} min` },
-    { label: "Sections", value: String(sectionCount) },
   ].filter(Boolean);
   const chipRows = [
     { label: "Tags", items: study.tags },
@@ -179,7 +176,6 @@ GlanceStrip.propTypes = {
     timeline: PropTypes.string,
     stack: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
-  sectionCount: PropTypes.number.isRequired,
 };
 
 const VisualSlot = ({ label, className = "min-h-48 p-8" }) => (
@@ -372,7 +368,7 @@ const CaseStudy = () => {
 
             {/* ── Header ── */}
             <header className="text-center">
-              <p className="eyebrow-label mb-3">{`// Case study ${padIndex(index + 1)} of ${padIndex(caseStudies.length)}`}</p>
+              <p className="eyebrow-label mb-3">{`// Case study ${index + 1} of ${caseStudies.length}`}</p>
               <h1
                 id="case-study-title"
                 className="m-0 text-balance font-display text-4xl leading-tight text-[var(--color-text-primary)] md:text-5xl"
@@ -396,13 +392,13 @@ const CaseStudy = () => {
               ) : null}
             </header>
 
-            <GlanceStrip study={study} sectionCount={outline.items.length} />
+            <GlanceStrip study={study} />
             <HeroMedia images={study.images} onOpenFigure={openFigure} />
             {study.stats?.length ? <StatsRow stats={study.stats} /> : null}
             {showToc ? <TocDetails items={outline.items} /> : null}
 
             {/* ── Problem → intervention → result ── */}
-            <PageSection id={FIXED_IDS.story} eyebrow="Problem → intervention → result" title="The story">
+            <PageSection id={FIXED_IDS.story} title="The story">
               <StoryStepper study={study} />
             </PageSection>
 
@@ -428,13 +424,12 @@ const CaseStudy = () => {
             {outline.sections.length ? (
               <>
                 <div className="divider-warm mt-20" />
-                <p className="eyebrow-label mb-0 mt-10 text-center">{"// The analysis"}</p>
                 {outline.sections.map((section, sectionIndex) => (
                   <AnalysisSection
                     key={section.id}
                     section={section}
                     onOpenFigure={openFigure}
-                    className={sectionIndex === 0 ? "mt-10" : "mt-20"}
+                    className={sectionIndex === 0 ? "mt-16" : "mt-20"}
                   />
                 ))}
               </>

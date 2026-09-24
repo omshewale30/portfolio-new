@@ -28,7 +28,7 @@ const StoryStepper = ({ study }) => (
                 : "border-[var(--color-border-focus)] bg-[var(--color-bg-surface)] text-[var(--color-primary)]"
             }`}
           >
-            {String(index + 1).padStart(2, "0")}
+            {index + 1}
           </span>
           <div
             className={
