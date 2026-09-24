@@ -8,6 +8,7 @@ import { getAnonId } from "../utils/anonId";
 import { getReactions, submitReaction, getComments, submitComment } from "../notesApi";
 import { getNoteViewCount } from "../analytics";
 import { notePageTitle, usePageMetadata } from "../utils/seo";
+import { useReadingProgress } from "../utils/readingProgress";
 
 const COMMENT_MAX_LENGTH = 1000;
 
@@ -85,10 +86,10 @@ const NoteDetail = () => {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitStatus, setSubmitStatus] = useState("");
-  const [readingProgress, setReadingProgress] = useState(0);
 
   const articleRef = useRef(null);
   const commentStatusRef = useRef(null);
+  const readingProgress = useReadingProgress(articleRef, { enabled: note?.tier === "essay", resetKey: slug });
 
   usePageMetadata({
     title: note ? notePageTitle(note.title) : "Notes — Om Shewale",
@@ -138,35 +139,6 @@ const NoteDetail = () => {
       cancelled = true;
     };
   }, [slug, note]);
-
-  useEffect(() => {
-    if (note?.tier !== "essay") return;
-
-    let frameId = null;
-    const updateProgress = () => {
-      frameId = null;
-      const article = articleRef.current;
-      if (!article) return;
-
-      const start = article.offsetTop;
-      const finish = Math.max(start + article.offsetHeight - window.innerHeight, start + 1);
-      const progress = ((window.scrollY - start) / (finish - start)) * 100;
-      setReadingProgress(Math.min(100, Math.max(0, progress)));
-    };
-    const handleScroll = () => {
-      if (frameId === null) frameId = window.requestAnimationFrame(updateProgress);
-    };
-
-    updateProgress();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-      if (frameId !== null) window.cancelAnimationFrame(frameId);
-    };
-  }, [note?.tier, slug]);
 
   if (!note) return <Navigate to="/notes" replace />;
 

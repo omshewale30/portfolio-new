@@ -10,7 +10,8 @@ html, body, #root {
   min-height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  /* clip, not hidden: hidden makes .App a scroll container, which breaks position: sticky below it. */
+  overflow-x: clip;
 }
 
 main {

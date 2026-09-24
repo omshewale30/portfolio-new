@@ -1189,6 +1189,76 @@ body {
   outline-offset: 3px;
 }
 
+/* Case studies */
+/* A ~720px reading column centred in its container; .case-breakout children (tables, figure
+   grids) and nested .case-flow sections span the whole container instead. */
+.case-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) min(45rem, 100%) minmax(0, 1fr);
+}
+
+.case-flow > * {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.case-flow > .case-breakout,
+.case-flow > .case-flow {
+  grid-column: 1 / -1;
+}
+
+.case-figure-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+}
+
+.case-lightbox {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* ::backdrop doesn't reliably inherit custom properties, so the scrim colours are literal. */
+.case-lightbox::backdrop {
+  background: rgba(10, 8, 6, 0.82);
+}
+
+:root[data-theme="light"] .case-lightbox::backdrop {
+  background: rgba(36, 29, 20, 0.6);
+}
+
+@keyframes case-lightbox-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Scroll reveals never fire when printing; show anything still waiting to be revealed. */
+@media print {
+  .case-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .case-lightbox[open] .case-lightbox-panel {
+    animation: case-lightbox-in var(--duration-normal) var(--ease-out-smooth);
+  }
+}
+
 .skip-link {
   position: fixed;
   z-index: 2000;

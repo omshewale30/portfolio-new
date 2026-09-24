@@ -2,6 +2,7 @@
 // Notes are authored as markdown files with frontmatter in ./notes/*.md — this
 // module loads them at build time and shapes them into what the note pages expect.
 import { load as loadYaml } from "js-yaml";
+import { WORDS_PER_MINUTE, countWords, slugifyHeading } from "../utils/text";
 
 const files = import.meta.glob("./notes/*.md", {
   query: "?raw",
@@ -10,7 +11,6 @@ const files = import.meta.glob("./notes/*.md", {
 });
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/;
-const WORDS_PER_MINUTE = 220;
 
 const parseNote = (raw) => {
   const match = raw.match(FRONTMATTER);
@@ -36,16 +36,6 @@ const headingText = (markdown) =>
     .replace(/[`*_~]/g, "")
     .replace(/<[^>]+>/g, "")
     .trim();
-
-const slugifyHeading = (value) =>
-  value
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/['’]/g, "")
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "section";
 
 const extractHeadings = (body) => {
   const occurrences = new Map();
@@ -74,18 +64,6 @@ const extractHeadings = (body) => {
     }];
   });
 };
-
-const countWords = (body) =>
-  body
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`[^`]*`/g, " ")
-    .replace(/https?:\/\/\S+/g, " ")
-    .replace(/[#>*_~()-]/g, " ")
-    .replaceAll("[", " ")
-    .replaceAll("]", " ")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
 
 const REQUIRED_FIELDS = ["tier", "title", "date"];
 
