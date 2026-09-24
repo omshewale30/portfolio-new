@@ -18,7 +18,7 @@ export default {
     title:
       "Reasoning-model accuracy on logic at ~10× the speed; beaten on 77-way intents",
     description:
-      "Across 1,973 calls Jev's p99 latency stayed at or below 352 ms on every task, against 6.5–22 s for the LLMs. On FOLIO it tied GPT-6 Luna with high reasoning (0.837 each) at a sixth of the cost, and it led both LLMs on my inbox. It lost to GPT-6 Sol on Banking77's 77 fine-grained intents, and to prompt-cached Luna on cost there.",
+      "Across 1,973 calls Jev's p99 latency stayed at or below 350 ms on every task, against 6.5–22 s for the LLMs. On FOLIO it tied GPT-6 Luna with high reasoning (0.837 each) at a seventh of the cost, and it led both LLMs on my inbox. It lost to GPT-6 Sol on Banking77's 77 fine-grained intents, and to prompt-cached Luna on cost there.",
   },
   constraints: [
     "Identical instructions and label definitions for every model",
@@ -30,7 +30,6 @@ export default {
     "Bill prompt caching at its real rate, even where it flips the cost result against Jev",
     "Give the LLMs a reasoning budget on the logic task instead of only beating the cheap baseline",
     "Call LLM confidence what it is (verbalized) rather than claim a like-for-like calibration win",
-    "Report where Jev loses with the same rigour as where it wins",
   ],
   whatIdDoDifferently:
     "Measure latency in the harness's interleaved latency mode instead of throughput mode; give Banking77 real label definitions and test Jev's hierarchical Choice on the 77-way taxonomy; derive LLM confidence from token logprobs so calibration is compared like-for-like; tune escalation thresholds on a held-out split instead of the evaluation set; cluster FOLIO's bootstrap by premise set; and repeat every run across seeds, since the OpenAI models sample at temperature 1.0.",
@@ -126,8 +125,8 @@ export default {
       paragraphs: [
         "FOLIO asks whether a conclusion is True, False, or Uncertain given a set of first-order-logic premises. It is the task a System One model should lose. Denied a scratchpad, GPT-6 Luna scored 0.576, not far above the one-in-three baseline, because it retreated to the safe answer: it predicted “Uncertain” for 141 of 203 items. Jev, also with no reasoning step, scored 0.837.",
         "With high reasoning effort the LLMs caught up but did not pass it. Luna-high also scored 0.837, and the paired comparison is exactly 20 items each way (McNemar p = 1.0). Sol-high scored 0.823 (p = 0.76). Jev reached that accuracy for $0.020 per 1,000 items at a 221 ms median. Luna-high spent ~188 reasoning tokens per item to get there, at $0.132 (6.6×) and 2.25 s; Sol-high cost $2.04 (102×) at 2.15 s. Against the no-reasoning LLMs Jev's lead is significant: 68 items to 15 over Luna, and 30 to 13 over Sol (p = 0.014).",
-        "The per-label breakdown shows what a single pass can and cannot do. Jev is decisive when the premises entail or contradict the conclusion (recall 0.90 on True, 0.89 on False). But it recognises only 0.72 of the Uncertain cases, where both reasoning LLMs reach 0.90. Establishing “Uncertain” means showing that neither the conclusion nor its negation follows, which is an exhaustive, multi-hop search and exactly the capability TypeSafe flags as Jev's weak spot. The finding is not that Jev reasons. It is that most of FOLIO's validation items can be settled in one calibrated read, and the rest are where a scratchpad earns its cost.",
-        "Because the two architectures fail on different items, they compose. Jev and Luna-high are both right on 150 items, and at least one of them is right on 93.6%. All 67 of Jev's answers at 0.99 confidence or higher, a third of the set, are correct. Keeping Jev's answers above 0.8 confidence and escalating the other 29% to Luna-high scores 0.872, higher than any single model, for roughly $0.058 per 1,000 items. I picked that threshold on the evaluation set, so it is a ceiling to validate, not a result.",
+        "The per-label breakdown shows what a single pass can and cannot do. Jev is decisive when the premises entail or contradict the conclusion (recall 0.90 on True, 0.89 on False). But it recognises only 0.72 of the Uncertain cases, where both reasoning LLMs reach 0.90. Establishing “Uncertain” means showing that neither the conclusion nor its negation follows, which is an exhaustive, multi-hop search and exactly the capability TypeSafe flags as Jev's weak spot. Most of FOLIO's validation items can be settled in one pass, and the Uncertain cases are the ones that benefit from a scratchpad.",
+        "Because the two architectures fail on different items, they compose. Jev and Luna-high are both right on 150 items, and at least one of them is right on 93.6%. All 67 of Jev's answers at 0.99 confidence or higher, a third of the set, are correct. Keeping Jev's answers at 0.8 confidence or higher and escalating the other 29% to Luna-high scores 0.872, higher than any single model, for $0.069 per 1,000 items. I picked that threshold on the evaluation set, so it is a ceiling to validate, not a result.",
       ],
       table: {
         caption:
@@ -154,7 +153,7 @@ export default {
             "0.576 [0.502–0.645]",
             "$0.037",
             "1.33 s",
-            "20",
+            "19",
             "0.413",
           ],
           [
@@ -201,7 +200,7 @@ export default {
           src: "/assets/case-studies/no-chain-of-thought-required/folio/reliability.png",
           alt: "FOLIO reliability diagrams: Jev tracks the diagonal, GPT models collapse into the top confidence bin",
           caption:
-            "The GPT panels are one or two dots because those models reported 0.9–1.0 confidence on essentially every item. Jev spreads across six bins that track the diagonal (ECE 0.036).",
+            "The GPT panels are one to three dots because those models reported 0.9–1.0 confidence on essentially every item. Jev spreads across six bins that track the diagonal (ECE 0.036).",
         },
         {
           src: "/assets/case-studies/no-chain-of-thought-required/folio/latency_distribution.png",
@@ -243,7 +242,7 @@ export default {
           src: "/assets/case-studies/no-chain-of-thought-required/gmail/latency_distribution.png",
           alt: "Inbox per-request latency distributions on a log scale for three models",
           caption:
-            "Jev: p50 200 ms, p95 295 ms. The LLM tails run past 20 s, and two emails were lost to timeouts.",
+            "Jev: p50 200 ms, p95 295 ms. The LLM tails run past 20 s, and one email was blocked by the content filter for both GPT models.",
         },
       ],
     },
@@ -254,7 +253,7 @@ export default {
         "Banking77 is short customer messages across 77 intents, many of them near-neighbours such as pending_transfer and transfer_timing. Here GPT-6 Sol was clearly better: 0.831 against Jev's 0.786, and 51 items to 16 in the paired comparison (p = 2×10⁻⁵). Jev and Luna were statistically tied (0.786 vs 0.805, p = 0.09).",
         "Two architectural facts line up with the loss. First, Jev reads literally, and in this run every label was defined only by its name (“Card arrival”). A 77-way boundary drawn from names alone rewards the broader prior of a large generalist. Second, Jev's errors were near-misses: its top-two accuracy is 0.879, so 43% of its mistakes ranked the right intent second. Those are fine distinctions that a single scoring pass blurs. TypeSafe recommends hierarchical Choice for large taxonomies. I tested neither that nor richer definitions, so they remain the open variables.",
         "It also lost on cost. The 77-label prefix is identical on every call, so Luna served 96% of its input tokens from the prompt cache at $0.01 per million. Jev has no cached rate and encodes the task in more tokens (1,706 against 1,344 per item), so it cost $0.072 per 1,000 against Luna's $0.030, 2.4× more; its list price would need to fall 58% to match. Against Sol ($0.585) it was still 8× cheaper.",
-        "The deployable design is again a router. Accept Jev's answer when it is at least 0.9 confident and escalate the other 31% to Sol. That scores 0.827, 99.5% of Sol's accuracy, for about $0.26 per 1,000 items (44% of Sol's cost), with most traffic answered in ~200 ms. As on FOLIO, the threshold was chosen in-sample.",
+        "The deployable design is again a router. Accept Jev's answer when it is at least 0.9 confident and escalate the other 31% to Sol. That scores 0.827, 99.5% of Sol's accuracy, for about $0.27 per 1,000 items (46% of Sol's cost), with most traffic answered in ~200 ms. As on FOLIO, the threshold was chosen in-sample.",
       ],
       figures: [
         {
@@ -279,26 +278,25 @@ export default {
           src: "/assets/case-studies/no-chain-of-thought-required/banking77/latency_distribution.png",
           alt: "Banking77 per-request latency distributions on a log scale for three models",
           caption:
-            "Jev p50 202 ms against 1.15 s (Luna) and 1.52 s (Sol); its p99 is 352 ms against 7.9 s and 8.9 s.",
+            "Jev p50 202 ms against 1.15 s (Luna) and 1.52 s (Sol); its p99 is 350 ms against 7.8 s and 8.6 s.",
         },
       ],
     },
 
     {
-      eyebrow: "Synthesis",
-      heading: "What the architecture predicted, and what held",
+      heading: "Synthesis",
       paragraphs: [
-        "Latency: flat and tail-free. Across 1,973 calls Jev's median stayed at 200–221 ms whether the input was 473 tokens or 1,706. Its p99 never exceeded 352 ms, and it needed zero retries. The LLMs' p99 ranged from 6.5 to 22 s, their slowest calls took 9 to 59 s, and they needed six retries and lost two emails to timeouts. Without reasoning the LLMs emit only ~20 tokens, so the gap is not decode length. It is the difference between a purpose-built decision service and general-purpose generative serving, and it shows most in the tail, which is what an inline decision in a request path has to budget for.",
-        "Cost: decided by what the prompt is made of. Jev bills input only and makes output free, but on every run its request encoded 1.3–1.7× more input tokens than the equivalent LLM prompt. It wins when unique content dominates the prompt (emails, FOLIO premises) or when the alternative needs reasoning tokens billed as output (102× against Sol-high). It loses when a large fixed prefix can be cached, as with Banking77's label list.",
-        "Calibration: Useful. RLCD-trained probabilities beat verbalized confidence on FOLIO (ECE 0.036 against 0.15–0.41) and on my inbox (0.22 against 0.30), and tied on Banking77 (0.101). The comparison is against the confidence these APIs return as prompted, not against logprobs, so it measures the interface as much as the model. But the interface is what production code consumes, and Jev's probability is the signal both routers in this study were built on.",
-        "The verdict: no chain of thought is required for decisions that one careful read can settle, and that covered more of FOLIO than I expected. When the boundary is subtle and the label set is large, or when proving a negative takes several hops, the generalist with a scratchpad still wins. The architecture that follows is a router: Jev in the request path, with its probability deciding what escalates.",
+        "Across 1,973 calls Jev's median stayed at 200–221 ms whether the input was 473 tokens or 1,706. Its p99 never exceeded 350 ms, and it needed zero retries. The LLMs' p99 ranged from 6.5 to 22 s, their slowest calls took 9 to 59 s, and they needed six retries after timeouts; one email was also blocked by the content filter for both GPT models. Without reasoning the LLMs emit only ~20 tokens, so decode length doesn't explain the gap. Because this is client-side wall time from one machine to different providers, I can't attribute it to serving either. The gap is largest in the tail, which is what an inline decision in a request path has to budget for.",
+        "Jev bills input only and makes output free, but on every run its request encoded 1.3–1.7× more input tokens than the equivalent LLM prompt. It wins when unique content dominates the prompt (emails, FOLIO premises) or when the alternative needs reasoning tokens billed as output (102× against Sol-high). It loses when a large fixed prefix can be cached, as with Banking77's label list.",
+        "RLCD-trained probabilities beat verbalized confidence on FOLIO (ECE 0.036 against 0.15–0.41) and on my inbox (0.22 against 0.30), tied Luna on Banking77 (0.101), and trailed Sol there (0.073). The comparison is against the confidence these APIs return as prompted, not against logprobs, so it measures the interface as much as the model. But the interface is what production code consumes, and Jev's probability is the signal both routers in this study were built on.",
+        "No chain of thought is required for decisions that one careful read can settle, and that covered more of FOLIO than I expected. When the boundary is subtle and the label set is large, or when proving a negative takes several hops, the generalist with a scratchpad still wins. The architecture that follows is a router: Jev in the request path, with its probability deciding what escalates.",
       ],
     },
 
 
     {
-      eyebrow: "Threats to validity",
-      heading: "What these numbers do not show",
+
+      heading: "Threats to validity",
       paragraphs: [
         "Latency was measured in throughput mode (six requests in flight, models run one after another) rather than the harness's interleaved latency mode. It is client-side wall time from one machine and includes network paths to different providers.",
         "The OpenAI models sampled at temperature 1.0, and every run used a single seed, so the close results (Jev against Luna on Banking77 and FOLIO) could move on a rerun.",
@@ -308,14 +306,15 @@ export default {
       ],
     },
         {
-      eyebrow: "My two cents",
-      heading: "Swap out existing decision/gate/classification services for System One models. Defer 'multi-hop', high-stakes tasks to generative models, where they can use their internal scratchpads for 'thinking'",
+      heading: "My two cents:",
       paragraphs: [
+        "Swap out existing decision/gate/classification services for System One models. Defer 'multi-hop', high-stakes tasks to generative models, where they can use their internal scratchpads for 'thinking'",
+
         "In almost every AI-powered flow, there's a decision/triage/routing mechanism, and cheap models like GPT-4o are the go-to models for it, since they give fast, reliable predictions for low-stakes decisions.",
         "However, I see System One models becoming the standard for these mechanisms going forward, because:",
         "1. The output is near real-time. Folks are already building real-time dynamic UIs with Jev.",
         "2. They cost a fraction of even the cheaper LLMs, except in prompt-caching scenarios like the one we saw in the Banking77 experiment.",
-        "3. I believe we'll see System One models increasingly integrated into real-time systems that run on hand-written rules today because interpretability and predictability matter, and Jev's calibrated probabilities make it easy to reason about when to trust it.",
+        "3. Unlike a hand-written rule, they return a probability you can route on. On FOLIO, all 67 of Jev's answers at 0.99 confidence or higher were correct. On my inbox calibration was poor (ECE 0.22), so check it on your own data before trusting a threshold.",
       ],
     },
   ],
