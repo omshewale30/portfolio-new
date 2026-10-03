@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
+import ReactMarkdown from "react-markdown";
+import { Link } from "react-router-dom";
 import { ArrowRight, Check, Circle, LoaderCircle, RotateCcw, Waypoints, X } from "lucide-react";
 import { submitChat } from "../chat.js";
 import SourceDetails from "./SourceDetails.jsx";
@@ -14,6 +16,40 @@ const SAMPLE_QUESTIONS = [
     "Why does most enterprise AI disappoint?",
     "Can a model decide without reasoning?",
 ];
+
+const SITE_URL = /^https?:\/\/(www\.)?omshewale\.(me|com)(?=\/|$)/i;
+
+// Answers are markdown. Links to this site stay in the app; anything else opens in a new tab.
+const AnswerLink = ({ href = "", children }) => {
+    const path = href.replace(SITE_URL, "") || "/";
+    return SITE_URL.test(href) ? (
+        <Link to={path}>{children}</Link>
+    ) : (
+        <a href={href} target="_blank" rel="noopener noreferrer">
+            {children}
+        </a>
+    );
+};
+
+AnswerLink.propTypes = {
+    href: PropTypes.string,
+    children: PropTypes.node,
+};
+
+const ANSWER_COMPONENTS = { a: AnswerLink };
+
+// Mid-typing, half-typed markdown would flash its syntax: show a partial [link](url) as its
+// text, and close an open **bold**, until the rest arrives.
+const typingMarkdown = (text) => {
+    const base = text
+        .replace(/\*+$/, "")
+        .replace(/\[([^\]]*)\](\([^)]*)?$/, "$1")
+        .replace(/\[([^\]]*)$/, "$1");
+    if ((base.match(/\*\*/g) || []).length % 2 === 0) return base;
+    // A closing ** only counts directly after text, so it goes before any trailing space.
+    const trimmed = base.trimEnd();
+    return `${trimmed}**${base.slice(trimmed.length)}`;
+};
 
 const newSessionId = () => {
     if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
@@ -424,13 +460,14 @@ const Chatbot = ({ className = "" }) => {
                     </span>
                 )}
                 {showAnswer && exchange ? (
-                    <p
-                        className="m-0 max-h-[360px] overflow-y-auto whitespace-pre-wrap text-base leading-relaxed text-[var(--color-text-muted)] [text-wrap:pretty]"
+                    <div
+                        className={`prose-content chat-answer max-h-[360px] overflow-y-auto text-base leading-relaxed text-[var(--color-text-muted)] [text-wrap:pretty] ${phase === "answering" ? "is-typing" : ""}`}
                         aria-live="polite"
                     >
-                        {exchange.answer.slice(0, shown)}
-                        {phase === "answering" ? <span className="type-caret" aria-hidden="true" /> : null}
-                    </p>
+                        <ReactMarkdown components={ANSWER_COMPONENTS}>
+                            {phase === "answering" ? typingMarkdown(exchange.answer.slice(0, shown)) : exchange.answer}
+                        </ReactMarkdown>
+                    </div>
                 ) : null}
                 {phase === "done" && exchange && !exchange.error ? (
                     <div className="mt-auto flex flex-wrap items-start gap-1.5">

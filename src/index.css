@@ -482,7 +482,25 @@ textarea.field-input {
 .menu-enter {
   animation: slide-in var(--duration-normal) var(--ease-out-smooth) both;
 }
-.type-caret {
+/* Jarvis answers: .prose-content markdown, spaced for a chat panel. While typing, the caret
+   trails the last block (or the last list item) instead of dropping onto its own line. */
+.chat-answer > * + * {
+  margin-top: 0.75em;
+}
+.chat-answer h1,
+.chat-answer h2,
+.chat-answer h3,
+.chat-answer h4 {
+  font-size: 1.05em;
+  margin-top: 1em;
+}
+.chat-answer strong {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+.chat-answer.is-typing > :not(ul, ol):last-child::after,
+.chat-answer.is-typing > :is(ul, ol):last-child > li:last-child::after {
+  content: "";
   display: inline-block;
   width: 7px;
   height: 1em;
@@ -494,7 +512,6 @@ textarea.field-input {
 
 @media (prefers-reduced-motion: reduce) {
   .spin-step,
-  .type-caret,
   .page-enter,
   .menu-enter {
     animation: none;
