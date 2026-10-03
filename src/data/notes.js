@@ -65,6 +65,15 @@ const extractHeadings = (body) => {
   });
 };
 
+// The first prose paragraph, as plain text, for hover previews.
+const extractOpening = (body) => {
+  const paragraph = body
+    .split(/\r?\n\s*\r?\n/)
+    .map((block) => block.trim())
+    .find((block) => block && !/^(#|```|~~~|[-*+] |\d+\. |>|!\[|<)/.test(block));
+  return paragraph ? headingText(paragraph.replace(/\s+/g, " ")) : "";
+};
+
 const REQUIRED_FIELDS = ["tier", "title", "date"];
 
 export const notes = Object.entries(files)
@@ -87,6 +96,7 @@ export const notes = Object.entries(files)
       tier: data.tier,
       title: data.title,
       excerpt: data.summary,
+      opening: extractOpening(body),
       tags: Array.isArray(data.tags) ? data.tags : [],
       image: data.image || "/assets/Hero.webp",
       publishedAt,

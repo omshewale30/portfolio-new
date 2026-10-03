@@ -106,6 +106,8 @@ const contrastPairs = [
   ["color-primary", "color-bg-elevated"],
   ["color-bg-base", "color-primary"],
   ["color-bg-base", "color-primary-hover"],
+  ["color-accent", "color-bg-base"],
+  ["color-accent", "color-bg-surface"],
 ];
 
 for (const [theme, block] of [["dark", darkBlock], ["light", lightBlock]]) {

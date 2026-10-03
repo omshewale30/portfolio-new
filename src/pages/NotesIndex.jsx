@@ -30,12 +30,12 @@ const NotesIndex = () => {
 
         {notes.length === 0 ? (
           <div className="surface-card notes-empty-card max-w-xl">
-            <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">
+            <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
               Coming soon
             </p>
             <p className="mt-3 mb-0 text-base leading-relaxed text-[var(--color-text-muted)]">
               Notes are being written. Check back soon, or{" "}
-              <Link to="/work/redesign-dont-redecorate" className="note-interactive text-[var(--color-primary)]">
+              <Link to="/work/redesign-dont-redecorate" className="note-interactive text-[var(--color-text-primary)] underline decoration-[var(--color-border-hover)] underline-offset-4 hover:decoration-[var(--color-text-primary)]">
                 read the research paper case study
               </Link>{" "}
               in the meantime.
@@ -51,7 +51,7 @@ const NotesIndex = () => {
                     <Link
                       key={note.slug}
                       to={`/notes/${note.slug}`}
-                      className="surface-card notes-essay-card note-interactive block no-underline transition-colors hover:border-[var(--color-primary)]"
+                      className="surface-card notes-essay-card note-interactive block no-underline transition-colors hover:border-[var(--color-border-hover)]"
                     >
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
                         <span className="note-tier-badge">Essay</span>
@@ -62,7 +62,7 @@ const NotesIndex = () => {
                       <h3 className="font-display mt-3 text-2xl text-[var(--color-text-primary)]">
                         {note.title}
                       </h3>
-                      <p className="mt-3 text-base leading-relaxed text-[var(--color-text-muted)]">
+                      <p className="mt-3 text-base leading-relaxed text-[var(--color-text-subtle)]">
                         {note.excerpt}
                       </p>
                       <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
@@ -71,7 +71,7 @@ const NotesIndex = () => {
                             {note.tags.map((tag) => <li key={tag}>{tag}</li>)}
                           </ul>
                         ) : <span />}
-                        <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">
+                        <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-subtle)]">
                           Read essay
                           <ArrowUpRight size={14} aria-hidden="true" />
                         </span>
@@ -90,9 +90,9 @@ const NotesIndex = () => {
                     <li key={note.slug}>
                       <Link
                         to={`/notes/${note.slug}`}
-                        className="note-interactive flex min-h-11 flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border-muted)] py-3 no-underline transition-colors hover:text-[var(--color-primary)]"
+                        className="note-interactive group flex min-h-11 flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border-subtle)] py-3 no-underline transition-colors hover:border-[var(--color-border-hover)]"
                       >
-                        <span className="text-base text-[var(--color-text-primary)]">{note.title}</span>
+                        <span className="text-base text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-text-primary)]">{note.title}</span>
                         <span className="font-mono text-xs uppercase tracking-[0.06em] text-[var(--color-text-meta)]">
                           <time dateTime={note.publishedAt}>{note.date}</time> · {note.readingMinutes} min
                         </span>

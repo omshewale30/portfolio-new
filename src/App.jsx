@@ -10,9 +10,10 @@ import ProofStrip from "./components/ProofStrip.jsx";
 import SelectedWork from "./components/SelectedWork.jsx";
 import RecentNotes from "./components/RecentNotes.jsx";
 import CurrentRoleSummary from "./components/CurrentRoleSummary.jsx";
-import JarvisCTA from "./components/JarvisCTA.jsx";
 import ContactSection from "./components/ContactSection.jsx";
 import EducationSection from "./components/EducationSection.jsx";
+import Axiom from "./components/Axiom.jsx";
+import SiteFooter from "./components/SiteFooter.jsx";
 const ProjectSection = lazy(() => import("./components/ProjectSection.jsx"));
 const Experience = lazy(() => import("./components/Experience.jsx"));
 const CaseStudy = lazy(() => import("./pages/CaseStudy.jsx"));
@@ -86,25 +87,19 @@ function AppContent() {
                             <main>
                                 <Hero />
                                 <ProofStrip />
+                                <Axiom>Measure the work removed, not the words generated.</Axiom>
                                 <div className="section-transition section-transition-delay-1">
                                     <SelectedWork />
                                 </div>
-                                <div className="section-transition section-transition-delay-2">
+                                <div className="section-transition section-transition-delay-2 mx-auto grid max-w-[var(--container-max)] gap-4 px-4 pb-20 sm:px-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:px-12 lg:pb-[88px]">
                                     <RecentNotes />
-                                </div>
-                                <div className="section-transition section-transition-delay-3">
                                     <CurrentRoleSummary />
                                 </div>
                                 <div className="section-transition section-transition-delay-3">
                                     <EducationSection compact />
                                 </div>
                                 <TechMarquee />
-                                <div className="section-transition section-transition-delay-3">
-                                    <JarvisCTA />
-                                </div>
-                                <div className="section-transition section-transition-delay-3">
-                                    <ContactSection />
-                                </div>
+                                <ContactSection />
                             </main>
                         }
                     />
@@ -121,6 +116,7 @@ function AppContent() {
                     </Routes>
                 </Suspense>
             </div>
+            <SiteFooter />
         </div>
     );
 }

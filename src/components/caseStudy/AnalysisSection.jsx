@@ -24,7 +24,7 @@ const AnalysisSection = ({ section, onOpenFigure, className = "" }) => (
           </p>
         ))}
         {section.list?.length ? (
-          <ol className="m-0 flex list-decimal flex-col gap-3 pl-6 text-base leading-relaxed text-[var(--color-text-muted)] marker:text-[var(--color-primary)]">
+          <ol className="m-0 flex list-decimal flex-col gap-3 pl-6 text-base leading-relaxed text-[var(--color-text-muted)] marker:font-mono marker:text-xs marker:text-[var(--color-text-meta)]">
             {section.list.map((item) => (
               <li key={item} className="pl-1">
                 {item}

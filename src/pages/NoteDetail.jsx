@@ -13,10 +13,10 @@ import { useReadingProgress } from "../utils/readingProgress";
 const COMMENT_MAX_LENGTH = 1000;
 
 const reactionButtonClass = (active) =>
-  `note-interactive note-reaction-button flex items-center gap-2 rounded-full border px-4 py-2 font-mono text-xs uppercase tracking-[0.08em] transition-all disabled:cursor-wait disabled:opacity-60 ${
+  `note-interactive note-reaction-button flex items-center gap-2 rounded-[7px] border px-4 py-2 font-mono text-xs uppercase tracking-[0.08em] transition-colors disabled:cursor-wait disabled:opacity-60 ${
     active
-      ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
-      : "border-[var(--color-border-muted)] bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+      ? "border-[var(--color-border-focus)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)]"
+      : "border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] text-[var(--color-text-subtle)] hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)]"
   }`;
 
 const MarkdownHeading = ({ level, node, children, headings }) => {
@@ -254,7 +254,7 @@ const NoteDetail = () => {
             <h2 id="reaction-heading" className="font-display text-xl text-[var(--color-text-primary)]">
               Was this useful?
             </h2>
-            <p className="mt-1 text-sm text-[var(--color-text-muted)]">A quick reaction helps shape future notes.</p>
+            <p className="mt-1 text-sm text-[var(--color-text-subtle)]">A quick reaction helps shape future notes.</p>
             <div className="note-reactions" aria-busy={isSubmittingReaction || reactions === null}>
               <button
                 type="button"
@@ -288,7 +288,7 @@ const NoteDetail = () => {
 
         <section className="mt-12" aria-labelledby="comments-heading">
           <h2 id="comments-heading" className="font-display text-2xl text-[var(--color-text-primary)]">Comments</h2>
-          <p className="mt-2 text-base leading-relaxed text-[var(--color-text-muted)]">
+          <p className="mt-2 text-base leading-relaxed text-[var(--color-text-subtle)]">
             Share a question, counterpoint, or useful example.
           </p>
 
@@ -331,7 +331,7 @@ const NoteDetail = () => {
               <button
                 type="submit"
                 disabled={isSubmittingComment || !commentBody.trim()}
-                className="btn-primary note-interactive min-h-11 rounded-xl px-6 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-70"
+                className="btn-primary note-interactive min-h-11 rounded-[7px] px-6 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSubmittingComment ? "Posting…" : "Post comment"}
               </button>
@@ -352,9 +352,9 @@ const NoteDetail = () => {
               <p className="font-mono text-xs text-[var(--color-text-meta)]">No comments yet — be the first.</p>
             ) : null}
             {comments?.map((comment) => (
-              <article key={comment.id} className="border-b border-[var(--color-border-muted)] pb-6">
+              <article key={comment.id} className="border-b border-[var(--color-border-subtle)] pb-6">
                 <header className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">
+                  <span className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-muted)]">
                     {comment.author_name || "Anonymous"}
                   </span>
                   <time dateTime={comment.created_at} className="font-mono text-xs text-[var(--color-text-meta)]">

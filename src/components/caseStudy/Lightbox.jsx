@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, X } from "lucide-react";
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const controlClass =
-  "note-interactive flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]";
+  "note-interactive flex h-10 w-10 items-center justify-center rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-text-subtle)] transition-colors hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)]";
 
 // Modal figure viewer on a native <dialog>: showModal() makes the page inert and gives Esc for free.
 // Mounted only while open; unmounting closes it and hands focus back to the figure that opened it.
@@ -83,8 +83,8 @@ const Lightbox = ({ figures, index, opener, onClose, onStep }) => {
       onClick={handleBackdropClick}
     >
       <div data-lightbox-backdrop="" className="flex h-full w-full items-center justify-center p-3 sm:p-6">
-        <div className="case-lightbox-panel flex max-h-full w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-glass-strong)]">
-          <div className="flex items-center justify-between gap-3 border-b border-[var(--color-border-muted)] px-4 py-2">
+        <div className="case-lightbox-panel flex max-h-full w-full max-w-5xl flex-col overflow-hidden rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--color-border-subtle)] px-4 py-2">
             <p className="m-0 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]" aria-live="polite">
               {count > 1 ? `Figure ${index + 1} of ${count}` : "Figure"}
               <span className="sr-only">{`: ${figure.alt}`}</span>
@@ -94,7 +94,7 @@ const Lightbox = ({ figures, index, opener, onClose, onStep }) => {
                 href={figure.src}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="note-interactive inline-flex min-h-10 items-center gap-1.5 px-2 font-mono text-xs uppercase tracking-[0.06em] text-[var(--color-primary)]"
+                className="note-interactive inline-flex min-h-10 items-center gap-1.5 px-2 font-mono text-xs uppercase tracking-[0.06em] text-[var(--color-text-subtle)] no-underline transition-colors hover:text-[var(--color-text-primary)]"
               >
                 Full size
                 <ArrowUpRight size={14} aria-hidden="true" />
@@ -108,14 +108,14 @@ const Lightbox = ({ figures, index, opener, onClose, onStep }) => {
 
           {/* sm+: side gutters so the step buttons sit beside the figure instead of over it. */}
           <div
-            className={`relative flex min-h-0 flex-1 items-center justify-center bg-white p-2 sm:py-4 ${
+            className={`relative flex min-h-0 flex-1 items-center justify-center bg-[var(--color-bg-surface)] p-2 sm:py-4 ${
               count > 1 ? "sm:px-16" : "sm:px-4"
             }`}
           >
             <img
               src={figure.src}
               alt={figure.alt}
-              className="block max-h-[calc(100vh-14rem)] w-auto max-w-full object-contain"
+              className="figure-img block max-h-[calc(100vh-14rem)] w-auto max-w-full object-contain"
             />
             {count > 1 ? (
               <>
@@ -140,7 +140,7 @@ const Lightbox = ({ figures, index, opener, onClose, onStep }) => {
           </div>
 
           {caption ? (
-            <p className="m-0 border-t border-[var(--color-border-muted)] px-4 py-3 text-sm leading-relaxed text-[var(--color-text-subtle)]">
+            <p className="m-0 border-t border-[var(--color-border-subtle)] px-4 py-3 text-sm leading-relaxed text-[var(--color-text-subtle)]">
               {caption}
             </p>
           ) : null}

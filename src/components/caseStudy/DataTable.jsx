@@ -4,10 +4,10 @@ import PropTypes from "prop-types";
 const ALL = "all";
 
 const toggleClass = (active) =>
-  `note-interactive min-h-9 rounded-full border px-3 py-1.5 font-mono text-xs uppercase tracking-[0.06em] transition-colors ${
+  `note-interactive min-h-9 rounded-[7px] border px-3 py-1.5 font-mono text-xs uppercase tracking-[0.06em] transition-colors ${
     active
-      ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
-      : "border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+      ? "border-[var(--color-border-focus)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)]"
+      : "border-[var(--color-border-subtle)] text-[var(--color-text-subtle)] hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)]"
   }`;
 
 // Wide table that breaks out of the reading column. The first column stays pinned while the rest
@@ -47,7 +47,7 @@ const DataTable = ({ table }) => {
         tabIndex={0}
         aria-labelledby={table.caption ? captionId : undefined}
         aria-label={table.caption ? undefined : "Data table"}
-        className="note-interactive overflow-x-auto rounded-2xl border border-[var(--color-border-subtle)]"
+        className="note-interactive overflow-x-auto rounded-[10px] border border-[var(--color-border-subtle)]"
       >
         <table
           className={`w-full border-separate border-spacing-0 text-left text-sm ${
@@ -75,21 +75,21 @@ const DataTable = ({ table }) => {
               return (
                 <tr
                   key={row[0]}
-                  className={highlighted ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)]"}
+                  className={highlighted ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-subtle)]"}
                 >
                   {row.map((cell, cellIndex) =>
                     cellIndex === 0 ? (
                       <th
                         key={cellIndex}
                         scope="row"
-                        className="sticky left-0 z-[1] whitespace-nowrap border-t border-[var(--color-border-muted)] bg-[var(--color-bg-base)] px-4 py-3 font-medium shadow-[inset_-1px_0_0_var(--color-border-subtle)]"
+                        className="sticky left-0 z-[1] whitespace-nowrap border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-4 py-3 font-normal shadow-[inset_-1px_0_0_var(--color-border-subtle)]"
                       >
                         {cell}
                       </th>
                     ) : (
                       <td
                         key={cellIndex}
-                        className={`whitespace-nowrap border-t border-[var(--color-border-muted)] px-4 py-3 tabular-nums ${cellVisibility(cellIndex)}`}
+                        className={`whitespace-nowrap border-t border-[var(--color-border-subtle)] px-4 py-3 tabular-nums ${cellVisibility(cellIndex)}`}
                       >
                         {cell}
                       </td>

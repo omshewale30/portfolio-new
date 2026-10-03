@@ -5,6 +5,7 @@ export const experienceDetails = [
     location: "Chapel Hill, NC, USA",
     duration: "06/2026 – Present",
     current: true,
+    short: "Leading F&O's AI strategy, architecting Nimbus and Heelper, and hiring the in-house AI team.",
     summary:
       "Om leads Finance and Operations' AI strategy end-to-end, reporting to the Vice Chancellor and partnering with senior leaders to prioritize high-ROI operational problems. He is building an intake and evaluation framework that directs engineering effort toward the workflows creating the most administrative overhead. He is also architecting Nimbus and Heelper while recruiting the division's internal AI engineering team.",
     contributions: [

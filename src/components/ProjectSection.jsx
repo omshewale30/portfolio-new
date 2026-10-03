@@ -27,15 +27,6 @@ const ProjectsSection = () => {
       id="projects"
       className="relative overflow-hidden bg-[var(--color-bg-base)]"
     >
-      <div
-        className="pointer-events-none absolute inset-0"
-        aria-hidden="true"
-        style={{
-          background:
-            "radial-gradient(circle at 18% 18%, rgba(200, 168, 130, 0.08) 0%, transparent 44%), radial-gradient(circle at 80% 76%, rgba(200, 168, 130, 0.06) 0%, transparent 46%), radial-gradient(circle at 45% 56%, rgba(200, 168, 130, 0.04) 0%, transparent 52%)",
-        }}
-      />
-
       <div className="section-shell relative z-10">
         <motion.div
           className="text-center"
@@ -46,7 +37,7 @@ const ProjectsSection = () => {
           viewport={{ once: true, margin: "-80px" }}
         >
           <p className="eyebrow-label mb-3">{"// Projects"}</p>
-          <h2 className="font-display mb-4 text-4xl italic tracking-tight text-[var(--color-text-primary)] sm:text-5xl md:text-6xl">
+          <h2 className="font-display mb-4 text-4xl text-[var(--color-text-primary)] sm:text-5xl md:text-6xl">
             What I’ve Built
           </h2>
           <div
@@ -74,10 +65,10 @@ const ProjectsSection = () => {
           {caseStudies.map((study) => (
             <motion.div
               key={study.slug}
-              className="project-spotlight-card group relative flex flex-col overflow-hidden rounded-3xl border border-[var(--color-border-focus)] bg-[var(--color-bg-surface)] p-6 shadow-[var(--shadow-glass)] transition-all duration-300 hover:-translate-y-1 hover:bg-[var(--color-bg-elevated)]"
+              className="project-spotlight-card group relative flex flex-col overflow-hidden rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 transition-colors duration-300 hover:border-[var(--color-border-hover)]"
               variants={cardReveal}
             >
-              <div className="absolute inset-x-0 top-0 h-1 bg-[var(--color-primary)]" />
+              <div className="absolute inset-x-0 top-0 h-px bg-[var(--color-border-hover)]" aria-hidden="true" />
               <div className="relative z-[1] flex h-full flex-col">
                 <div className="mb-3 flex items-center justify-between font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
                   <span>{study.category}</span>
@@ -98,7 +89,7 @@ const ProjectsSection = () => {
 
                 <Link
                   to={`/work/${study.slug}`}
-                  className="font-mono mt-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-5 py-3 text-sm font-medium uppercase tracking-[0.08em] text-[var(--color-primary)] no-underline transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-[var(--color-bg-base)] hover:shadow-[var(--shadow-button)]"
+                  className="font-mono mt-auto inline-flex items-center justify-center gap-2 rounded-[7px] border border-[var(--color-border-subtle)] bg-transparent px-5 py-3 text-xs uppercase tracking-[0.08em] text-[var(--color-text-muted)] no-underline transition-colors duration-300 hover:border-[var(--color-border-hover)] hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]"
                 >
                   <span>Read case study</span>
                   <ArrowUpRight size={16} aria-hidden="true" />
@@ -126,7 +117,7 @@ const ProjectsSection = () => {
               target="_blank"
               rel="noopener noreferrer"
               variants={cardReveal}
-              className="project-preview-row group flex flex-col gap-3 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 no-underline transition-all duration-300 sm:flex-row sm:items-center sm:justify-between"
+              className="project-preview-row group flex flex-col gap-3 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 no-underline transition-colors duration-300 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex-1">
                 <div className="mb-1.5 flex items-center gap-2">
@@ -134,21 +125,21 @@ const ProjectsSection = () => {
                     {project.title}
                   </h3>
                 </div>
-                <p className="mb-2 line-clamp-2 max-w-2xl text-sm leading-relaxed text-[var(--color-text-muted)]">
+                <p className="mb-2 line-clamp-2 max-w-2xl text-sm leading-relaxed text-[var(--color-text-subtle)]">
                   {project.description}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {project.tags.slice(0, 4).map((tag) => (
                     <span
                       key={tag}
-                      className="font-mono rounded-xl border border-[var(--color-border-muted)] bg-[var(--color-bg-elevated)] px-2.5 py-1 text-xs uppercase tracking-[0.05em] text-[var(--color-text-subtle)]"
+                      className="font-mono rounded-[5px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2.5 py-1 text-xs uppercase tracking-[0.05em] text-[var(--color-text-meta)]"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
               </div>
-              <span className="font-mono inline-flex shrink-0 items-center gap-2 self-start text-xs uppercase tracking-[0.08em] text-[var(--color-primary)] sm:self-center">
+              <span className="font-mono inline-flex shrink-0 items-center gap-2 self-start text-xs uppercase tracking-[0.08em] text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-text-primary)] sm:self-center">
                 {project.linkText}
                 <ExternalLinkIcon />
               </span>
@@ -163,7 +154,7 @@ const ProjectsSection = () => {
             onClick={() => setShowArchive((prev) => !prev)}
             aria-expanded={showArchive}
             aria-controls="project-archive"
-            className="eyebrow-label flex items-center gap-2 bg-transparent p-0 transition-colors hover:text-[var(--color-primary)]"
+            className="eyebrow-label flex items-center gap-2 bg-transparent p-0 transition-colors hover:text-[var(--color-text-primary)]"
           >
             {"// "}
             {showArchive ? "Hide" : "Show"} all projects ({archivedProjects.length})
@@ -178,7 +169,7 @@ const ProjectsSection = () => {
         {showArchive ? (
           <div
             id="project-archive"
-            className="overflow-x-auto rounded-2xl border border-[var(--color-border-subtle)]"
+            className="overflow-x-auto rounded-[10px] border border-[var(--color-border-subtle)]"
           >
             <table className="w-full border-collapse text-left">
               <caption className="sr-only">Archived projects</caption>
@@ -207,7 +198,7 @@ const ProjectsSection = () => {
                           href={project.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-mono inline-flex items-center gap-1.5 whitespace-nowrap text-xs uppercase tracking-[0.06em] text-[var(--color-primary)] no-underline transition-colors hover:text-[var(--color-primary-hover)]"
+                          className="font-mono inline-flex items-center gap-1.5 whitespace-nowrap text-xs uppercase tracking-[0.06em] text-[var(--color-text-subtle)] no-underline transition-colors hover:text-[var(--color-text-primary)]"
                         >
                           {project.linkText || "View"}
                           <ArrowUpRight size={12} aria-hidden="true" />

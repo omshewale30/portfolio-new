@@ -1,276 +1,177 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Sun, Moon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { useTheme } from "../context/ThemeContext.jsx";
+
+const RESUME_URL = "https://drive.google.com/file/d/12nH9Tl4pyx8Wt3Y0S9YGngcIMR5IAsix/view?usp=sharing";
 
 const preferredScrollBehavior = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+
+const NAV_ITEMS = [
+  { label: "work", section: "selected-work", match: (path) => path === "/projects" || path.startsWith("/work/") },
+  { label: "notes", to: "/notes", match: (path) => path.startsWith("/notes") },
+  { label: "experience", to: "/experience", match: (path) => path === "/experience" },
+  { label: "jarvis", section: "jarvis", match: () => false },
+];
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isMobileView, setIsMobileView] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const lastScrollY = useRef(0);
+  const xRef = useRef(null);
+  const yRef = useRef(null);
 
   useEffect(() => {
-    const handleResize = () => setIsMobileView(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setScrolled(currentScrollY > 50);
-      
-      if (currentScrollY < 100) {
-        setIsVisible(true);
-      } else if (currentScrollY > lastScrollY.current + 10) {
-        setIsVisible(false);
-      } else if (currentScrollY < lastScrollY.current - 10) {
-        setIsVisible(true);
-      }
-      lastScrollY.current = currentScrollY;
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 24);
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToSection = (sectionId) => {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: preferredScrollBehavior(), block: "start" });
+  // Live cursor coordinates, written straight to the DOM so the nav never re-renders on pointer move.
+  useEffect(() => {
+    const handlePointer = (event) => {
+      if (xRef.current) xRef.current.textContent = (event.clientX / window.innerWidth).toFixed(2);
+      if (yRef.current) yRef.current.textContent = (event.clientY / window.innerHeight).toFixed(2);
+    };
+    window.addEventListener("pointermove", handlePointer, { passive: true });
+    return () => window.removeEventListener("pointermove", handlePointer);
+  }, []);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  const goToSection = (sectionId) => {
+    setIsMenuOpen(false);
+    if (location.pathname !== "/") {
+      navigate("/", { state: { scrollTo: sectionId } });
+      return;
     }
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: preferredScrollBehavior(), block: "start" });
   };
 
-  const handleNavigation = (path) => {
-    setIsMobileMenuOpen(false);
-    setIsDropdownOpen(false);
-    if (path.startsWith("#")) {
-      const sectionId = path.slice(1);
-      if (location.pathname !== "/") {
-        navigate("/", { state: { scrollTo: sectionId }, replace: false });
-      } else {
-        scrollToSection(sectionId);
-      }
-    } else if (path === "/") {
-      if (location.pathname !== "/") navigate("/");
+  const goHome = (event) => {
+    setIsMenuOpen(false);
+    if (location.pathname === "/") {
+      event.preventDefault();
       window.scrollTo({ top: 0, behavior: preferredScrollBehavior() });
-    } else {
-      if (location.pathname !== path) navigate(path);
     }
   };
 
-  const toggleDropdown = () => {
-    if (isMobileView) setIsDropdownOpen((prev) => !prev);
+  const renderItem = (item, className) => {
+    const active = item.match(location.pathname);
+    if (item.section) {
+      return (
+        <a
+          href={`/#${item.section}`}
+          onClick={(event) => {
+            event.preventDefault();
+            goToSection(item.section);
+          }}
+          aria-current={active ? "page" : undefined}
+          className={className}
+        >
+          {item.label}
+        </a>
+      );
+    }
+    return (
+      <Link to={item.to} aria-current={active ? "page" : undefined} className={className}>
+        {item.label}
+      </Link>
+    );
   };
+
+  const barIsSolid = scrolled || isMenuOpen;
 
   return (
-    <nav
-      className={`navbar-bar fixed left-1/2 top-4 z-[1050] flex w-auto max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center rounded-full border px-5 py-3 backdrop-saturate-[1.8] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] md:top-3 md:min-w-[480px] md:max-w-[calc(100vw-2rem)] md:rounded-[22px] md:px-5 md:py-4 ${
-        scrolled ? "backdrop-blur-[20px]" : "backdrop-blur-[24px]"
-      } ${
-        isVisible
-          ? "translate-y-0 opacity-100"
-          : "-translate-y-full opacity-0"
-      }`}
+    <header
+      className="site-nav fixed inset-x-0 top-0 z-[1050] border-b transition-colors duration-300"
       style={{
-        borderColor: scrolled ? "var(--color-nav-border-scrolled)" : "var(--color-nav-border)",
-        background: scrolled ? "var(--color-nav-bg-scrolled)" : "var(--color-nav-bg)",
-        boxShadow: scrolled ? "var(--color-nav-shadow-scrolled)" : "var(--color-nav-shadow)",
+        background: barIsSolid ? "var(--color-bg-base)" : "transparent",
+        borderColor: barIsSolid ? "var(--color-border-subtle)" : "transparent",
       }}
     >
-      <div className="flex w-full items-center justify-between md:justify-center">
-        <div
-          className={`flex w-auto flex-row items-center gap-2 border-0 bg-transparent opacity-100 transition-all duration-300 ${
-            isMobileMenuOpen
-              ? "flex max-md:absolute max-md:left-1/2 max-md:top-[calc(100%+0.75rem)] max-md:w-[280px] max-md:max-w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:flex-col max-md:rounded-2xl max-md:border max-md:p-3 max-md:backdrop-blur-[24px] max-md:backdrop-saturate-[1.8]"
-              : "hidden"
-          } md:flex`}
-          id="navbarNav"
-          style={
-            isMobileMenuOpen
-              ? {
-                  borderColor: "var(--color-nav-toggle-border)",
-                  backgroundColor: "var(--color-nav-dropdown-bg)",
-                  boxShadow: "var(--color-nav-dropdown-shadow)",
-                }
-              : undefined
-          }
+      <nav
+        aria-label="Primary"
+        className="mx-auto flex max-w-[var(--container-max)] items-center gap-7 px-4 py-4 text-[13px] sm:px-6 lg:px-12 lg:py-5"
+      >
+        <Link
+          to="/"
+          onClick={goHome}
+          className="mr-auto font-mono text-[13px] text-[var(--color-text-meta)] transition-colors hover:text-[var(--color-text-primary)]"
         >
-          <ul className="flex flex-row items-center gap-2 max-md:w-full max-md:flex-col max-md:items-stretch max-md:gap-1.5 max-md:p-3 md:min-h-0 md:flex-row lg:gap-3">
-            <li
-              className={`relative ${isDropdownOpen ? "show" : ""}`}
-              onMouseEnter={() => !isMobileView && setIsDropdownOpen(true)}
-              onMouseLeave={() => !isMobileView && setIsDropdownOpen(false)}
-              onFocus={() => !isMobileView && setIsDropdownOpen(true)}
-              onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) setIsDropdownOpen(false);
-              }}
-            >
-              <a
-                href="/"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (isMobileView) toggleDropdown();
-                  else handleNavigation("/");
-                }}
-                aria-expanded={isDropdownOpen}
-                aria-controls="home-navigation-menu"
-                className="nav-link-glass nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:inline-flex md:w-auto md:text-[1.2rem]"
-                style={{ padding: "0.75rem 1rem" }}
-              >
-                Home
-              </a>
-              <div
-                id="home-navigation-menu"
-                className={`${isDropdownOpen ? "show" : ""} ${
-                  isMobileView
-                    ? "static mt-1 flex flex-col gap-1 rounded-xl border-0 p-4 shadow-none"
-                    : `absolute left-1/2 top-full z-[1051] min-w-[220px] -translate-x-1/2 flex flex-col gap-1 rounded-2xl border pt-4 px-5 pb-4 backdrop-blur-[24px] backdrop-saturate-[1.8] transition-all duration-300 ${isDropdownOpen ? "block opacity-100 translate-y-0" : "hidden opacity-0 -translate-y-2"}`
-                }`}
-                style={
-                  isMobileView
-                    ? { backgroundColor: "var(--color-nav-toggle-bg)" }
-                    : {
-                        borderColor: "var(--color-nav-toggle-border)",
-                        background: "var(--color-nav-dropdown-gradient)",
-                        boxShadow: "var(--color-nav-dropdown-shadow)",
-                      }
-                }
-              >
-                {[
-                  ["#about", "About Me"],
-                  ["#education", "Education"],
-                  ["#contact", "Contact"],
-                ].map(([href, label]) => (
-                  <a
-                    key={href}
-                    href={`/${href}`}
-                    className="nav-item-warm block rounded-lg px-5 py-3.5 font-mono text-[1.05rem] uppercase tracking-[0.06em] !text-[var(--color-text-subtle)] !no-underline transition-all duration-200"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleNavigation(href);
-                    }}
-                  >
-                    {label}
-                  </a>
-                ))}
-              </div>
-            </li>
-            <li>
-              <a
-                href="/experience"
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleNavigation("/experience");
-                }}
-                aria-current={location.pathname === "/experience" ? "page" : undefined}
-                className={`nav-item-warm flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
-                  location.pathname === "/experience"
-                    ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
-                    : "!text-[var(--color-text-muted)]"
-                }`}
-                style={{ padding: "0.75rem 1rem" }}
-              >
-                Experience
-              </a>
-            </li>
-            <li>
-              <a
-                href="/projects"
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleNavigation("/projects");
-                }}
-                aria-current={location.pathname === "/projects" ? "page" : undefined}
-                className={`nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
-                  location.pathname === "/projects"
-                    ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
-                    : "!text-[var(--color-text-muted)]"
-                }`}
-                style={{ padding: "0.75rem 1rem" }}
-              >
-                Projects
-              </a>
-            </li>
-            <li>
-              <a
-                href="/notes"
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleNavigation("/notes");
-                }}
-                aria-current={location.pathname.startsWith("/notes") ? "page" : undefined}
-                className={`nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
-                  location.pathname.startsWith("/notes")
-                    ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
-                    : "!text-[var(--color-text-muted)]"
-                }`}
-                style={{ padding: "0.75rem 1rem" }}
-              >
-                Notes
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://drive.google.com/file/d/12nH9Tl4pyx8Wt3Y0S9YGngcIMR5IAsix/view?usp=sharing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nav-link-glass nav-item-warm flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
-                style={{ padding: "0.75rem 1rem" }}
-              >
-                Resume
-              </a>
-            </li>
-            <li>
-              <a
-                href="/#jarvis"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavigation("#jarvis");
-                }}
-                className="nav-link-glass nav-item-warm group flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
-                style={{ padding: "0.75rem 1rem" }}
-              >
-                Jarvis
-              </a>
-            </li>
-          </ul>
+          om.shewale/
+        </Link>
+
+        <ul className="m-0 hidden list-none items-center gap-7 p-0 md:flex">
+          {NAV_ITEMS.map((item) => (
+            <li key={item.label}>{renderItem(item, "nav-link")}</li>
+          ))}
+          <li>
+            <a href={RESUME_URL} target="_blank" rel="noopener noreferrer" className="nav-link">
+              resume
+            </a>
+          </li>
+        </ul>
+
+        <span
+          aria-hidden="true"
+          className="hidden gap-2.5 pl-4 font-mono text-[11px] text-[var(--color-text-meta)] lg:flex"
+        >
+          x <span ref={xRef} className="inline-block w-[34px]">0.00</span>
+          y <span ref={yRef} className="inline-block w-[34px]">0.00</span>
+        </span>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="nav-icon-btn"
+            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+          >
+            {theme === "dark" ? <Sun size={15} aria-hidden="true" /> : <Moon size={15} aria-hidden="true" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsMenuOpen((open) => !open)}
+            className="nav-icon-btn md:!hidden"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-navigation"
+          >
+            {isMenuOpen ? <X size={16} aria-hidden="true" /> : <Menu size={16} aria-hidden="true" />}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="nav-icon-btn ml-auto shrink-0 md:ml-2"
-          aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+      </nav>
+
+      {isMenuOpen ? (
+        <ul
+          id="mobile-navigation"
+          className="m-0 flex list-none flex-col border-t border-[var(--color-border-subtle)] px-4 py-2 sm:px-6 md:hidden"
         >
-          {theme === "dark" ? <Sun size={17} aria-hidden="true" /> : <Moon size={17} aria-hidden="true" />}
-        </button>
-        <button
-          type="button"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="nav-icon-btn ml-1 shrink-0 md:!hidden"
-          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={isMobileMenuOpen}
-          aria-controls="navbarNav"
-        >
-          <span
-            className={`relative block h-0.5 w-[22px] transition-all duration-300 ${
-              isMobileMenuOpen
-                ? "bg-transparent before:top-0 before:rotate-45 after:top-0 after:-rotate-45"
-                : "bg-[var(--color-text-subtle)]"
-            } before:absolute before:left-0 before:top-[-6px] before:block before:h-0.5 before:w-[22px] before:bg-[var(--color-text-subtle)] before:transition-all before:duration-300 after:absolute after:left-0 after:top-[6px] after:block after:h-0.5 after:w-[22px] after:bg-[var(--color-text-subtle)] after:transition-all after:duration-300`}
-            aria-hidden
-          />
-        </button>
-      </div>
-    </nav>
+          {NAV_ITEMS.map((item) => (
+            <li key={item.label}>
+              {renderItem(item, "nav-link flex min-h-11 items-center text-[15px]")}
+            </li>
+          ))}
+          <li>
+            <a
+              href={RESUME_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav-link flex min-h-11 items-center text-[15px]"
+            >
+              resume
+            </a>
+          </li>
+        </ul>
+      ) : null}
+    </header>
   );
 };
 

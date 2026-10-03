@@ -17,15 +17,15 @@ const StoryStepper = ({ study }) => (
           {isResult ? null : (
             <span
               aria-hidden="true"
-              className="absolute bottom-1 left-5 top-12 w-px -translate-x-1/2 bg-gradient-to-b from-[var(--color-primary-muted)] to-[var(--color-border-subtle)]"
+              className="absolute bottom-1 left-5 top-12 w-px -translate-x-1/2 bg-[var(--color-border-hover)]"
             />
           )}
           <span
             aria-hidden="true"
-            className={`flex h-10 w-10 items-center justify-center rounded-full border font-mono text-xs ${
+            className={`flex h-10 w-10 items-center justify-center rounded-[7px] border font-mono text-xs ${
               isResult
-                ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-bg-base)]"
-                : "border-[var(--color-border-focus)] bg-[var(--color-bg-surface)] text-[var(--color-primary)]"
+                ? "border-[var(--color-border-focus)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)]"
+                : "border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] text-[var(--color-text-meta)]"
             }`}
           >
             {index + 1}
@@ -33,7 +33,7 @@ const StoryStepper = ({ study }) => (
           <div
             className={
               isResult
-                ? "rounded-2xl border border-[var(--color-border-focus)] bg-[var(--color-bg-surface)] p-5 md:p-6"
+                ? "rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 md:p-6"
                 : "pt-2"
             }
           >

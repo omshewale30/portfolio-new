@@ -75,12 +75,12 @@ const Experience = () => {
                 viewport={{ once: true, margin: "-100px" }}
                 className="group relative flex flex-col items-start gap-4 transition-all duration-300 sm:flex-row sm:gap-8 lg:hover:!opacity-100 lg:group-hover/list:opacity-50"
               >
-                {/* Desktop hover background block (subtle glass/glow effect) */}
-                <div className="absolute -inset-x-4 -inset-y-6 z-0 hidden rounded-2xl transition motion-reduce:transition-none lg:-inset-x-6 lg:block lg:group-hover:bg-[var(--color-bg-surface)] lg:group-hover:shadow-[inset_0_1px_0_0_var(--color-border-subtle)] lg:group-hover:ring-1 lg:group-hover:ring-[var(--color-border-focus)]/30" />
+                {/* Desktop hover background block (flat surface + hairline border) */}
+                <div className="absolute -inset-x-4 -inset-y-6 z-0 hidden rounded-[10px] border border-transparent transition-colors motion-reduce:transition-none lg:-inset-x-6 lg:block lg:group-hover:border-[var(--color-border-subtle)] lg:group-hover:bg-[var(--color-bg-surface)]" />
 
                 {/* Left Column: Meta & Timeline */}
-                <header className="z-10 mt-1 flex sm:w-1/4 sm:shrink-0 flex-col gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-text-meta)]">
-                  <div className="font-mono text-[var(--color-text-muted)] group-hover:text-[var(--color-primary)] transition-colors">
+                <header className="z-10 mt-1 flex sm:w-1/4 sm:shrink-0 flex-col gap-2 text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
+                  <div className="font-mono text-[var(--color-text-meta)] group-hover:text-[var(--color-text-subtle)] transition-colors">
                     {exp.duration}
                   </div>
                   <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-subtle)]">
@@ -91,11 +91,11 @@ const Experience = () => {
                   {/* Company Logo Image (hidden on smallest screens, visible on hover context) */}
                   {exp.image && (
                     <div className="mt-4 hidden sm:block">
-                      <div className="h-14 w-14 overflow-hidden rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-1.5 opacity-60 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 group-hover:border-[var(--color-primary)]/50">
+                      <div className="h-14 w-14 overflow-hidden rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-1.5 opacity-60 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 group-hover:border-[var(--color-border-hover)]">
                         <img 
                           src={exp.image} 
                           alt=""
-                          className="h-full w-full object-contain rounded-lg" 
+                          className="h-full w-full object-contain rounded-[5px]" 
                           loading="lazy" 
                         />
                       </div>
@@ -105,10 +105,10 @@ const Experience = () => {
 
                 {/* Right Column: Details */}
                 <div className="z-10 sm:w-3/4">
-                  <h3 className="font-display text-2xl font-medium leading-tight text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)] transition-colors">
+                  <h3 className="font-display text-2xl leading-tight text-[var(--color-text-primary)]">
                     {exp.title}
                   </h3>
-                  <div className="mt-1 text-lg font-medium text-[var(--color-text-muted)]">
+                  <div className="mt-1 text-lg text-[var(--color-text-muted)]">
                     {exp.company}
                   </div>
 
@@ -117,9 +117,9 @@ const Experience = () => {
                       {firstTwoContributions.map((contribution, cIdx) => (
                         <li
                           key={`visible-${cIdx}`}
-                          className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]/80 transition-colors"
+                          className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-subtle)] group-hover:text-[var(--color-text-muted)] transition-colors"
                         >
-                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-primary)] opacity-40 group-hover:opacity-100 transition-opacity" />
+                          <span className="mt-[0.6rem] h-px w-2 shrink-0 bg-[var(--color-text-meta)]" aria-hidden="true" />
                           <span>{contribution}</span>
                         </li>
                       ))}
@@ -139,9 +139,9 @@ const Experience = () => {
                             {remainingContributions.map((contribution, cIdx) => (
                               <li
                                 key={`hidden-${cIdx}`}
-                                className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]/80 transition-colors"
+                                className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-subtle)] group-hover:text-[var(--color-text-muted)] transition-colors"
                               >
-                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-primary)] opacity-40 group-hover:opacity-100 transition-opacity" />
+                                <span className="mt-[0.6rem] h-px w-2 shrink-0 bg-[var(--color-text-meta)]" aria-hidden="true" />
                                 <span>{contribution}</span>
                               </li>
                             ))}
@@ -154,7 +154,7 @@ const Experience = () => {
                       <button
                         type="button"
                         onClick={() => toggleContributions(index)}
-                        className="group/btn mt-2 inline-flex w-fit items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-wider text-[var(--color-primary)] transition-colors hover:text-[var(--color-primary-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)] rounded-sm"
+                        className="group/btn mt-2 inline-flex w-fit items-center gap-1.5 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-text-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)] rounded-[5px]"
                         aria-expanded={isExpanded}
                       >
                         {isExpanded ? "Show less" : "Read more"}
@@ -182,8 +182,8 @@ const Experience = () => {
                     {exp.technologies.map((tech, techIndex) => (
                       <li
                         key={techIndex}
-                        className="rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.03)] font-mono text-xs uppercase tracking-wider text-[var(--color-text-subtle)] transition-colors duration-300 group-hover:border-[var(--color-border-focus)] group-hover:bg-[rgba(200,168,130,0.1)] group-hover:text-[var(--color-primary)]"
-                        style={{ padding: "0.1rem 0.1rem" }}
+                        className="rounded-[5px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] font-mono text-xs uppercase tracking-[0.05em] text-[var(--color-text-meta)] transition-colors duration-300 group-hover:border-[var(--color-border-hover)] group-hover:text-[var(--color-text-subtle)]"
+                        style={{ padding: "0.1875rem 0.5rem" }}
                       >
                         {tech}
                       </li>
@@ -197,7 +197,7 @@ const Experience = () => {
                         href={exp.report}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-sm"
+                        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.08em] text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-text-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)] rounded-[5px]"
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                           <path d="M10 6H6C4.89543 6 4 6.89543 4 8V18C4 19.1046 4.89543 20 6 20H16C17.1046 20 18 19.1046 18 18V14M14 4H20M20 4V10M20 4L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

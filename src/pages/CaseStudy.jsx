@@ -80,7 +80,7 @@ const BulletList = ({ items, reveal = false }) => {
           variants={animate ? revealItem : undefined}
           className="case-reveal flex items-start gap-3 text-base leading-relaxed text-[var(--color-text-muted)]"
         >
-          <span aria-hidden="true" className="mt-2.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--color-primary)]" />
+          <span aria-hidden="true" className="mt-[0.8rem] h-px w-2 flex-shrink-0 bg-[var(--color-text-meta)]" />
           <span>{item}</span>
         </motion.li>
       ))}
@@ -133,7 +133,7 @@ const GlanceStrip = ({ study }) => {
 
   return (
     <dl
-      className={`m-0 mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-border-subtle)] ${
+      className={`m-0 mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-border-subtle)] ${
         GLANCE_COLUMNS[facts.length] ?? "sm:grid-cols-4"
       }`}
     >
@@ -180,9 +180,9 @@ GlanceStrip.propTypes = {
 
 const VisualSlot = ({ label, className = "min-h-48 p-8" }) => (
   <div
-    className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--color-border-focus)] bg-[var(--color-bg-surface)] text-center ${className}`}
+    className={`flex flex-col items-center justify-center rounded-[10px] border border-dashed border-[var(--color-border-hover)] bg-[var(--color-bg-surface)] text-center ${className}`}
   >
-    <span className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">Visual slot</span>
+    <span className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">Visual slot</span>
     {label ? <p className="mb-0 mt-2 text-sm text-[var(--color-text-subtle)]">{label}</p> : null}
   </div>
 );
@@ -254,12 +254,12 @@ const StatsRow = ({ stats }) => (
     {stats.map((stat) => (
       <div
         key={stat.label}
-        className="flex min-w-0 basis-[calc(50%-0.5rem)] flex-col-reverse justify-end rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 text-center sm:flex-1 sm:basis-0"
+        className="flex min-w-0 basis-[calc(50%-0.5rem)] flex-col-reverse justify-end rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 text-center sm:flex-1 sm:basis-0"
       >
         <dt className="mt-2 font-mono text-xs uppercase leading-relaxed tracking-[0.06em] text-[var(--color-text-meta)]">
           {stat.label}
         </dt>
-        <dd className="m-0 font-display text-3xl text-[var(--color-primary)]">
+        <dd className="m-0 font-display text-3xl text-[var(--color-text-primary)]">
           <CountUpValue value={stat.value} />
         </dd>
       </div>
@@ -281,7 +281,7 @@ const PagerLink = ({ study, direction }) => {
   return (
     <Link
       to={`/work/${study.slug}`}
-      className={`note-interactive group flex flex-col rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 no-underline transition-colors hover:border-[var(--color-primary)] ${
+      className={`note-interactive group flex flex-col rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 no-underline transition-colors hover:border-[var(--color-border-hover)] ${
         isNext ? "sm:col-start-2 sm:items-end sm:text-right" : ""
       }`}
     >
@@ -290,7 +290,7 @@ const PagerLink = ({ study, direction }) => {
         {isNext ? "Next case study" : "Previous case study"}
         {isNext ? <ArrowRight size={14} aria-hidden="true" /> : null}
       </span>
-      <span className="mt-2 font-display text-xl leading-snug text-[var(--color-text-primary)] transition-colors group-hover:text-[var(--color-primary)]">
+      <span className="mt-2 font-display text-xl leading-snug text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-text-primary)]">
         {study.title}
       </span>
       <span className="mt-1 text-sm text-[var(--color-text-subtle)]">

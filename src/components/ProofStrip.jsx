@@ -2,34 +2,18 @@ import { Link } from "react-router-dom";
 import { proofStats } from "../data/stats";
 
 const ProofStrip = () => (
-  <section
-    aria-label="Evidence at a glance"
-    className="border-y border-[var(--color-border-muted)] bg-[var(--color-bg-elevated)]"
-  >
-    <div
-      className="grid grid-cols-2 px-6 md:grid-cols-4"
-      style={{ maxWidth: "var(--container-max)", marginInline: "auto" }}
-    >
-      {proofStats.map((stat, index) => (
+  <section aria-label="Evidence at a glance" className="bg-[var(--color-bg-base)]">
+    <div className="mx-auto grid max-w-[var(--container-max)] grid-cols-2 gap-3 px-4 sm:px-6 md:grid-cols-4 lg:px-12">
+      {proofStats.map((stat) => (
         <Link
           key={stat.label}
           to={stat.href}
-          className="group relative flex min-h-36 flex-col justify-center px-4 py-7 text-center no-underline transition-colors hover:bg-[var(--color-bg-surface)] md:min-h-40 md:px-7"
+          className="surface-hover flex flex-col gap-1.5 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5"
         >
-          {index > 0 ? (
-            <span
-              aria-hidden="true"
-              className="absolute left-0 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 font-mono text-xs text-[var(--color-primary-muted)] md:block"
-            >
-              ✦
-            </span>
-          ) : null}
-          <strong className="font-display text-4xl font-normal text-[var(--color-primary)] md:text-5xl">
+          <strong className="headline text-[30px] font-medium leading-none text-[var(--color-text-primary)] sm:text-4xl">
             {stat.value}
           </strong>
-          <span className="mt-2 font-mono text-xs uppercase leading-relaxed tracking-[0.08em] text-[var(--color-text-meta)] transition-colors group-hover:text-[var(--color-text-muted)]">
-            {stat.label}
-          </span>
+          <span className="text-xs text-[var(--color-text-subtle)]">{stat.label}</span>
         </Link>
       ))}
     </div>
