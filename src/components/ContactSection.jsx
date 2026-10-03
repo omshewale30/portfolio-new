@@ -4,9 +4,6 @@ import { motion } from "framer-motion"
 import { Check, Linkedin, LoaderCircle, Mail, MapPin, Send, TriangleAlert } from "lucide-react"
 import { cardReveal, fadeInUp, staggerContainer } from "../utils/animations"
 
-const preferredScrollBehavior = () =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
-
 const contactLinks = [
   { icon: Mail, value: "omshewale030@gmail.com", href: "mailto:omshewale030@gmail.com" },
   { icon: Linkedin, value: "in/omshewale", href: "https://www.linkedin.com/in/omshewale/" },
@@ -41,14 +38,6 @@ const ContactSection = () => {
     }
   }
 
-  const goToJarvis = (event) => {
-    const jarvis = document.getElementById("jarvis")
-    if (!jarvis) return
-    event.preventDefault()
-    jarvis.scrollIntoView({ behavior: preferredScrollBehavior(), block: "start" })
-    window.setTimeout(() => document.getElementById("jarvis-input")?.focus({ preventScroll: true }), 400)
-  }
-
   return (
     <section id="contact" aria-labelledby="contact-heading" className="scroll-mt-20 bg-[var(--color-bg-base)]">
       <motion.div
@@ -64,11 +53,7 @@ const ContactSection = () => {
             Philosophy, fitness, technology, or life? Let&apos;s talk.
           </h2>
           <p className="m-0 text-[15px] text-[var(--color-text-subtle)]">
-            Looking for a skills matrix?{" "}
-            <a href="#jarvis" onClick={goToJarvis} className="text-[var(--color-text-primary)] underline decoration-[var(--color-border-hover)] underline-offset-4 hover:decoration-[var(--color-text-primary)]">
-              Skip it and ask Jarvis.
-            </a>{" "}
-            For anything else, write to me.
+            I love to chat about anything and everything.
           </p>
           <div className="flex flex-wrap gap-2 pt-1.5">
             {contactLinks.map(({ icon: Icon, value, href }) => (

@@ -5,7 +5,7 @@ import './App.css'
 import { trackPageView } from "./analytics.js";
 import Hero from "./components/Hero.jsx";
 import Navbar from "./components/Navbar.jsx";
-import TechMarquee from "./components/TechMarquee.jsx";
+import JarvisCTA from "./components/JarvisCTA.jsx";
 import ProofStrip from "./components/ProofStrip.jsx";
 import SelectedWork from "./components/SelectedWork.jsx";
 import RecentNotes from "./components/RecentNotes.jsx";
@@ -98,7 +98,7 @@ function AppContent() {
                                 <div className="section-transition section-transition-delay-3">
                                     <EducationSection compact />
                                 </div>
-                                <TechMarquee />
+                                <JarvisCTA />
                                 <ContactSection />
                             </main>
                         }

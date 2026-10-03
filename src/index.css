@@ -440,7 +440,7 @@ textarea.field-input {
   }
 }
 
-/* Motion primitives – fade up, marquee */
+/* Motion primitives – fade up */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -449,15 +449,6 @@ textarea.field-input {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes marqueeScroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
   }
 }
 
@@ -477,33 +468,6 @@ textarea.field-input {
   animation: cursor-blink 1s step-end infinite;
 }
 
-/* Marquee: continuous ticker of mono labels with "/" separators */
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marqueeScroll 46s linear infinite;
-}
-.marquee-track:hover {
-  animation-play-state: paused;
-}
-.marquee-separator {
-  color: var(--color-text-meta);
-  margin: 0 1.25rem;
-  user-select: none;
-}
-.tech-marquee-shell {
-  overflow: hidden;
-  padding: 1.125rem 0;
-  background: var(--color-bg-surface);
-  border-top: 1px solid var(--color-border-subtle);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-.tech-marquee-item {
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-}
-
 /* Section reveal utility for calmer transitions */
 .section-transition {
   opacity: 0;
@@ -520,7 +484,6 @@ textarea.field-input {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track,
   .spin-step,
   .prompt-fade,
   .type-caret {
