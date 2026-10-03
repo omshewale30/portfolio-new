@@ -65,7 +65,7 @@ const Hero = () => {
               width="1938"
               height="2361"
               fetchPriority="high"
-              className="absolute inset-0 h-full w-full object-cover object-[center_18%] [filter:grayscale(1)_contrast(1.05)_brightness(0.9)] [mask-image:linear-gradient(to_bottom,#000_58%,transparent_92%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_58%,transparent_92%)]"
+              className="absolute inset-0 h-full w-full object-cover object-[center_18%] [mask-image:linear-gradient(to_bottom,#000_58%,transparent_92%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_58%,transparent_92%)]"
             />
             <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-[18px]">
               <span className="text-xl text-[var(--color-text-primary)]">Om Shewale</span>

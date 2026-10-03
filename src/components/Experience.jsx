@@ -91,7 +91,7 @@ const Experience = () => {
                   {/* Company Logo Image (hidden on smallest screens, visible on hover context) */}
                   {exp.image && (
                     <div className="mt-4 hidden sm:block">
-                      <div className="h-14 w-14 overflow-hidden rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-1.5 opacity-60 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 group-hover:border-[var(--color-border-hover)]">
+                      <div className="h-14 w-14 overflow-hidden rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-1.5 transition-colors duration-300 group-hover:border-[var(--color-border-hover)]">
                         <img 
                           src={exp.image} 
                           alt=""

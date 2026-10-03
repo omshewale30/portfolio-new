@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 import { Maximize2 } from "lucide-react";
 
-// A figure image that opens the lightbox. Diagrams and charts are drawn on white;
-// `figure-img` inverts/greyscales them so they sit on the page surface in either theme.
+// A figure image that opens the lightbox. `figure-img` lets the diagram's white
+// background blend into the surface in light mode while keeping its colours.
 const FigureButton = ({ figure, onOpen, imageClassName = "w-full" }) => (
   <button
     type="button"

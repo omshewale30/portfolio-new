@@ -86,9 +86,9 @@
   --color-primary-muted: var(--color-text-meta);
   --color-primary-soft: var(--color-bg-elevated);
 
-  /* Case-study figures are drawn on white; invert them onto dark surfaces. */
-  --figure-filter: invert(0.92) grayscale(1);
-  --figure-blend: lighten;
+  /* Case-study figures keep their own colours. In light mode their white
+     backgrounds blend into the surface; in dark mode they sit as white plates. */
+  --figure-blend: normal;
   /* Hero particle field, as "r, g, b" so canvas code can read it. */
   --field-dot-rgb: 128, 128, 128;
   --field-accent-rgb: 229, 83, 61;
@@ -156,7 +156,6 @@
   --color-primary: #0a0a0a;
   --color-primary-hover: #000000;
 
-  --figure-filter: grayscale(1);
   --figure-blend: multiply;
   --field-dot-rgb: 107, 107, 107;
   --field-accent-rgb: 194, 56, 31;
@@ -396,10 +395,10 @@ textarea.field-input {
   border-color: var(--color-border-hover);
 }
 
-/* Case-study figures sit on the page surface in either theme */
+/* Case-study figures sit on the page surface in either theme, in full colour */
 .figure-img {
-  filter: var(--figure-filter);
   mix-blend-mode: var(--figure-blend);
+  border-radius: 5px;
 }
 
 @keyframes jspin {
