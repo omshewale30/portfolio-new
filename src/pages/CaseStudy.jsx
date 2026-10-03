@@ -133,7 +133,7 @@ const GlanceStrip = ({ study }) => {
 
   return (
     <dl
-      className={`m-0 mt-10 grid grid-cols-2 gap-px overflow-hidden border-b border-t-2 border-[var(--color-border-strong)] bg-[var(--color-border-subtle)] ${
+      className={`ruled-grid m-0 mt-10 grid grid-cols-2 gap-px overflow-hidden border-b border-t-2 border-[var(--color-border-strong)] ${
         GLANCE_COLUMNS[facts.length] ?? "sm:grid-cols-4"
       }`}
     >

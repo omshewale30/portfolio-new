@@ -186,14 +186,19 @@
     padding-bottom: var(--section-padding-y-lg);
   }
 }
+/* On phones the hero is taller than the screen, so its first line would sit under the fixed nav bar. */
+@media (max-width: 767px) {
+  #about > .section-shell {
+    padding-top: 7rem;
+  }
+}
 
-/* Notebook card – paper panel ruled in ink */
+/* Notebook card – paper panel ruled in ink. No padding here: as unlayered CSS it would beat
+   the p-* utilities every card sets. */
 .surface-card {
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border-strong);
   border-radius: 0;
-  padding: 0.5rem;
-
 }
 
 /* Eyebrow label: // LABEL in mono, ink blue */
@@ -210,6 +215,11 @@
 .divider-warm {
   height: 2px;
   background: var(--color-border-strong);
+}
+
+/* Gap-px tables: rule colour laid over an opaque fill so the paper grid can't tint the 1px rules */
+.ruled-grid {
+  background: linear-gradient(var(--color-border-subtle), var(--color-border-subtle)), var(--color-bg-surface);
 }
 
 /* Red-pencil marginalia */

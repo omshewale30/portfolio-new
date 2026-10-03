@@ -433,7 +433,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                     <div
                         className="mt-3 flex flex-wrap gap-2 transition-all duration-300"
                         style={{
-                            maxHeight: !isExpanded ? "100px" : "0px",
+                            maxHeight: !isExpanded ? "160px" : "0px",
                             opacity: !isExpanded ? 1 : 0,
                             overflow: "hidden",
                         }}

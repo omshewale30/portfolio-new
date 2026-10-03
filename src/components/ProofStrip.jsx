@@ -5,7 +5,7 @@ const ProofStrip = () => (
   <section aria-label="Evidence at a glance" className="px-6">
     {/* A results table: 2px ink rule on top, 1px rules between cells */}
     <div
-      className="grid grid-cols-2 gap-px border-b border-t-2 border-[var(--color-border-strong)] bg-[var(--color-border-subtle)] md:grid-cols-4"
+      className="ruled-grid grid grid-cols-2 gap-px border-b border-t-2 border-[var(--color-border-strong)] md:grid-cols-4"
       style={{ maxWidth: "calc(var(--container-max) - 2 * var(--space-6))", marginInline: "auto" }}
     >
       {proofStats.map((stat) => (
