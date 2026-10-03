@@ -84,8 +84,8 @@ const contrast = (foreground, background) => {
 const token = (block, name) => block.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1];
 
 const css = fs.readFileSync(cssPath, "utf8");
-const darkBlock = css.match(/:root\s*{([\s\S]*?)\n}/)?.[1] || "";
-const lightBlock = css.match(/:root\[data-theme="light"\]\s*{([\s\S]*?)\n}/)?.[1] || "";
+const lightBlock = css.match(/:root\s*{([\s\S]*?)\n}/)?.[1] || "";
+const darkBlock = css.match(/:root\[data-theme="dark"\]\s*{([\s\S]*?)\n}/)?.[1] || "";
 const contrastPairs = [
   ["color-text-primary", "color-bg-base"],
   ["color-text-muted", "color-bg-base"],
