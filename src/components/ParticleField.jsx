@@ -1,10 +1,14 @@
 import { useEffect, useRef } from "react";
-import PropTypes from "prop-types";
 import { useTheme } from "../context/ThemeContext.jsx";
 
 const GRID = 30;
 const RADIUS = 170;
 const BASE_ALPHA = 0.25;
+// Connection lines reach a little past the pull radius, so the outermost linked dots sit still.
+const LINK_RADIUS = 210;
+const LINK_ALPHA = 0.34;
+// Over anything the reader can click or is reading, the field calms down so the target stays clear.
+const CALM_OVER = "a, button, input, textarea, select, label, summary, [role='button'], h1, h2, h3, h4, p, li, img";
 
 const readRgb = (name, fallback) => {
   const value = getComputedStyle(document.documentElement).getPropertyValue(name);
@@ -12,16 +16,20 @@ const readRgb = (name, fallback) => {
   return parts.length === 3 && parts.every(Number.isFinite) ? parts : fallback;
 };
 
-// A grid of dots that drifts slightly and bends toward the cursor. Dots near the
-// cursor brighten and shift to the accent, then fade back over about a second.
-const ParticleField = ({ hostRef }) => {
+// The home page's backdrop: a viewport-sized grid of dots, fixed behind the content, that
+// drifts slightly and bends toward the cursor. Dots near the cursor brighten and shift to the
+// accent, then fade back over about a second. Thin lines connect the cursor to every dot
+// within reach, fading with distance; they ease in on arrival and fade out after it leaves,
+// or when it moves onto a link, button or text.
+// Fixed to the viewport rather than the page: a page-tall canvas costs far more memory and
+// passes Safari's canvas size limit on retina screens.
+const ParticleField = () => {
   const canvasRef = useRef(null);
   const { theme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const host = hostRef.current;
-    if (!canvas || !host) return undefined;
+    if (!canvas) return undefined;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return undefined;
@@ -34,14 +42,17 @@ const ParticleField = ({ hostRef }) => {
     let height = 0;
     let points = [];
     let mouse = null;
+    // Last cursor position, kept after it leaves so the links can fade out where they were.
+    let anchor = null;
+    // 0–1 strength of the links: eases toward 1 while the cursor is on the page, 0 after.
+    let link = 0;
     let frameId = 0;
-    let visible = true;
     let t = 0;
 
     const size = () => {
       const dpr = window.devicePixelRatio || 1;
-      width = host.offsetWidth;
-      height = host.offsetHeight;
+      width = window.innerWidth;
+      height = window.innerHeight;
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -53,6 +64,8 @@ const ParticleField = ({ hostRef }) => {
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
+      link += ((mouse ? 1 : 0) - link) * 0.08;
+
       for (const p of points) {
         let tx = p.ox + Math.sin(t + p.oy * 0.02) * 1.5;
         let ty = p.oy + Math.cos(t + p.ox * 0.02) * 1.5;
@@ -70,7 +83,27 @@ const ParticleField = ({ hostRef }) => {
         p.h = Math.max(pull, p.h * 0.96);
         p.x += (tx - p.x) * 0.12;
         p.y += (ty - p.y) * 0.12;
+      }
 
+      // Lines first, so the dots sit on top of them.
+      if (anchor && link > 0.01) {
+        ctx.lineWidth = 1;
+        for (const p of points) {
+          const distance = Math.hypot(p.x - anchor.x, p.y - anchor.y);
+          if (distance >= LINK_RADIUS) continue;
+          ctx.strokeStyle = `rgba(${ar},${ag},${ab},${link * LINK_ALPHA * (1 - distance / LINK_RADIUS)})`;
+          ctx.beginPath();
+          ctx.moveTo(anchor.x, anchor.y);
+          ctx.lineTo(p.x, p.y);
+          ctx.stroke();
+        }
+        ctx.fillStyle = `rgba(${ar},${ag},${ab},${link * 0.9})`;
+        ctx.beginPath();
+        ctx.arc(anchor.x, anchor.y, 2.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      for (const p of points) {
         const heat = p.h;
         const mix = heat > 0.02 ? Math.min(1, heat * 1.4) : 0;
         const r = Math.round(dr + (ar - dr) * mix);
@@ -83,65 +116,50 @@ const ParticleField = ({ hostRef }) => {
       }
     };
 
+    // requestAnimationFrame already pauses in background tabs, so the loop needs no visibility check.
     const frame = () => {
       t += 0.01;
       draw();
-      frameId = visible ? window.requestAnimationFrame(frame) : 0;
-    };
-
-    const start = () => {
-      if (!reducedMotion && !frameId) frameId = window.requestAnimationFrame(frame);
+      frameId = window.requestAnimationFrame(frame);
     };
 
     const handleMove = (event) => {
-      const rect = host.getBoundingClientRect();
-      mouse = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      // Treated like the cursor leaving: links and pull fade out rather than cutting off.
+      if (event.target instanceof Element && event.target.closest(CALM_OVER)) {
+        mouse = null;
+        return;
+      }
+      mouse = { x: event.clientX, y: event.clientY };
+      anchor = mouse;
     };
     const handleLeave = () => {
       mouse = null;
     };
+    const handleResize = () => {
+      size();
+      draw();
+    };
 
     size();
     draw();
-
-    const resizeObserver = new ResizeObserver(() => {
-      size();
-      draw();
-    });
-    resizeObserver.observe(host);
-
-    const visibilityObserver = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      if (visible) start();
-    });
-    visibilityObserver.observe(host);
+    window.addEventListener("resize", handleResize);
 
     if (!reducedMotion) {
-      host.addEventListener("pointermove", handleMove, { passive: true });
-      host.addEventListener("pointerleave", handleLeave);
-      start();
+      window.addEventListener("pointermove", handleMove, { passive: true });
+      document.documentElement.addEventListener("pointerleave", handleLeave);
+      frameId = window.requestAnimationFrame(frame);
     }
 
     return () => {
       window.cancelAnimationFrame(frameId);
-      resizeObserver.disconnect();
-      visibilityObserver.disconnect();
-      host.removeEventListener("pointermove", handleMove);
-      host.removeEventListener("pointerleave", handleLeave);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("pointermove", handleMove);
+      document.documentElement.removeEventListener("pointerleave", handleLeave);
     };
-  }, [hostRef, theme]);
+  }, [theme]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 h-full w-full"
-    />
-  );
-};
-
-ParticleField.propTypes = {
-  hostRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }).isRequired,
+  // A negative z-index puts it above the page background and below every section's content.
+  return <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 h-full w-full" />;
 };
 
 export default ParticleField;

@@ -179,6 +179,17 @@
   }
 }
 
+/* Top of a page (not a home section): clears the fixed nav before the first line of content,
+   so every inner page starts at the same height. */
+.section-shell.page-shell {
+  padding-top: 7rem;
+}
+@media (min-width: 1024px) {
+  .section-shell.page-shell {
+    padding-top: 8.5rem;
+  }
+}
+
 /* Flat surface panel: bg-surface with a 1px border, no shadow */
 .surface-card {
   background-color: var(--color-bg-surface);
@@ -196,21 +207,42 @@
   border-color: var(--color-border-hover);
 }
 
-/* Eyebrow label: uppercase mono in text-meta */
+/* Eyebrow label: uppercase mono. 12px medium in text-subtle so small labels inside cards and
+   lists (fact strips, steps, "On this page") stay legible, at about 7.5:1 in both themes. */
 .eyebrow-label {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-text-meta);
+  color: var(--color-text-subtle);
 }
 
-/* Lower-case "// comment" mono label used between sections */
-.mono-label {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  color: var(--color-text-meta);
+/* Section labels add a neutral pill. It's fully round and uppercase, so it reads as a marker,
+   not one of the square-cornered tags. Layout utilities can't override these: this file's
+   rules sit outside Tailwind's layers, so hover states live here too. */
+.eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: fit-content;
+  padding: 5px 10px;
+  font-size: 0.71875rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 999px;
+  transition: border-color var(--duration-fast) var(--ease-out-smooth),
+    color var(--duration-fast) var(--ease-out-smooth);
+}
+button.eyebrow-pill {
+  cursor: pointer;
+}
+button.eyebrow-pill:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text-primary);
 }
 
 /* Hairline divider */
@@ -227,13 +259,23 @@
   letter-spacing: -0.03em;
 }
 
-/* Primary action: transparent with an accent outline */
+/* Outline buttons sit straight on the home page's dot field, so they get a frosted backing:
+   lines passing behind them blur out and the label stays legible. */
+.btn-primary,
+.btn-ghost {
+  --glass-fill: color-mix(in srgb, var(--color-bg-base) 72%, transparent);
+  --glass-blur: blur(6px);
+}
+
+/* Primary action: an accent outline over the frosted backing */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  background-color: transparent;
+  background-color: var(--glass-fill);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   color: var(--color-text-primary);
   font-family: var(--font-body);
   font-size: 0.875rem;
@@ -255,7 +297,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  background-color: transparent;
+  background-color: var(--glass-fill);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   color: var(--color-text-muted);
   font-family: var(--font-body);
   font-size: 0.8125rem;
@@ -368,14 +412,6 @@ textarea.field-input {
   background-color: var(--color-bg-surface);
 }
 
-.project-spotlight-card {
-  transition: border-color var(--duration-normal) var(--ease-out-smooth);
-  padding: 1rem;
-}
-.project-spotlight-card:hover {
-  border-color: var(--color-border-hover);
-}
-
 /* Case-study figures sit on the page surface in either theme, in full colour */
 .figure-img {
   mix-blend-mode: var(--figure-blend);
@@ -385,17 +421,6 @@ textarea.field-input {
 @keyframes jspin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes pfade {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 
@@ -421,23 +446,41 @@ textarea.field-input {
   }
 }
 
-/* Motion primitives – fade up */
-@keyframes fadeUp {
+/* Route change: opacity only. A transform here would make the page wrapper the containing
+   block for fixed children (the reading-progress bar) while it runs. */
+@keyframes page-fade {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 .spin-step {
   animation: jspin 0.9s linear infinite;
 }
-.prompt-fade {
-  animation: pfade 0.7s ease both;
+/* Hero prompts share one grid cell, so the block always holds the tallest prompt and the
+   page below never jumps. The outgoing prompt is gone before the next one starts fading up,
+   so the two are never drawn over each other. */
+.prompt-stack > * {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s var(--ease-out-smooth), transform 0.2s var(--ease-out-smooth);
+}
+.prompt-stack > [data-active="true"] {
+  opacity: 1;
+  transform: none;
+  transition-duration: 0.45s;
+  transition-delay: 0.2s;
+}
+/* No fill mode, so once the fade ends the wrapper stops being a stacking context. */
+.page-enter {
+  animation: page-fade 0.35s var(--ease-out-smooth);
+}
+.menu-enter {
+  animation: slide-in var(--duration-normal) var(--ease-out-smooth) both;
 }
 .type-caret {
   display: inline-block;
@@ -449,30 +492,15 @@ textarea.field-input {
   animation: cursor-blink 1s step-end infinite;
 }
 
-/* Section reveal utility for calmer transitions */
-.section-transition {
-  opacity: 0;
-  animation: fadeUp 0.65s var(--ease-out-smooth) forwards;
-}
-.section-transition-delay-1 {
-  animation-delay: 0.08s;
-}
-.section-transition-delay-2 {
-  animation-delay: 0.16s;
-}
-.section-transition-delay-3 {
-  animation-delay: 0.24s;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .spin-step,
-  .prompt-fade,
-  .type-caret {
+  .type-caret,
+  .page-enter,
+  .menu-enter {
     animation: none;
   }
-  .section-transition {
-    opacity: 1;
-    animation: none;
+  .prompt-stack > * {
+    transition: none;
   }
 }
 
@@ -699,8 +727,7 @@ a {
   list-style: none;
 }
 
-.note-tag-list li,
-.note-tier-badge {
+.note-tag-list li {
   border: 1px solid var(--color-border-subtle);
   border-radius: 5px;
   padding: 0.25rem 0.5625rem;

@@ -2,17 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { useTheme } from "../context/ThemeContext.jsx";
+import { preferredScrollBehavior, scrollToJarvis } from "../utils/scroll.js";
+import { useScrollSpy } from "../utils/scrollSpy.js";
 
 const RESUME_URL = "https://drive.google.com/file/d/12nH9Tl4pyx8Wt3Y0S9YGngcIMR5IAsix/view?usp=sharing";
 
-const preferredScrollBehavior = () =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+// Home sections the nav tracks while scrolling. Only "jarvis" has a nav item; reaching
+// "selected-work" just marks that the reader has scrolled past Jarvis, clearing its highlight.
+const HOME_SECTIONS = ["jarvis", "selected-work"];
 
+// `spy` is the home section in view (null elsewhere).
 const NAV_ITEMS = [
-  { label: "work", section: "selected-work", match: (path) => path === "/projects" || path.startsWith("/work/") },
+  { label: "projects", to: "/projects", match: (path) => path === "/projects" || path.startsWith("/work/") },
   { label: "notes", to: "/notes", match: (path) => path.startsWith("/notes") },
   { label: "experience", to: "/experience", match: (path) => path === "/experience" },
-  { label: "jarvis", section: "jarvis", match: () => false },
+  { label: "jarvis", section: "jarvis", match: (path, spy) => spy === "jarvis" },
 ];
 
 const Header = () => {
@@ -21,8 +25,10 @@ const Header = () => {
   const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const xRef = useRef(null);
-  const yRef = useRef(null);
+  const menuButtonRef = useRef(null);
+  const onHome = location.pathname === "/";
+  const spiedSection = useScrollSpy(HOME_SECTIONS, { enabled: onHome });
+  const activeSection = onHome ? spiedSection : null;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 24);
@@ -31,24 +37,30 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Live cursor coordinates, written straight to the DOM so the nav never re-renders on pointer move.
-  useEffect(() => {
-    const handlePointer = (event) => {
-      if (xRef.current) xRef.current.textContent = (event.clientX / window.innerWidth).toFixed(2);
-      if (yRef.current) yRef.current.textContent = (event.clientY / window.innerHeight).toFixed(2);
-    };
-    window.addEventListener("pointermove", handlePointer, { passive: true });
-    return () => window.removeEventListener("pointermove", handlePointer);
-  }, []);
-
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
+  // Escape closes the mobile menu and hands focus back to its toggle.
+  useEffect(() => {
+    if (!isMenuOpen) return undefined;
+    const handleKey = (event) => {
+      if (event.key !== "Escape") return;
+      setIsMenuOpen(false);
+      menuButtonRef.current?.focus();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isMenuOpen]);
+
   const goToSection = (sectionId) => {
     setIsMenuOpen(false);
-    if (location.pathname !== "/") {
+    if (!onHome) {
       navigate("/", { state: { scrollTo: sectionId } });
+      return;
+    }
+    if (sectionId === "jarvis") {
+      scrollToJarvis();
       return;
     }
     document.getElementById(sectionId)?.scrollIntoView({ behavior: preferredScrollBehavior(), block: "start" });
@@ -63,7 +75,7 @@ const Header = () => {
   };
 
   const renderItem = (item, className) => {
-    const active = item.match(location.pathname);
+    const active = item.match(location.pathname, activeSection);
     if (item.section) {
       return (
         <a
@@ -119,14 +131,6 @@ const Header = () => {
           </li>
         </ul>
 
-        <span
-          aria-hidden="true"
-          className="hidden gap-2.5 pl-4 font-mono text-[11px] text-[var(--color-text-meta)] lg:flex"
-        >
-          x <span ref={xRef} className="inline-block w-[34px]">0.00</span>
-          y <span ref={yRef} className="inline-block w-[34px]">0.00</span>
-        </span>
-
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -137,6 +141,7 @@ const Header = () => {
             {theme === "dark" ? <Sun size={15} aria-hidden="true" /> : <Moon size={15} aria-hidden="true" />}
           </button>
           <button
+            ref={menuButtonRef}
             type="button"
             onClick={() => setIsMenuOpen((open) => !open)}
             className="nav-icon-btn md:!hidden"
@@ -152,7 +157,7 @@ const Header = () => {
       {isMenuOpen ? (
         <ul
           id="mobile-navigation"
-          className="m-0 flex list-none flex-col border-t border-[var(--color-border-subtle)] px-4 py-2 sm:px-6 md:hidden"
+          className="menu-enter m-0 flex list-none flex-col border-t border-[var(--color-border-subtle)] px-4 py-2 sm:px-6 md:hidden"
         >
           {NAV_ITEMS.map((item) => (
             <li key={item.label}>

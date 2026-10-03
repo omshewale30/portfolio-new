@@ -1,24 +1,23 @@
+import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-
-const preferredScrollBehavior = () =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+import { fadeInUp, revealOnView } from "../utils/animations";
+import { scrollToJarvis } from "../utils/scroll";
 
 export default function JarvisCTA() {
   const handleClick = (event) => {
-    const jarvis = document.getElementById("jarvis");
-    if (!jarvis) return;
-
-    event.preventDefault();
-    jarvis.scrollIntoView({ behavior: preferredScrollBehavior(), block: "start" });
-    window.setTimeout(() => document.getElementById("jarvis-input")?.focus({ preventScroll: true }), 400);
+    if (scrollToJarvis()) event.preventDefault();
   };
 
   return (
-    <section className="bg-[var(--color-bg-base)]" aria-labelledby="jarvis-cta-heading">
+    <section aria-labelledby="jarvis-cta-heading">
       <div className="mx-auto max-w-[var(--container-max)] px-4 sm:px-6 lg:px-12">
-        <div className="flex flex-wrap items-center justify-between gap-6 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 sm:p-8">
+        <motion.div
+          className="flex flex-wrap items-center justify-between gap-6 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 sm:p-8"
+          variants={fadeInUp}
+          {...revealOnView}
+        >
           <div className="flex max-w-3xl flex-col gap-2">
-            <span className="mono-label">{"// skip the keyword wall"}</span>
+            <p className="eyebrow-label eyebrow-pill m-0">Skip the keyword wall</p>
             <h2
               id="jarvis-cta-heading"
               className="headline m-0 text-[28px] leading-tight text-[var(--color-text-primary)] sm:text-[34px]"
@@ -34,7 +33,7 @@ export default function JarvisCTA() {
             Just ask Jarvis
             <ArrowUpRight size={14} aria-hidden="true" />
           </a>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

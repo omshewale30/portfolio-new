@@ -1,8 +1,6 @@
-const links = [
-  { label: "github", href: "https://github.com/omshewale30" },
-  { label: "linkedin", href: "https://www.linkedin.com/in/omshewale/" },
-  { label: "instagram", href: "https://instagram.com/omshewale3000" },
-];
+import { socials } from "../data/contact";
+
+const links = [socials.github, socials.linkedin, socials.instagram];
 
 const SiteFooter = () => (
   <footer className="border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]">

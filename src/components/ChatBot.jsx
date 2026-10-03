@@ -418,7 +418,11 @@ const Chatbot = ({ className = "" }) => {
                 </span>
                 {exchange ? (
                     <span className="text-sm text-[var(--color-text-subtle)]">{exchange.question}</span>
-                ) : null}
+                ) : (
+                    <span className="text-[13px] text-[var(--color-text-meta)]">
+                        Answers cite the documents they draw on.
+                    </span>
+                )}
                 {showAnswer && exchange ? (
                     <p
                         className="m-0 max-h-[360px] overflow-y-auto whitespace-pre-wrap text-base leading-relaxed text-[var(--color-text-muted)] [text-wrap:pretty]"

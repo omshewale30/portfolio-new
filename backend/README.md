@@ -13,6 +13,16 @@ Create a public-only vector store, upload reviewed portfolio material, and set
 `OPENAI_VECTOR_STORE_ID`. The service sends the public instructions on every
 request because instructions are not inherited through `previous_response_id`.
 
+The site's own content (`src/data`: case studies, notes, projects, experience,
+education) is indexed into the same store alongside the hand-uploaded files.
+`npm run jarvis:sync` (repo root) renders one Markdown document per page and
+uploads only what changed; it manages just the files it tagged
+`source=site` and never touches the others. The `Sync Jarvis knowledge`
+GitHub workflow runs it on every push to `main` that changes `src/data`, using
+the `OPENAI_API_KEY` and `OPENAI_VECTOR_STORE_ID` repository secrets. Use
+`npm run jarvis:corpus` to preview the documents locally, or
+`npm run jarvis:sync -- --dry-run` to see the upload plan.
+
 File search returns at most four results to keep retrieved context focused. The
 system instructions control answer length instead of a hard output-token cap,
 because tool use can consume that budget before a visible answer is produced.

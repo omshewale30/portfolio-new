@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { notes } from "../data/notes";
 import { usePageMetadata } from "../utils/seo";
+import SectionHeading from "../components/SectionHeading";
 
 const NotesIndex = () => {
   const essays = notes.filter((n) => n.tier === "essay");
@@ -13,20 +14,20 @@ const NotesIndex = () => {
     path: "/notes",
   });
 
+  // Tier labels only earn their place when there are two tiers to tell apart.
+  const showTierLabels = essays.length > 0 && shortNotes.length > 0;
+  const CardTitle = showTierLabels ? "h3" : "h2";
+
   return (
     <main className="bg-[var(--color-bg-base)]">
-      <div className="section-shell">
-        <header className="max-w-2xl">
-          <p className="eyebrow-label mb-3">{"// Notes"}</p>
-          <h1 className="font-display text-4xl leading-tight text-[var(--color-text-primary)] md:text-5xl">
-            Notes
-          </h1>
-          <p className="mt-4 text-lg leading-relaxed text-[var(--color-text-muted)]">
-            Longer essays and shorter working notes on building and evaluating AI systems.
-          </p>
-        </header>
-
-        <div className="divider-warm my-10" />
+      <div className="section-shell page-shell">
+        <SectionHeading
+          as="h1"
+          eyebrow="Notes"
+          title="Essays and working notes."
+          lede="On building and evaluating AI systems."
+          className="mb-12"
+        />
 
         {notes.length === 0 ? (
           <div className="surface-card notes-empty-card max-w-xl">
@@ -44,8 +45,8 @@ const NotesIndex = () => {
         ) : (
           <div className="flex flex-col gap-14">
             {essays.length ? (
-              <section>
-                <h2 id="essays-heading" className="eyebrow-label mb-5">{"// Essays"}</h2>
+              <section aria-label={showTierLabels ? undefined : "Essays"} aria-labelledby={showTierLabels ? "essays-heading" : undefined}>
+                {showTierLabels ? <h2 id="essays-heading" className="eyebrow-label eyebrow-pill mb-5">Essays</h2> : null}
                 <div className="flex flex-col gap-6">
                   {essays.map((note) => (
                     <Link
@@ -54,14 +55,13 @@ const NotesIndex = () => {
                       className="surface-card notes-essay-card note-interactive block no-underline transition-colors hover:border-[var(--color-border-hover)]"
                     >
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
-                        <span className="note-tier-badge">Essay</span>
                         <time dateTime={note.publishedAt}>{note.date}</time>
                         <span aria-hidden="true">·</span>
                         <span>{note.readingMinutes} min read</span>
                       </div>
-                      <h3 className="font-display mt-3 text-2xl text-[var(--color-text-primary)]">
+                      <CardTitle className="font-display mt-3 text-2xl text-[var(--color-text-primary)]">
                         {note.title}
-                      </h3>
+                      </CardTitle>
                       <p className="mt-3 text-base leading-relaxed text-[var(--color-text-subtle)]">
                         {note.excerpt}
                       </p>
@@ -83,8 +83,8 @@ const NotesIndex = () => {
             ) : null}
 
             {shortNotes.length ? (
-              <section>
-                <h2 id="short-notes-heading" className="eyebrow-label mb-5">{"// Notes"}</h2>
+              <section aria-label={showTierLabels ? undefined : "Notes"} aria-labelledby={showTierLabels ? "short-notes-heading" : undefined}>
+                {showTierLabels ? <h2 id="short-notes-heading" className="eyebrow-label eyebrow-pill mb-5">Notes</h2> : null}
                 <ul className="m-0 flex list-none flex-col gap-1 p-0">
                   {shortNotes.map((note) => (
                     <li key={note.slug}>

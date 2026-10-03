@@ -96,7 +96,7 @@ BulletList.propTypes = {
 const PageSection = ({ id, eyebrow, title, className = "mt-20", children }) => (
   <section id={id} aria-labelledby={`${id}-heading`} className={`scroll-mt-28 ${className}`}>
     <header className="text-center">
-      {eyebrow ? <p className="eyebrow-label mb-3">{`// ${eyebrow}`}</p> : null}
+      {eyebrow ? <p className="eyebrow-label eyebrow-pill mb-3">{eyebrow}</p> : null}
       <h2
         id={`${id}-heading`}
         className="m-0 text-balance font-display text-2xl text-[var(--color-text-primary)] md:text-3xl"
@@ -350,7 +350,7 @@ const CaseStudy = () => {
     <main className="bg-[var(--color-bg-base)]">
       <progress className="note-reading-progress" aria-label="Reading progress" max="100" value={readingProgress} />
 
-      <div className="section-shell">
+      <div className="section-shell page-shell">
         <div className={showToc ? "lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-x-10" : undefined}>
           {showToc ? (
             <aside className="hidden lg:block">
@@ -368,7 +368,7 @@ const CaseStudy = () => {
 
             {/* ── Header ── */}
             <header className="text-center">
-              <p className="eyebrow-label mb-3">{`// Case study ${index + 1} of ${caseStudies.length}`}</p>
+              <p className="eyebrow-label eyebrow-pill mb-3">{`Case study ${index + 1} of ${caseStudies.length}`}</p>
               <h1
                 id="case-study-title"
                 className="m-0 text-balance font-display text-4xl leading-tight text-[var(--color-text-primary)] md:text-5xl"

@@ -2,38 +2,30 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { caseStudies } from "../data/caseStudies";
-import { cardReveal, fadeInUp, staggerContainer } from "../utils/animations";
+import { cardReveal, revealOnView, staggerContainer } from "../utils/animations";
+import SectionHeading from "./SectionHeading";
 
 const pad = (n) => String(n).padStart(2, "0");
 
 const SelectedWork = () => (
-  <section id="selected-work" className="relative scroll-mt-20 bg-[var(--color-bg-base)]">
-    <div className="mx-auto flex max-w-[var(--container-max)] flex-col gap-6 px-4 pb-20 sm:px-6 lg:px-12 lg:pb-[88px]">
-      <motion.header
-        className="flex flex-wrap items-end gap-4"
-        variants={fadeInUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
-      >
-        <div className="mr-auto flex flex-col gap-2">
-          <p className="eyebrow-label m-0">Selected work</p>
-          <h2 className="headline m-0 text-[32px] leading-tight text-[var(--color-text-primary)] sm:text-[40px]">
-            Systems built, then measured.
-          </h2>
-        </div>
-        <Link to="/projects" className="btn-ghost">
-          Archive
-          <ArrowUpRight size={14} aria-hidden="true" />
-        </Link>
-      </motion.header>
+  <section id="selected-work" className="relative scroll-mt-20">
+    <div className="mx-auto flex max-w-[var(--container-max)] flex-col gap-6 px-4 pb-20 pt-20 sm:px-6 lg:px-12 lg:pb-[88px] lg:pt-24">
+      <SectionHeading
+        eyebrow="Selected work"
+        title="Systems built, then measured."
+        lede="Measure the work removed, not the words generated."
+        action={
+          <Link to="/projects" className="btn-ghost">
+            Archive
+            <ArrowUpRight size={14} aria-hidden="true" />
+          </Link>
+        }
+      />
 
       <motion.div
         className="grid gap-4 md:grid-cols-2"
         variants={staggerContainer}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
+        {...revealOnView}
       >
         {caseStudies.map((study, index) => {
           const image = study.images[0];
@@ -49,7 +41,7 @@ const SelectedWork = () => (
                       src={image.src}
                       alt={image.alt}
                       loading="lazy"
-                      className="figure-img absolute inset-0 h-full w-full object-contain p-[18px]"
+                      className="figure-img absolute inset-0 h-full w-full object-contain px-[18px] pb-[18px] pt-10"
                     />
                   ) : (
                     <span className="absolute inset-0 flex items-center justify-center font-mono text-[11px] text-[var(--color-text-meta)]">

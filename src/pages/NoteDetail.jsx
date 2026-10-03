@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
-import { ArrowLeft, ArrowUpRight, Link as LinkIcon, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ArrowLeft, ArrowRight, Link as LinkIcon, ThumbsDown, ThumbsUp } from "lucide-react";
 import PropTypes from "prop-types";
 import ReactMarkdown from "react-markdown";
 import { notes } from "../data/notes";
@@ -202,7 +202,7 @@ const NoteDetail = () => {
         />
       ) : null}
 
-      <div className="section-shell note-shell">
+      <div className="section-shell page-shell note-shell">
         <Link to="/notes" className="note-back-link note-interactive">
           <ArrowLeft size={14} aria-hidden="true" />
           Back to notes
@@ -373,12 +373,12 @@ const NoteDetail = () => {
           </Link>
           {olderNote ? (
             <Link to={`/notes/${olderNote.slug}`} className="note-interactive note-continuation-link">
-              Older note <ArrowUpRight size={15} aria-hidden="true" />
+              Older note <ArrowRight size={15} aria-hidden="true" />
             </Link>
           ) : null}
           {newerNote ? (
             <Link to={`/notes/${newerNote.slug}`} className="note-interactive note-continuation-link">
-              Newer note <ArrowUpRight size={15} aria-hidden="true" />
+              Newer note <ArrowRight size={15} aria-hidden="true" />
             </Link>
           ) : null}
         </nav>

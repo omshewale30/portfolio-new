@@ -1,222 +1,182 @@
-"use client"
 import { useState } from "react"
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { Link } from "react-router-dom"
 import { ArrowUpRight, ChevronDown } from "lucide-react"
-import { cardReveal, fadeInUp, staggerContainer } from "../utils/animations"
+import { cardReveal, easing, revealOnView, staggerContainer } from "../utils/animations"
 import { caseStudies } from "../data/caseStudies"
 import { supportingProjects, archivedProjects } from "../data/projects"
-
-const ExternalLinkIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M7 17L17 7M17 7H7M17 7V17"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
+import SectionHeading from "./SectionHeading"
 
 const ProjectsSection = () => {
   const [showArchive, setShowArchive] = useState(false)
 
   return (
-    <section
-      id="projects"
-      className="relative overflow-hidden bg-[var(--color-bg-base)]"
-    >
-      <div className="section-shell relative z-10">
-        <motion.div
-          className="text-center"
-          style={{ marginBottom: "1.25rem" }}
-          variants={fadeInUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-        >
-          <p className="eyebrow-label mb-3">{"// Projects"}</p>
-          <h2 className="font-display mb-4 text-4xl text-[var(--color-text-primary)] sm:text-5xl md:text-6xl">
-            What I’ve Built
-          </h2>
-          <div
-            className="divider-warm mb-12"
-            style={{
-              width: "100%",
-              maxWidth: "48rem",
-              margin: "0 auto 1.25rem auto",
-              display: "block"
-            }}
-          />
-        </motion.div>
+    <main id="projects" className="bg-[var(--color-bg-base)]">
+      <div className="section-shell page-shell">
+        <SectionHeading as="h1" eyebrow="Projects" title="What I’ve built." className="mb-12 md:mb-14" />
 
         {/* ── Tier 1: Flagships ── */}
-        <div className="mb-4 flex items-baseline justify-between">
-          <p className="eyebrow-label">{"// Flagship case studies"}</p>
-        </div>
-        <motion.div
-          className="mb-16 grid grid-cols-1 gap-6 md:grid-cols-2"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-        >
-          {caseStudies.map((study) => (
-            <motion.div
-              key={study.slug}
-              className="project-spotlight-card group relative flex flex-col overflow-hidden rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 transition-colors duration-300 hover:border-[var(--color-border-hover)]"
-              variants={cardReveal}
-            >
-              <div className="absolute inset-x-0 top-0 h-px bg-[var(--color-border-hover)]" aria-hidden="true" />
-              <div className="relative z-[1] flex h-full flex-col">
-                <div className="mb-3 flex items-center justify-between font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
-                  <span>{study.category}</span>
-                  <span>{study.year}</span>
-                </div>
-                <h3 className="font-display mb-3 text-2xl leading-snug text-[var(--color-text-primary)]">
-                  {study.title}
-                </h3>
-                <p className="mb-5 flex-1 text-sm leading-7 text-[var(--color-text-muted)]">{study.summary}</p>
-
-                <div className="mb-6 flex flex-wrap gap-2">
-                  {study.tags.slice(0, 3).map((tag) => (
-                    <span key={tag} className="ai-badge">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
+        <section aria-labelledby="flagships-heading" className="mb-16">
+          <h2 id="flagships-heading" className="eyebrow-label eyebrow-pill mb-4">Flagship case studies</h2>
+          <motion.div
+            className="grid grid-cols-1 gap-6 md:grid-cols-2"
+            variants={staggerContainer}
+            {...revealOnView}
+          >
+            {caseStudies.map((study) => (
+              <motion.div key={study.slug} variants={cardReveal}>
                 <Link
                   to={`/work/${study.slug}`}
-                  className="font-mono mt-auto inline-flex items-center justify-center gap-2 rounded-[7px] border border-[var(--color-border-subtle)] bg-transparent px-5 py-3 text-xs uppercase tracking-[0.08em] text-[var(--color-text-muted)] no-underline transition-colors duration-300 hover:border-[var(--color-border-hover)] hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]"
+                  className="group surface-hover flex h-full flex-col rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 text-[var(--color-text-primary)]"
                 >
-                  <span>Read case study</span>
-                  <ArrowUpRight size={16} aria-hidden="true" />
+                  <div className="mb-3 flex items-center justify-between font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
+                    <span>{study.category}</span>
+                    <span>{study.year}</span>
+                  </div>
+                  <h3 className="font-display mb-3 text-2xl leading-snug text-[var(--color-text-primary)]">
+                    {study.title}
+                  </h3>
+                  <p className="mb-5 flex-1 text-sm leading-7 text-[var(--color-text-muted)]">{study.summary}</p>
+
+                  <div className="mb-5 flex flex-wrap gap-2">
+                    {study.tags.slice(0, 3).map((tag) => (
+                      <span key={tag} className="ai-badge">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-text-primary)]">
+                    Read case study
+                    <ArrowUpRight size={14} aria-hidden="true" />
+                  </span>
                 </Link>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </section>
 
         {/* ── Tier 2: Supporting projects ── */}
-        <div className="mb-4">
-          <p className="eyebrow-label">{"// Supporting projects"}</p>
-        </div>
-        <motion.div
-          className="mb-16 flex flex-col gap-3"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-        >
-          {supportingProjects.map((project) => (
-            <motion.a
-              key={project.title}
-              href={project.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              variants={cardReveal}
-              className="project-preview-row group flex flex-col gap-3 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 no-underline transition-colors duration-300 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="flex-1">
-                <div className="mb-1.5 flex items-center gap-2">
-                  <h3 className="font-display project-row-hover text-lg text-[var(--color-text-primary)]">
+        <section aria-labelledby="supporting-heading" className="mb-16">
+          <h2 id="supporting-heading" className="eyebrow-label eyebrow-pill mb-4">Supporting projects</h2>
+          <motion.div
+            className="flex flex-col gap-3"
+            variants={staggerContainer}
+            {...revealOnView}
+          >
+            {supportingProjects.map((project) => (
+              <motion.a
+                key={project.title}
+                href={project.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                variants={cardReveal}
+                className="project-preview-row group flex flex-col gap-3 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 no-underline sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex-1">
+                  <h3 className="font-display project-row-hover mb-1.5 text-lg text-[var(--color-text-primary)]">
                     {project.title}
                   </h3>
+                  <p className="mb-2.5 line-clamp-2 max-w-2xl text-sm leading-relaxed text-[var(--color-text-subtle)]">
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {project.tags.slice(0, 4).map((tag) => (
+                      <span key={tag} className="ai-badge">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <p className="mb-2 line-clamp-2 max-w-2xl text-sm leading-relaxed text-[var(--color-text-subtle)]">
-                  {project.description}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {project.tags.slice(0, 4).map((tag) => (
-                    <span
-                      key={tag}
-                      className="font-mono rounded-[5px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2.5 py-1 text-xs uppercase tracking-[0.05em] text-[var(--color-text-meta)]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <span className="font-mono inline-flex shrink-0 items-center gap-2 self-start text-xs uppercase tracking-[0.08em] text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-text-primary)] sm:self-center">
-                {project.linkText}
-                <ExternalLinkIcon />
-              </span>
-            </motion.a>
-          ))}
-        </motion.div>
+                <span className="font-mono inline-flex shrink-0 items-center gap-2 self-start text-xs uppercase tracking-[0.08em] text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-text-primary)] sm:self-center">
+                  {project.linkText}
+                  <ArrowUpRight size={14} aria-hidden="true" />
+                </span>
+              </motion.a>
+            ))}
+          </motion.div>
+        </section>
 
         {/* ── Tier 3: Archive ── */}
-        <div className="mb-4">
-          <button
-            type="button"
-            onClick={() => setShowArchive((prev) => !prev)}
-            aria-expanded={showArchive}
-            aria-controls="project-archive"
-            className="eyebrow-label flex items-center gap-2 bg-transparent p-0 transition-colors hover:text-[var(--color-text-primary)]"
-          >
-            {"// "}
-            {showArchive ? "Hide" : "Show"} all projects ({archivedProjects.length})
-            <ChevronDown
-              size={14}
-              aria-hidden="true"
-              className={`transition-transform duration-300 ${showArchive ? "rotate-180" : ""}`}
-            />
-          </button>
-        </div>
+        <section aria-labelledby="archive-heading">
+          <h2 id="archive-heading" className="m-0 mb-4">
+            <button
+              type="button"
+              onClick={() => setShowArchive((prev) => !prev)}
+              aria-expanded={showArchive}
+              aria-controls="project-archive"
+              className="eyebrow-label eyebrow-pill"
+            >
+              {showArchive ? "Hide" : "Show"} all projects ({archivedProjects.length})
+              <ChevronDown
+                size={14}
+                aria-hidden="true"
+                className={`transition-transform duration-300 ${showArchive ? "rotate-180" : ""}`}
+              />
+            </button>
+          </h2>
 
-        {showArchive ? (
-          <div
-            id="project-archive"
-            className="overflow-x-auto rounded-[10px] border border-[var(--color-border-subtle)]"
-          >
-            <table className="w-full border-collapse text-left">
-              <caption className="sr-only">Archived projects</caption>
-              <tbody>
-                {archivedProjects.map((project, i) => (
-                  <tr
-                    key={project.title}
-                    className={i % 2 === 0 ? "bg-[var(--color-bg-surface)]" : "bg-[var(--color-bg-base)]"}
-                  >
-                    <td className="px-5 py-3 align-top">
-                      <p className="font-display m-0 text-base text-[var(--color-text-primary)]">{project.title}</p>
-                      <div className="mt-1.5 flex flex-wrap gap-1.5">
-                        {project.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="font-mono text-xs uppercase tracking-[0.05em] text-[var(--color-text-meta)]"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 text-right align-top">
-                      {project.link ? (
-                        <a
-                          href={project.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-mono inline-flex items-center gap-1.5 whitespace-nowrap text-xs uppercase tracking-[0.06em] text-[var(--color-text-subtle)] no-underline transition-colors hover:text-[var(--color-text-primary)]"
+          <AnimatePresence initial={false}>
+            {showArchive ? (
+              <motion.div
+                id="project-archive"
+                key="archive"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.35, ease: easing }}
+                className="overflow-hidden"
+              >
+                <div className="overflow-x-auto rounded-[10px] border border-[var(--color-border-subtle)]">
+                  <table className="w-full border-collapse text-left">
+                    <caption className="sr-only">Archived projects</caption>
+                    <tbody>
+                      {archivedProjects.map((project, i) => (
+                        <tr
+                          key={project.title}
+                          className={i % 2 === 0 ? "bg-[var(--color-bg-surface)]" : "bg-[var(--color-bg-base)]"}
                         >
-                          {project.linkText || "View"}
-                          <ArrowUpRight size={12} aria-hidden="true" />
-                        </a>
-                      ) : (
-                        <span className="font-mono text-xs uppercase tracking-[0.06em] text-[var(--color-text-meta)]">
-                          —
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
+                          <td className="px-5 py-3 align-top">
+                            <p className="font-display m-0 text-base text-[var(--color-text-primary)]">{project.title}</p>
+                            <div className="mt-1.5 flex flex-wrap gap-1.5">
+                              {project.tags.slice(0, 3).map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="font-mono text-xs uppercase tracking-[0.05em] text-[var(--color-text-meta)]"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-5 py-3 text-right align-top">
+                            {project.link ? (
+                              <a
+                                href={project.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-mono inline-flex items-center gap-1.5 whitespace-nowrap text-xs uppercase tracking-[0.06em] text-[var(--color-text-subtle)] no-underline transition-colors hover:text-[var(--color-text-primary)]"
+                              >
+                                {project.linkText || "View"}
+                                <ArrowUpRight size={12} aria-hidden="true" />
+                              </a>
+                            ) : (
+                              <span className="font-mono text-xs uppercase tracking-[0.06em] text-[var(--color-text-meta)]">
+                                —
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </section>
       </div>
-    </section>
+    </main>
   )
 }
 

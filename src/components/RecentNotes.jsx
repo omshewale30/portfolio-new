@@ -10,10 +10,10 @@ const RecentNotes = () => {
   if (!featuredNote) return null;
 
   return (
-    <section id="recent-notes" aria-label="Latest note" className="flex flex-col gap-2">
+    <section id="recent-notes" aria-label="Latest note" className="flex flex-1 flex-col gap-2">
       <Link
         to={`/notes/${featuredNote.slug}`}
-        className="group surface-hover flex h-full flex-col gap-3.5 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 text-[var(--color-text-primary)] sm:p-7"
+        className="group surface-hover flex flex-1 flex-col gap-3.5 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 text-[var(--color-text-primary)] sm:p-7"
       >
         <span className="font-mono text-[11px] uppercase tracking-[0.06em] text-[var(--color-text-meta)]">
           Latest {noteTypeLabel(featuredNote.tier)} ·{" "}

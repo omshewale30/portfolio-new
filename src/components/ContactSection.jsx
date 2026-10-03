@@ -2,12 +2,13 @@ import { useRef, useState } from "react"
 import emailjs from "@emailjs/browser"
 import { motion } from "framer-motion"
 import { Check, Linkedin, LoaderCircle, Mail, MapPin, Send, TriangleAlert } from "lucide-react"
-import { cardReveal, fadeInUp, staggerContainer } from "../utils/animations"
+import { cardReveal, fadeInUp, revealOnView, staggerContainer } from "../utils/animations"
+import { EMAIL, LOCATION, mapsHref, socials } from "../data/contact"
 
 const contactLinks = [
-  { icon: Mail, value: "omshewale030@gmail.com", href: "mailto:omshewale030@gmail.com" },
-  { icon: Linkedin, value: "in/omshewale", href: "https://www.linkedin.com/in/omshewale/" },
-  { icon: MapPin, value: "Chapel Hill, NC", href: "https://maps.google.com/?q=Chapel+Hill,+NC" },
+  { icon: Mail, value: EMAIL, href: `mailto:${EMAIL}` },
+  { icon: Linkedin, value: socials.linkedin.handle, href: socials.linkedin.href },
+  { icon: MapPin, value: LOCATION, href: mapsHref },
 ]
 
 const ContactSection = () => {
@@ -39,16 +40,14 @@ const ContactSection = () => {
   }
 
   return (
-    <section id="contact" aria-labelledby="contact-heading" className="scroll-mt-20 bg-[var(--color-bg-base)]">
+    <section id="contact" aria-labelledby="contact-heading" className="scroll-mt-20">
       <motion.div
         className="mx-auto grid max-w-[var(--container-max)] gap-12 px-4 py-20 sm:px-6 md:grid-cols-2 lg:px-12 lg:py-24"
         variants={staggerContainer}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
+        {...revealOnView}
       >
         <motion.div className="flex flex-col gap-[18px]" variants={fadeInUp}>
-          <span className="mono-label">{"// open channel"}</span>
+          <p className="eyebrow-label eyebrow-pill m-0">Open channel</p>
           <h2 id="contact-heading" className="headline m-0 text-[36px] leading-[1.05] text-[var(--color-text-primary)] sm:text-5xl">
             Philosophy, fitness, technology, or life? Let&apos;s talk.
           </h2>
