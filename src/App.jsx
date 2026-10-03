@@ -24,7 +24,7 @@ const preferredScrollBehavior = () =>
 
 const RouteLoadingFallback = () => (
     <main
-        className="flex min-h-[60vh] items-center justify-center bg-[var(--color-bg-base)] px-6 pt-24"
+        className="flex min-h-[60vh] items-center justify-center px-6 pt-24"
         aria-live="polite"
         aria-busy="true"
     >

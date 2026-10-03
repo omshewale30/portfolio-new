@@ -5,7 +5,7 @@ import { caseStudies } from "../data/caseStudies";
 import { cardReveal, fadeInUp, staggerContainer } from "../utils/animations";
 
 const SelectedWork = () => (
-  <section id="selected-work" className="relative bg-[var(--color-bg-base)] scroll-mt-24">
+  <section id="selected-work" className="relative scroll-mt-24">
     <div className="section-shell">
       <motion.header
         className="mb-12 max-w-3xl"
@@ -35,22 +35,21 @@ const SelectedWork = () => (
           return (
             <motion.article
               key={study.slug}
-              className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]"
+              className="group flex h-full flex-col overflow-hidden border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)]"
               variants={cardReveal}
             >
-              <div className="relative flex min-h-48 flex-col justify-between overflow-hidden border-b border-[var(--color-border-muted)] bg-[var(--color-bg-elevated)] p-5">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(200,168,130,0.18),transparent_45%),linear-gradient(135deg,transparent,rgba(200,168,130,0.04))]" />
-                <div className="relative z-10 flex items-center justify-between font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
-                  <span>[{String(index + 1).padStart(2, "0")}]</span>
+              <div className="relative border-b border-[var(--color-border-strong)]">
+                <div className="flex items-center justify-between px-5 py-3 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
+                  <span className="text-[var(--color-primary)]">Exp. {String(index + 1).padStart(2, "0")}</span>
                   <span>{study.category}</span>
                 </div>
                 {image?.src ? (
-                  <>
-                    <img src={image.src} alt={image.alt} className="absolute inset-0 h-full w-full object-cover" />
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--color-bg-elevated)] via-transparent to-[var(--color-bg-elevated)]/40" />
-                  </>
+                  // Diagrams and charts are drawn on white, so the plate stays white in both themes.
+                  <div className="flex h-48 items-center justify-center border-t border-[var(--color-border-subtle)] bg-white p-4">
+                    <img src={image.src} alt={image.alt} className="max-h-full w-auto max-w-full object-contain" />
+                  </div>
                 ) : (
-                  <div className="relative z-10 mt-8 rounded-xl border border-dashed border-[var(--color-border-focus)] bg-[var(--color-bg-base)]/40 p-4">
+                  <div className="mx-5 mb-5 mt-3 border border-dashed border-[var(--color-border-focus)] bg-[var(--color-bg-base)] p-4">
                     <span className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">
                       Visual slot
                     </span>
@@ -75,7 +74,7 @@ const SelectedWork = () => (
                   {study.summary}
                 </p>
 
-                <div className="my-5 grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-y border-[var(--color-border-muted)] py-4">
+                <div className="my-5 grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-y border-[var(--color-border-subtle)] py-4">
                   <div>
                     <span className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
                       Before
@@ -84,7 +83,7 @@ const SelectedWork = () => (
                       {study.before.title}
                     </p>
                   </div>
-                  <span aria-hidden="true" className="text-[var(--color-primary)]">
+                  <span aria-hidden="true" className="text-[var(--color-accent)]">
                     →
                   </span>
                   <div>

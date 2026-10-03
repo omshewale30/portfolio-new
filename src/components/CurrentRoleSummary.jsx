@@ -9,7 +9,7 @@ const CurrentRoleSummary = () => {
   if (!currentRole) return null;
 
   return (
-    <section className="relative border-y border-[var(--color-border-muted)] bg-[var(--color-bg-elevated)]">
+    <section className="relative border-y border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)]">
       <motion.div
         className="section-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center"
         variants={fadeInUp}
@@ -34,7 +34,7 @@ const CurrentRoleSummary = () => {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 md:p-8">
+        <div className="border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] p-6 md:p-8">
           <p className="m-0 text-lg leading-8 text-[var(--color-text-muted)]">
             {currentRole.summary}
           </p>

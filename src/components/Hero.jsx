@@ -10,9 +10,7 @@ const Hero = () => {
   };
 
   return (
-    <section id="about" className="relative min-h-screen overflow-hidden bg-[var(--color-bg-base)]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(200,168,130,0.12),transparent_50%),radial-gradient(circle_at_80%_75%,rgba(184,140,94,0.14),transparent_50%)]" />
-
+    <section id="about" className="relative min-h-screen overflow-hidden">
       {/* ── Two-column shell ── */}
       <div className="section-shell relative z-10 flex min-h-screen items-center py-20 max-md:py-20">
         <div className="flex w-full min-w-0 items-center gap-8 max-lg:gap-6 max-md:flex-col max-md:gap-8">
@@ -22,10 +20,10 @@ const Hero = () => {
 
             {/* Headline */}
             <p className="eyebrow-label mb-1">{"// Curiosity, systems, and the human question"}</p>
-            <h1 className="font-display break-words text-5xl leading-[1.06] tracking-[-0.025em] text-[var(--color-text-primary)] md:text-5xl lg:text-6xl xl:text-7xl">
+            <h1 className="font-display break-words text-5xl font-normal leading-[1.06] tracking-[-0.025em] text-[var(--color-text-primary)] md:text-5xl lg:text-6xl xl:text-7xl">
               Glad you’re here.
               <br />
-              <span className="text-[var(--color-primary)]">Let’s question the obvious.</span>
+              Let’s <span className="pencil-underline">question the obvious.</span>
             </h1>
 
             {/* Subline */}
@@ -37,7 +35,7 @@ const Hero = () => {
             {/* Terminal-style AI Chat */}
             <div id="jarvis" className="mt-7 w-full min-w-0 max-w-xl scroll-mt-28 overflow-hidden rounded-xl">
               <div className="mb-3">
-                <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">
+                <p className="pencil-note text-lg leading-snug">
                   A small experiment
                 </p>
                 <p className="mt-1 text-sm leading-relaxed text-[var(--color-text-subtle)]">
@@ -61,75 +59,75 @@ const Hero = () => {
 
           </div>
 
-          {/* ── RIGHT COLUMN — About Card (40%) ── */}
+          {/* ── RIGHT COLUMN — Fig. 0 print and contact card (40%) ── */}
           <div className="min-w-0 w-[38%] flex-shrink-0 max-lg:w-[42%] max-md:w-full max-md:max-w-sm max-md:self-center">
-            <div className="w-full overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-glass-strong)]">
-
-              {/* Photo — bleeds to all edges, no padding */}
-              <div className="relative h-[320px] w-full overflow-hidden lg:h-[360px]">
+            <figure className="m-0 flex w-full flex-col gap-4">
+              {/* Photo — a print taped into the notebook */}
+              <div className="taped-print">
                 <img
                   src="/assets/Hero.webp"
                   alt="Portrait of Om Shewale"
                   width="1938"
                   height="2361"
-                  className="h-full w-full object-cover object-[center_18%] transition-transform duration-700 hover:scale-[1.03]"
+                  className="block aspect-[4/5] max-h-[380px] w-full object-cover object-[center_18%]"
                 />
-                {/* Subtle gradient fade at the bottom so it merges into the card info */}
-                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--color-bg-surface)] to-transparent" />
               </div>
+              <figcaption className="font-mono text-xs uppercase leading-relaxed tracking-[0.06em] text-[var(--color-text-meta)]">
+                Fig. 0 — The author.
+              </figcaption>
 
-              {/* Info strip */}
-              <div className="px-5 pb-5 pt-4 sm:px-6">
-                {/* Thin amber accent line */}
-                <div className="mb-4 h-px w-10 bg-[var(--color-primary)]" />
-
-                <p className="font-display text-2xl leading-tight text-[var(--color-text-primary)]">
-                  Om Shewale
-                </p>
-                <p className="mt-1 font-mono text-xs uppercase tracking-[0.1em] text-[var(--color-primary)]">
-                  Applied AI Engineer · AI Strategy
-                </p>
-
-                <div className="mt-4 flex items-center gap-2 text-[var(--color-text-subtle)]">
-                  <MapPin size={13} className="flex-shrink-0 text-[var(--color-primary)] opacity-70" />
-                  <span className="font-mono text-xs tracking-[0.06em]">United States</span>
+              {/* Contact card */}
+              <div className="flex flex-col gap-3 border border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)] px-5 py-4">
+                <div>
+                  <p className="m-0 font-display text-2xl leading-tight text-[var(--color-text-primary)]">
+                    Om Shewale
+                  </p>
+                  <p className="m-0 mt-1 font-mono text-xs uppercase tracking-[0.1em] text-[var(--color-primary)]">
+                    Applied AI Engineer · AI Strategy
+                  </p>
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 text-[var(--color-text-meta)]">
+                  <MapPin size={13} className="flex-shrink-0 text-[var(--color-primary)]" />
+                  <span className="font-mono text-xs uppercase tracking-[0.06em]">United States</span>
+                </div>
+
+                <span className="flex select-all items-center gap-2 font-mono text-xs tracking-[0.04em] text-[var(--color-text-primary)]">
+                  <Mail size={13} className="flex-shrink-0 text-[var(--color-primary)]" />
+                  omshewale030@gmail.com
+                </span>
+
+                <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-[var(--color-border-subtle)] pt-3">
                   <a
                     href="https://github.com/omshewale30"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="GitHub profile"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-border-muted)] text-[var(--color-text-subtle)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                    className="flex h-11 w-11 items-center justify-center border border-[var(--color-border-strong)] text-[var(--color-text-primary)] transition-colors duration-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                   >
-                    <Github size={16} />
+                    <Github size={17} />
                   </a>
                   <a
                     href="https://instagram.com/omshewale3000"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram profile"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-border-muted)] text-[var(--color-text-subtle)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                    className="flex h-11 w-11 items-center justify-center border border-[var(--color-border-strong)] text-[var(--color-text-primary)] transition-colors duration-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                   >
-                    <Instagram size={16} />
+                    <Instagram size={17} />
                   </a>
                   <a
                     href="https://www.linkedin.com/in/omshewale/"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="LinkedIn profile"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-border-muted)] text-[var(--color-text-subtle)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                    className="flex h-11 w-11 items-center justify-center border border-[var(--color-border-strong)] text-[var(--color-text-primary)] transition-colors duration-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                   >
-                    <Linkedin size={16} />
+                    <Linkedin size={17} />
                   </a>
-                  <span className="flex select-all items-center gap-2 font-mono text-xs tracking-[0.06em] text-[var(--color-text-subtle)]">
-                    <Mail size={13} className="flex-shrink-0 text-[var(--color-primary)] opacity-70" />
-                    omshewale030@gmail.com
-                  </span>
                 </div>
               </div>
-            </div>
+            </figure>
           </div>
 
         </div>

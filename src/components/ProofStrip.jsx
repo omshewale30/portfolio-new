@@ -2,33 +2,26 @@ import { Link } from "react-router-dom";
 import { proofStats } from "../data/stats";
 
 const ProofStrip = () => (
-  <section
-    aria-label="Evidence at a glance"
-    className="border-y border-[var(--color-border-muted)] bg-[var(--color-bg-elevated)]"
-  >
+  <section aria-label="Evidence at a glance" className="px-6">
+    {/* A results table: 2px ink rule on top, 1px rules between cells */}
     <div
-      className="grid grid-cols-2 px-6 md:grid-cols-4"
-      style={{ maxWidth: "var(--container-max)", marginInline: "auto" }}
+      className="grid grid-cols-2 gap-px border-b border-t-2 border-[var(--color-border-strong)] bg-[var(--color-border-subtle)] md:grid-cols-4"
+      style={{ maxWidth: "calc(var(--container-max) - 2 * var(--space-6))", marginInline: "auto" }}
     >
-      {proofStats.map((stat, index) => (
+      {proofStats.map((stat) => (
         <Link
           key={stat.label}
           to={stat.href}
-          className="group relative flex min-h-36 flex-col justify-center px-4 py-7 text-center no-underline transition-colors hover:bg-[var(--color-bg-surface)] md:min-h-40 md:px-7"
+          className="group relative flex min-h-36 flex-col justify-center gap-2 bg-[var(--color-bg-surface)] px-5 py-7 no-underline transition-colors hover:bg-[var(--color-bg-elevated)] md:min-h-40 md:px-6"
         >
-          {index > 0 ? (
-            <span
-              aria-hidden="true"
-              className="absolute left-0 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 font-mono text-xs text-[var(--color-primary-muted)] md:block"
-            >
-              ✦
-            </span>
-          ) : null}
-          <strong className="font-display text-4xl font-normal text-[var(--color-primary)] md:text-5xl">
+          <strong className="font-display text-5xl font-normal leading-none tracking-[-0.03em] text-[var(--color-text-primary)]">
             {stat.value}
           </strong>
-          <span className="mt-2 font-mono text-xs uppercase leading-relaxed tracking-[0.08em] text-[var(--color-text-meta)] transition-colors group-hover:text-[var(--color-text-muted)]">
+          <span className="text-sm leading-snug text-[var(--color-text-muted)]">
             {stat.label}
+          </span>
+          <span aria-hidden="true" className="font-mono text-xs text-[var(--color-primary)] transition-transform group-hover:translate-x-1">
+            →
           </span>
         </Link>
       ))}

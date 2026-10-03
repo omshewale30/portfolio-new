@@ -73,7 +73,7 @@ const Header = () => {
 
   return (
     <nav
-      className={`navbar-bar fixed left-1/2 top-4 z-[1050] flex w-auto max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center rounded-full border px-5 py-3 backdrop-saturate-[1.8] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] md:top-3 md:min-w-[480px] md:max-w-[calc(100vw-2rem)] md:rounded-[22px] md:px-5 md:py-4 ${
+      className={`navbar-bar fixed left-1/2 top-4 z-[1050] flex w-auto max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center rounded-none border px-5 py-3 backdrop-saturate-[1.8] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] md:top-3 md:min-w-[480px] md:max-w-[calc(100vw-2rem)] md:px-5 md:py-3 ${
         scrolled ? "backdrop-blur-[20px]" : "backdrop-blur-[24px]"
       } ${
         isVisible
@@ -123,7 +123,7 @@ const Header = () => {
                 }}
                 aria-expanded={isDropdownOpen}
                 aria-controls="home-navigation-menu"
-                className="nav-link-glass nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:inline-flex md:w-auto md:text-[1.2rem]"
+                className="nav-link-glass nav-item-warm relative flex items-center justify-center rounded-none font-mono text-[0.8125rem] font-medium uppercase leading-none tracking-[0.06em] !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-none max-md:px-4 max-md:py-3 md:inline-flex md:w-auto md:text-[0.8125rem]"
                 style={{ padding: "0.75rem 1rem" }}
               >
                 Home
@@ -153,7 +153,7 @@ const Header = () => {
                   <a
                     key={href}
                     href={`/${href}`}
-                    className="nav-item-warm block rounded-lg px-5 py-3.5 font-mono text-[1.05rem] uppercase tracking-[0.06em] !text-[var(--color-text-subtle)] !no-underline transition-all duration-200"
+                    className="nav-item-warm block rounded-lg px-5 py-3.5 font-mono text-[0.8125rem] uppercase tracking-[0.06em] !text-[var(--color-text-subtle)] !no-underline transition-all duration-200"
                     onClick={(e) => {
                       e.preventDefault();
                       handleNavigation(href);
@@ -172,7 +172,7 @@ const Header = () => {
                   handleNavigation("/experience");
                 }}
                 aria-current={location.pathname === "/experience" ? "page" : undefined}
-                className={`nav-item-warm flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
+                className={`nav-item-warm flex items-center justify-center rounded-none font-mono text-[0.8125rem] font-medium uppercase leading-none tracking-[0.06em] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-none max-md:px-4 max-md:py-3 md:text-[0.8125rem] ${
                   location.pathname === "/experience"
                     ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
                     : "!text-[var(--color-text-muted)]"
@@ -190,7 +190,7 @@ const Header = () => {
                   handleNavigation("/projects");
                 }}
                 aria-current={location.pathname === "/projects" ? "page" : undefined}
-                className={`nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
+                className={`nav-item-warm relative flex items-center justify-center rounded-none font-mono text-[0.8125rem] font-medium uppercase leading-none tracking-[0.06em] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-none max-md:px-4 max-md:py-3 md:text-[0.8125rem] ${
                   location.pathname === "/projects"
                     ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
                     : "!text-[var(--color-text-muted)]"
@@ -208,7 +208,7 @@ const Header = () => {
                   handleNavigation("/notes");
                 }}
                 aria-current={location.pathname.startsWith("/notes") ? "page" : undefined}
-                className={`nav-item-warm relative flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem] ${
+                className={`nav-item-warm relative flex items-center justify-center rounded-none font-mono text-[0.8125rem] font-medium uppercase leading-none tracking-[0.06em] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-none max-md:px-4 max-md:py-3 md:text-[0.8125rem] ${
                   location.pathname.startsWith("/notes")
                     ? "nav-item-warm-active font-semibold !text-[var(--color-primary)]"
                     : "!text-[var(--color-text-muted)]"
@@ -223,7 +223,7 @@ const Header = () => {
                 href="https://drive.google.com/file/d/12nH9Tl4pyx8Wt3Y0S9YGngcIMR5IAsix/view?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="nav-link-glass nav-item-warm flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
+                className="nav-link-glass nav-item-warm flex items-center justify-center rounded-none font-mono text-[0.8125rem] font-medium uppercase leading-none tracking-[0.06em] !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-none max-md:px-4 max-md:py-3 md:text-[0.8125rem]"
                 style={{ padding: "0.75rem 1rem" }}
               >
                 Resume
@@ -236,7 +236,7 @@ const Header = () => {
                   e.preventDefault();
                   handleNavigation("#jarvis");
                 }}
-                className="nav-link-glass nav-item-warm group flex items-center justify-center rounded-[25px] text-[1.05rem] font-medium leading-none !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-[10px] max-md:px-4 max-md:py-3 md:text-[1.2rem]"
+                className="nav-link-glass nav-item-warm group flex items-center justify-center rounded-none font-mono text-[0.8125rem] font-medium uppercase leading-none tracking-[0.06em] !text-[var(--color-text-muted)] !no-underline transition-all duration-300 max-md:w-full max-md:justify-start max-md:rounded-none max-md:px-4 max-md:py-3 md:text-[0.8125rem]"
                 style={{ padding: "0.75rem 1rem" }}
               >
                 Jarvis

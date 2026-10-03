@@ -15,7 +15,7 @@ const RecentNotes = () => {
     <section
       id="recent-notes"
       aria-labelledby="recent-notes-heading"
-      className="relative border-y border-[var(--color-border-muted)] bg-[var(--color-bg-surface)]"
+      className="relative border-y border-[var(--color-border-strong)] bg-[var(--color-bg-surface)]"
     >
       <div className="section-shell">
         <header className="mb-10 flex flex-col gap-6 md:mb-12 md:flex-row md:items-end md:justify-between">
@@ -36,7 +36,7 @@ const RecentNotes = () => {
         </header>
 
         <div className={followUpNotes.length ? "grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]" : "max-w-3xl"}>
-          <article className="overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]">
+          <article className="overflow-hidden border border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)]">
             <Link
               to={`/notes/${featuredNote.slug}`}
               className="note-interactive group flex h-full flex-col p-6 no-underline transition-colors hover:border-[var(--color-primary)] md:p-8"
@@ -69,7 +69,7 @@ const RecentNotes = () => {
           </article>
 
           {followUpNotes.length ? (
-            <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-3">
+            <div className="border border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)] p-3">
               <p className="px-3 pb-2 pt-1 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
                 More from notes
               </p>

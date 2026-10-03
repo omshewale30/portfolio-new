@@ -284,7 +284,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
         const terminalContent = (
             <div
                 ref={isDetached ? floatingRef : null}
-                className={`overflow-hidden rounded-xl border border-[var(--color-border-subtle)] bg-[rgba(22,18,13,0.95)] shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all duration-300 ${
+                className={`overflow-hidden rounded-xl border border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-glass-strong)] transition-all duration-300 ${
                     isDetached ? "w-[420px]" : "w-full"
                 } ${isDragging ? "cursor-grabbing" : ""}`}
                 style={
@@ -301,7 +301,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
             >
                 {/* Terminal header - draggable when detached */}
                 <div
-                    className={`flex items-center justify-between border-b border-[var(--color-border-muted)] bg-[rgba(30,24,16,0.98)] px-4 py-2.5 ${
+                    className={`flex items-center justify-between border-b border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-4 py-2.5 ${
                         isDetached ? "cursor-grab active:cursor-grabbing" : ""
                     }`}
                     onMouseDown={isDetached ? handleMouseDown : undefined}
@@ -376,7 +376,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                                     className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed ${
                                         msg.role === "user"
                                             ? "bg-[var(--color-primary)] text-[var(--color-bg-base)]"
-                                            : "border border-[var(--color-border-subtle)] bg-[rgba(40,32,22,0.8)] text-[var(--color-text-muted)]"
+                                            : "border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]"
                                     }`}
                                 >
                                     <p className="m-0 whitespace-pre-wrap">{msg.content}</p>
@@ -386,7 +386,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                         ))}
                         {isLoading && (
                             <div className="flex justify-start">
-                                <div className="flex items-center gap-2 rounded-2xl border border-[var(--color-border-subtle)] bg-[rgba(40,32,22,0.8)] px-5 py-3.5">
+                                <div className="flex items-center gap-2 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-5 py-3.5">
                                     <div className="flex gap-1">
                                         <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:0ms]" />
                                         <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:150ms]" />
@@ -400,7 +400,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
 
                 {/* Input area */}
                 <div
-                    className="border-t border-[var(--color-border-muted)] bg-[rgba(26,21,14,0.98)] p-3 transition-all duration-300"
+                    className="border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-3 transition-all duration-300"
                     style={{
                         maxHeight: isMinimized ? "0px" : "200px",
                         opacity: isMinimized ? 0 : 1,
@@ -442,7 +442,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                             <button
                                 key={index}
                                 onClick={() => handleSampleQuestionClick(question)}
-                                className="group flex items-center gap-1.5 rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.06)] px-3 py-1.5 font-mono text-xs text-[var(--color-text-muted)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                                className="group flex items-center gap-1.5 border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-1.5 font-mono text-xs text-[var(--color-text-muted)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                             >
                                 <Sparkles size={10} className="opacity-50 group-hover:opacity-100" />
                                 {question}
@@ -459,7 +459,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                 {isDetached ? (
                     <>
                         {/* Placeholder when detached */}
-                        <div className="flex items-center justify-between rounded-xl border border-dashed border-[var(--color-border-subtle)] bg-[rgba(22,18,13,0.4)] px-4 py-3">
+                        <div className="flex items-center justify-between rounded-xl border border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-4 py-3">
                             <div className="flex items-center gap-2">
                                 <Terminal size={14} className="text-[var(--color-primary)] opacity-50" />
                                 <span className="font-mono text-xs text-[var(--color-text-subtle)]">
@@ -468,7 +468,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                             </div>
                             <button
                                 onClick={handleDetach}
-                                className="rounded-lg border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.1)] px-3 py-1.5 font-mono text-xs text-[var(--color-primary)] transition-all hover:border-[var(--color-primary)] hover:bg-[rgba(200,168,130,0.15)]"
+                                className="rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-primary-soft)] px-3 py-1.5 font-mono text-xs text-[var(--color-primary)] transition-all hover:border-[var(--color-primary)] hover:bg-[var(--color-bg-elevated)]"
                             >
                                 Dock Terminal
                             </button>
@@ -531,7 +531,7 @@ const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }
                     onKeyDown={handleKeyPress}
                     placeholder="Ask me anything about Om.."
                     disabled={isLoading}
-                    className="flex-1 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none transition focus:border-[var(--color-border-focus)] focus:ring-2 focus:ring-[rgba(200,168,130,0.2)] disabled:opacity-50"
+                    className="flex-1 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none transition focus:border-[var(--color-border-focus)] focus:ring-2 focus:ring-[var(--color-primary-soft)] disabled:opacity-50"
                 />
                 <button
                     onClick={handleSendMessage}

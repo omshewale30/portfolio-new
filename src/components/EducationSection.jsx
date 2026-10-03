@@ -26,7 +26,7 @@ const educationDetails = [
 
 const EducationSection = ({ compact = false }) => {
   return (
-    <section id="education" className="relative overflow-hidden bg-[var(--color-bg-base)]">
+    <section id="education" className="relative overflow-hidden">
       <div className="section-shell relative">
         <motion.div
           variants={fadeInUp}

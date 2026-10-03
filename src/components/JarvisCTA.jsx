@@ -13,10 +13,7 @@ export default function JarvisCTA() {
   };
 
   return (
-    <section
-      className="bg-[var(--color-bg-base)]"
-      aria-labelledby="jarvis-cta-heading"
-    >
+    <section aria-labelledby="jarvis-cta-heading">
       <div className="section-shell">
         <div className="surface-card flex items-center justify-between gap-8 overflow-hidden px-8 py-9 max-md:flex-col max-md:items-start max-md:gap-6 max-md:px-6 max-md:py-8">
           <div className="max-w-3xl">

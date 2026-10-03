@@ -89,7 +89,7 @@ const ContactSection = () => {
 
   return (
     <footer
-      className="relative overflow-hidden bg-[var(--color-bg-base)]"
+      className="relative overflow-hidden"
       id="contact"
     >
       <div className="section-shell relative z-10">
@@ -121,7 +121,6 @@ const ContactSection = () => {
             className="surface-card relative overflow-hidden p-10 max-md:px-6 max-md:py-8 max-[480px]:px-5 max-[480px]:py-6"
             variants={cardReveal}
           >
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-primary-muted)] to-transparent" />
             <h3 className="font-display mb-3 text-[1.75rem] text-[var(--color-text-primary)] max-[480px]:text-2xl">Get in Touch</h3>
             <p className="mb-8 leading-relaxed text-[var(--color-text-muted)]">
               Feel free to reach out through any of these channels. I typically respond within 24 hours.
@@ -193,7 +192,6 @@ const ContactSection = () => {
             className="surface-card relative overflow-hidden p-10 max-md:px-6 max-md:py-8 max-[480px]:px-5 max-[480px]:py-6"
             variants={cardReveal}
           >
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-primary-muted)] to-transparent" />
             <h3 className="font-display mb-3 text-[1.75rem] text-[var(--color-text-primary)] max-[480px]:text-2xl">Send a Message</h3>
             <p className="mb-8 leading-relaxed text-[var(--color-text-muted)]">I&apos;ll respond within 24 hours.</p>
 
@@ -207,7 +205,7 @@ const ContactSection = () => {
                     name="from_name"
                     placeholder="Your name"
                     required
-                    className="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
+                    className="border border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)] px-4 py-3.5 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
                   />
                 </div>
                 <div className="flex flex-col gap-2">
@@ -218,7 +216,7 @@ const ContactSection = () => {
                     name="from_email"
                     placeholder="your.email@example.com"
                     required
-                    className="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
+                    className="border border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)] px-4 py-3.5 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
                   />
                 </div>
               </div>
@@ -231,7 +229,7 @@ const ContactSection = () => {
                   name="subject"
                   placeholder="Subject of your message"
                   required
-                  className="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
+                  className="border border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)] px-4 py-3.5 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
                 />
               </div>
 
@@ -243,13 +241,13 @@ const ContactSection = () => {
                   placeholder="What do you want to chat about?"
                   rows="5"
                   required
-                  className="min-h-[120px] resize-y rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-4 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
+                  className="min-h-[120px] resize-y border border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)] px-4 py-3.5 text-base text-[var(--color-text-primary)] transition-all duration-300 placeholder:text-[var(--color-text-meta)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)]"
                 />
               </div>
 
               <button
                 type="submit"
-                className="btn-primary group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl px-8 py-4 text-base disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+                className="btn-primary group relative flex items-center justify-center gap-2 overflow-hidden px-8 py-4 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -288,8 +286,8 @@ const ContactSection = () => {
                 <div
                   className={`animate-[slide-in_0.3s_ease-out] flex items-center gap-2 rounded-xl border p-4 font-medium ${
                     submitStatus === "success"
-                      ? "border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.15)] text-[var(--color-primary)]"
-                      : "border-[var(--color-border-subtle)] bg-[rgba(130,82,58,0.18)] text-[#f1c2a0]"
+                      ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
+                      : "border-[var(--color-accent)] bg-[var(--color-bg-elevated)] text-[var(--color-accent)]"
                   }`}
                 >
                   {submitStatus === "success" ? (
@@ -321,7 +319,7 @@ const ContactSection = () => {
           </motion.div>
         </motion.div>
       </div>
-      <div className="border-t border-[var(--color-border-muted)] bg-[var(--color-bg-surface)]/60">
+      <div className="border-t-2 border-[var(--color-border-strong)] bg-[var(--color-bg-surface)]/60">
         <div className="mx-auto flex max-w-[72rem] flex-wrap items-center justify-between gap-4 px-6 py-5 text-sm text-[var(--color-text-subtle)]">
           <p className="font-mono tracking-[0.04em]">Om Shewale | AI Engineer | 2026</p>
           <nav className="flex items-center gap-5">
