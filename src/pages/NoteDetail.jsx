@@ -13,7 +13,7 @@ import { useReadingProgress } from "../utils/readingProgress";
 const COMMENT_MAX_LENGTH = 1000;
 
 const reactionButtonClass = (active) =>
-  `note-interactive note-reaction-button flex items-center gap-2 rounded-full border px-4 py-2 font-mono text-xs uppercase tracking-[0.08em] transition-all disabled:cursor-wait disabled:opacity-60 ${
+  `note-interactive note-reaction-button flex items-center gap-2 border px-4 py-2 font-mono text-xs uppercase tracking-[0.08em] transition-all disabled:cursor-wait disabled:opacity-60 ${
     active
       ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
       : "border-[var(--color-border-muted)] bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
@@ -192,7 +192,7 @@ const NoteDetail = () => {
   const commentDescription = submitError ? "comment-counter comment-error" : "comment-counter";
 
   return (
-    <main className="bg-[var(--color-bg-base)]">
+    <main>
       {note.tier === "essay" ? (
         <progress
           className="note-reading-progress"

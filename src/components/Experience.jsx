@@ -43,7 +43,7 @@ const Experience = () => {
 
   return (
     <>
-    <section id="experience" className="relative overflow-hidden bg-[var(--color-bg-base)] py-20 sm:py-32">
+    <section id="experience" className="relative overflow-hidden py-20 sm:py-32">
       <div className="section-shell relative z-10 max-w-6xl mx-auto px-6 sm:px-10">
         <motion.div
           className="mb-16 md:mb-24"
@@ -182,7 +182,7 @@ const Experience = () => {
                     {exp.technologies.map((tech, techIndex) => (
                       <li
                         key={techIndex}
-                        className="rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.03)] font-mono text-xs uppercase tracking-wider text-[var(--color-text-subtle)] transition-colors duration-300 group-hover:border-[var(--color-border-focus)] group-hover:bg-[rgba(200,168,130,0.1)] group-hover:text-[var(--color-primary)]"
+                        className="border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] font-mono text-xs uppercase tracking-wider text-[var(--color-text-subtle)] transition-colors duration-300 group-hover:border-[var(--color-border-focus)] group-hover:bg-[var(--color-primary-soft)] group-hover:text-[var(--color-primary)]"
                         style={{ padding: "0.1rem 0.1rem" }}
                       >
                         {tech}

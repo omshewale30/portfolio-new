@@ -14,7 +14,7 @@ const NotesIndex = () => {
   });
 
   return (
-    <main className="bg-[var(--color-bg-base)]">
+    <main>
       <div className="section-shell">
         <header className="max-w-2xl">
           <p className="eyebrow-label mb-3">{"// Notes"}</p>

@@ -47,7 +47,7 @@ const DataTable = ({ table }) => {
         tabIndex={0}
         aria-labelledby={table.caption ? captionId : undefined}
         aria-label={table.caption ? undefined : "Data table"}
-        className="note-interactive overflow-x-auto rounded-2xl border border-[var(--color-border-subtle)]"
+        className="note-interactive overflow-x-auto border-b border-t-2 border-[var(--color-border-strong)]"
       >
         <table
           className={`w-full border-separate border-spacing-0 text-left text-sm ${

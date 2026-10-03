@@ -133,7 +133,7 @@ const GlanceStrip = ({ study }) => {
 
   return (
     <dl
-      className={`m-0 mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-border-subtle)] ${
+      className={`m-0 mt-10 grid grid-cols-2 gap-px overflow-hidden border-b border-t-2 border-[var(--color-border-strong)] bg-[var(--color-border-subtle)] ${
         GLANCE_COLUMNS[facts.length] ?? "sm:grid-cols-4"
       }`}
     >
@@ -254,12 +254,12 @@ const StatsRow = ({ stats }) => (
     {stats.map((stat) => (
       <div
         key={stat.label}
-        className="flex min-w-0 basis-[calc(50%-0.5rem)] flex-col-reverse justify-end rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 text-center sm:flex-1 sm:basis-0"
+        className="flex min-w-0 basis-[calc(50%-0.5rem)] flex-col-reverse justify-end border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] p-5 text-center sm:flex-1 sm:basis-0"
       >
         <dt className="mt-2 font-mono text-xs uppercase leading-relaxed tracking-[0.06em] text-[var(--color-text-meta)]">
           {stat.label}
         </dt>
-        <dd className="m-0 font-display text-3xl text-[var(--color-primary)]">
+        <dd className="m-0 font-display text-4xl tracking-[-0.02em] text-[var(--color-text-primary)]">
           <CountUpValue value={stat.value} />
         </dd>
       </div>
@@ -281,7 +281,7 @@ const PagerLink = ({ study, direction }) => {
   return (
     <Link
       to={`/work/${study.slug}`}
-      className={`note-interactive group flex flex-col rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 no-underline transition-colors hover:border-[var(--color-primary)] ${
+      className={`note-interactive group flex flex-col border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] p-5 no-underline transition-colors hover:border-[var(--color-primary)] ${
         isNext ? "sm:col-start-2 sm:items-end sm:text-right" : ""
       }`}
     >
@@ -347,7 +347,7 @@ const CaseStudy = () => {
   const reflectionItems = study.whatIdDoDifferently ? toListItems(study.whatIdDoDifferently) : [];
 
   return (
-    <main className="bg-[var(--color-bg-base)]">
+    <main>
       <progress className="note-reading-progress" aria-label="Reading progress" max="100" value={readingProgress} />
 
       <div className="section-shell">

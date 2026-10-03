@@ -25,17 +25,8 @@ const ProjectsSection = () => {
   return (
     <section
       id="projects"
-      className="relative overflow-hidden bg-[var(--color-bg-base)]"
+      className="relative overflow-hidden"
     >
-      <div
-        className="pointer-events-none absolute inset-0"
-        aria-hidden="true"
-        style={{
-          background:
-            "radial-gradient(circle at 18% 18%, rgba(200, 168, 130, 0.08) 0%, transparent 44%), radial-gradient(circle at 80% 76%, rgba(200, 168, 130, 0.06) 0%, transparent 46%), radial-gradient(circle at 45% 56%, rgba(200, 168, 130, 0.04) 0%, transparent 52%)",
-        }}
-      />
-
       <div className="section-shell relative z-10">
         <motion.div
           className="text-center"
@@ -74,7 +65,7 @@ const ProjectsSection = () => {
           {caseStudies.map((study) => (
             <motion.div
               key={study.slug}
-              className="project-spotlight-card group relative flex flex-col overflow-hidden rounded-3xl border border-[var(--color-border-focus)] bg-[var(--color-bg-surface)] p-6 shadow-[var(--shadow-glass)] transition-all duration-300 hover:-translate-y-1 hover:bg-[var(--color-bg-elevated)]"
+              className="project-spotlight-card group relative flex flex-col overflow-hidden border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] p-6 shadow-[var(--shadow-glass)] transition-all duration-300 hover:-translate-y-1 hover:bg-[var(--color-bg-elevated)]"
               variants={cardReveal}
             >
               <div className="absolute inset-x-0 top-0 h-1 bg-[var(--color-primary)]" />
@@ -178,7 +169,7 @@ const ProjectsSection = () => {
         {showArchive ? (
           <div
             id="project-archive"
-            className="overflow-x-auto rounded-2xl border border-[var(--color-border-subtle)]"
+            className="overflow-x-auto border border-[var(--color-border-strong)]"
           >
             <table className="w-full border-collapse text-left">
               <caption className="sr-only">Archived projects</caption>

@@ -33,7 +33,7 @@ const StoryStepper = ({ study }) => (
           <div
             className={
               isResult
-                ? "rounded-2xl border border-[var(--color-border-focus)] bg-[var(--color-bg-surface)] p-5 md:p-6"
+                ? "border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] p-5 md:p-6"
                 : "pt-2"
             }
           >

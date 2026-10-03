@@ -83,7 +83,7 @@ const Lightbox = ({ figures, index, opener, onClose, onStep }) => {
       onClick={handleBackdropClick}
     >
       <div data-lightbox-backdrop="" className="flex h-full w-full items-center justify-center p-3 sm:p-6">
-        <div className="case-lightbox-panel flex max-h-full w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-glass-strong)]">
+        <div className="case-lightbox-panel flex max-h-full w-full max-w-5xl flex-col overflow-hidden border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-glass-strong)]">
           <div className="flex items-center justify-between gap-3 border-b border-[var(--color-border-muted)] px-4 py-2">
             <p className="m-0 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]" aria-live="polite">
               {count > 1 ? `Figure ${index + 1} of ${count}` : "Figure"}
