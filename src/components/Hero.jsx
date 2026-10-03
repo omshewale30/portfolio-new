@@ -37,16 +37,10 @@ const Hero = () => {
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[var(--color-text-meta)]" />
               Applied AI Engineer · Chapel Hill, NC
             </span>
-            <p className="headline m-0 -mb-2 text-[22px] leading-tight text-[var(--color-text-subtle)] sm:text-[28px]">
-              Glad you’re here.{" "}
-              <span className="text-[var(--color-text-muted)]">Let’s question the obvious.</span>
-            </p>
             <h1 className="headline m-0 text-[44px] leading-none text-[var(--color-text-primary)] [text-wrap:balance] sm:text-[60px] xl:text-[76px]">
-              I build AI systems,
+              Glad you’re here.
               <br />
-              then ask what
-              <br />
-              they&apos;re <span className="rubric">for</span>.
+              <span className="text-[var(--color-text-subtle)]">Let’s question the obvious.</span>
             </h1>
             <div className="flex items-baseline gap-3">
               <span className="shrink-0 font-mono text-[13px] text-[var(--color-text-meta)]">
