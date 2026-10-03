@@ -1,59 +1,36 @@
-import { motion } from "framer-motion";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { experienceDetails } from "../data/experience";
-import { fadeInUp } from "../utils/animations";
 
+// What I'm doing now. The title and employer live on the hero card, so this leads with the work itself.
 const CurrentRoleSummary = () => {
   const currentRole = experienceDetails.find((role) => role.current);
   if (!currentRole) return null;
 
   return (
-    <section className="relative border-y border-[var(--color-border-muted)] bg-[var(--color-bg-elevated)]">
-      <motion.div
-        className="section-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center"
-        variants={fadeInUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
+    <section aria-label="Current role">
+      <Link
+        to="/experience"
+        className="surface-hover flex flex-col gap-3.5 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 text-[var(--color-text-primary)] sm:p-7"
       >
-        <div>
-          <p className="eyebrow-label mb-3">{"// Current role"}</p>
-          <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">
-            {currentRole.duration}
-          </p>
-          <h2 className="mt-3 font-display text-4xl leading-tight text-[var(--color-text-primary)] md:text-5xl">
-            {currentRole.title}
-          </h2>
-          <p className="mt-3 text-lg leading-relaxed text-[var(--color-text-muted)]">
-            {currentRole.company}
-          </p>
-          <p className="mt-3 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.06em] text-[var(--color-text-meta)]">
-            <MapPin size={14} aria-hidden="true" />
-            {currentRole.location}
-          </p>
+        <span className="font-mono text-[11px] uppercase tracking-[0.06em] text-[var(--color-text-meta)]">
+          Now · {currentRole.duration}
+        </span>
+        <h2 className="m-0 text-xl font-normal leading-snug tracking-[-0.015em] text-[var(--color-text-muted)]">
+          {currentRole.short ?? currentRole.summary}
+        </h2>
+        <div className="flex flex-wrap gap-1.5">
+          {currentRole.technologies.slice(0, 5).map((technology) => (
+            <span key={technology} className="ai-badge">
+              {technology}
+            </span>
+          ))}
         </div>
-
-        <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 md:p-8">
-          <p className="m-0 text-lg leading-8 text-[var(--color-text-muted)]">
-            {currentRole.summary}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            {currentRole.technologies.slice(0, 5).map((technology) => (
-              <span key={technology} className="ai-badge">
-                {technology}
-              </span>
-            ))}
-          </div>
-          <Link
-            to="/experience"
-            className="mt-7 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)] no-underline transition-colors hover:text-[var(--color-primary-hover)]"
-          >
-            See full experience
-            <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
-      </motion.div>
+        <span className="flex items-center pt-1 font-mono text-[11px] text-[var(--color-text-meta)]">
+          all roles
+          <ArrowUpRight size={14} className="ml-auto text-[var(--color-text-subtle)]" aria-hidden="true" />
+        </span>
+      </Link>
     </section>
   );
 };

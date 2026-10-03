@@ -26,9 +26,11 @@ const formatValue = ({ prefix, suffix, decimals, grouped }, number) =>
     useGrouping: grouped,
   })}${suffix}`;
 
+const ALIGN = { center: "text-center", left: "text-left" };
+
 // Counts numeric stats up from zero the first time they scroll into view. Values without a
 // number ("Email triage") and readers who prefer reduced motion get the final value as-is.
-const CountUpValue = ({ value }) => {
+const CountUpValue = ({ value, align = "center" }) => {
   const ref = useRef(null);
   const parsed = useMemo(() => parseValue(value), [value]);
   const reduceMotion = useReducedMotion();
@@ -58,7 +60,7 @@ const CountUpValue = ({ value }) => {
     <span ref={ref} className="relative inline-block tabular-nums">
       {/* The final value reserves the width, so the count doesn't reflow the card. */}
       <span className="invisible" aria-hidden="true">{value}</span>
-      <span className="absolute inset-0 text-center" aria-hidden="true">{display}</span>
+      <span className={`absolute inset-0 ${ALIGN[align]}`} aria-hidden="true">{display}</span>
       <span className="sr-only">{value}</span>
     </span>
   );
@@ -66,6 +68,7 @@ const CountUpValue = ({ value }) => {
 
 CountUpValue.propTypes = {
   value: PropTypes.string.isRequired,
+  align: PropTypes.oneOf(["center", "left"]),
 };
 
 export default CountUpValue;

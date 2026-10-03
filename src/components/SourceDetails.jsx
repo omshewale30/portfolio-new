@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
 
+// A cited document as an accent chip; opening it shows the excerpt the answer drew on.
 const SourceDetails = ({ source, index }) => (
     <details className="group max-w-full text-left">
-        <summary className="flex w-fit max-w-full cursor-pointer list-none items-center gap-1.5 rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2.5 py-1 font-mono text-xs text-[var(--color-primary)] transition-colors hover:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-border-focus)]">
+        <summary className="source-chip flex w-fit max-w-full cursor-pointer list-none items-center gap-1.5">
             <span className="shrink-0 opacity-70">[{index + 1}]</span>
             <span className="truncate" title={source.filename}>
                 {source.filename}
@@ -11,9 +12,9 @@ const SourceDetails = ({ source, index }) => (
                 ›
             </span>
         </summary>
-        <div className="mt-1.5 max-w-md rounded-lg border border-[var(--color-border-muted)] bg-[var(--color-bg-base)] px-3 py-2 text-xs leading-relaxed text-[var(--color-text-subtle)]">
+        <div className="mt-1.5 max-w-md rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2 text-xs leading-relaxed text-[var(--color-text-subtle)]">
             {source.quote ? (
-                <blockquote className="m-0 border-l-2 border-[var(--color-primary-muted)] pl-2">
+                <blockquote className="m-0 border-l border-[var(--color-border-hover)] pl-2">
                     {source.quote}
                 </blockquote>
             ) : (
@@ -27,7 +28,7 @@ const SourceDetails = ({ source, index }) => (
 
 SourceDetails.propTypes = {
     source: PropTypes.shape({
-        id: PropTypes.string.isRequired,
+        id: PropTypes.string,
         filename: PropTypes.string.isRequired,
         quote: PropTypes.string,
     }).isRequired,

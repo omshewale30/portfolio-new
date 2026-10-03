@@ -1,139 +1,136 @@
-import { useNavigate } from "react-router-dom";
-import { Github, Instagram, Linkedin, Mail, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Github, Linkedin } from "lucide-react";
 import ChatBot from "./ChatBot";
+import { EMAIL, LOCATION, socials } from "../data/contact";
+import { cardReveal, fadeInUp } from "../utils/animations";
+
+const PROMPTS = [
+  "What do we owe the people whose work we automate?",
+  "Is a system that explains itself more trustworthy, or only more persuasive?",
+  "When does a tool stop extending us and start replacing us?",
+  "What should stay slow on purpose?",
+  "Can judgment be measured, or only observed?",
+];
+const ROTATE_MS = 4500;
+
+// Headline, prompt, card, then Jarvis settle in one after another on load.
+const heroSequence = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+};
+
+const pad = (n) => String(n).padStart(2, "0");
 
 const Hero = () => {
-  const navigate = useNavigate();
+  const [promptIndex, setPromptIndex] = useState(0);
 
-  const goToSelectedWork = () => {
-    document.getElementById("selected-work")?.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const interval = window.setInterval(
+      () => setPromptIndex((index) => (index + 1) % PROMPTS.length),
+      ROTATE_MS,
+    );
+    return () => window.clearInterval(interval);
+  }, []);
 
   return (
-    <section id="about" className="relative min-h-screen overflow-hidden bg-[var(--color-bg-base)]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(200,168,130,0.12),transparent_50%),radial-gradient(circle_at_80%_75%,rgba(184,140,94,0.14),transparent_50%)]" />
+    <section id="about" className="relative">
 
-      {/* ── Two-column shell ── */}
-      <div className="section-shell relative z-10 flex min-h-screen items-center py-20 max-md:py-20">
-        <div className="flex w-full min-w-0 items-center gap-8 max-lg:gap-6 max-md:flex-col max-md:gap-8">
-
-          {/* ── LEFT COLUMN (60%) ── */}
-          <div className="flex min-w-0 flex-1 flex-col max-md:w-full max-md:max-w-xl">
-
-            {/* Headline */}
-            <p className="eyebrow-label mb-1">{"// Curiosity, systems, and the human question"}</p>
-            <h1 className="font-display break-words text-5xl leading-[1.06] tracking-[-0.025em] text-[var(--color-text-primary)] md:text-5xl lg:text-6xl xl:text-7xl">
+      <motion.div
+        className="relative mx-auto max-w-[var(--container-max)] px-4 pt-24 sm:px-6 lg:px-12 lg:pt-[120px]"
+        variants={heroSequence}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Headline and card share a centre line, so neither floats above the other. */}
+        <div className="grid items-center gap-10 pb-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-14">
+          <div className="flex min-w-0 flex-col gap-[26px]">
+            <motion.h1
+              variants={fadeInUp}
+              className="headline m-0 text-[44px] leading-none text-[var(--color-text-primary)] [text-wrap:balance] sm:text-[60px] xl:text-[76px]"
+            >
               Glad you’re here.
               <br />
-              <span className="text-[var(--color-primary)]">Let’s question the obvious.</span>
-            </h1>
-
-            {/* Subline */}
-            <p className="mt-4 max-w-xl text-lg leading-[1.65] text-[var(--color-text-muted)] md:text-xl">
+              <span className="text-[var(--color-text-subtle)]">Let’s question the obvious.</span>
+            </motion.h1>
+            <motion.p
+              variants={fadeInUp}
+              className="m-0 max-w-[34rem] text-[17px] leading-relaxed text-[var(--color-text-muted)] [text-wrap:pretty] sm:text-lg"
+            >
               I’m Om, a builder drawn to AI, philosophy, and the systems that shape how we live. This is where I
               share what I’m making, what I’m learning, and the questions I haven’t answered yet.
-            </p>
-
-            {/* Terminal-style AI Chat */}
-            <div id="jarvis" className="mt-7 w-full min-w-0 max-w-xl scroll-mt-28 overflow-hidden rounded-xl">
-              <div className="mb-3">
-                <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-primary)]">
-                  A small experiment
-                </p>
-                <p className="mt-1 text-sm leading-relaxed text-[var(--color-text-subtle)]">
-                  Ask Jarvis what I’m building or thinking about, and see how it arrives at an answer.
-                </p>
-              </div>
-              <ChatBot terminal />
-            </div>
-
-
-            {/* CTAs */}
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <button type="button" className="btn-primary" onClick={goToSelectedWork}>
-                See what I’m building
-              </button>
-              <button type="button" className="btn-ghost" onClick={() => navigate("/projects")}>
-                Browse all projects
-              </button>
-            </div>
-
-
-          </div>
-
-          {/* ── RIGHT COLUMN — About Card (40%) ── */}
-          <div className="min-w-0 w-[38%] flex-shrink-0 max-lg:w-[42%] max-md:w-full max-md:max-w-sm max-md:self-center">
-            <div className="w-full overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-glass-strong)]">
-
-              {/* Photo — bleeds to all edges, no padding */}
-              <div className="relative h-[320px] w-full overflow-hidden lg:h-[360px]">
-                <img
-                  src="/assets/Hero.webp"
-                  alt="Portrait of Om Shewale"
-                  width="1938"
-                  height="2361"
-                  className="h-full w-full object-cover object-[center_18%] transition-transform duration-700 hover:scale-[1.03]"
-                />
-                {/* Subtle gradient fade at the bottom so it merges into the card info */}
-                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--color-bg-surface)] to-transparent" />
-              </div>
-
-              {/* Info strip */}
-              <div className="px-5 pb-5 pt-4 sm:px-6">
-                {/* Thin amber accent line */}
-                <div className="mb-4 h-px w-10 bg-[var(--color-primary)]" />
-
-                <p className="font-display text-2xl leading-tight text-[var(--color-text-primary)]">
-                  Om Shewale
-                </p>
-                <p className="mt-1 font-mono text-xs uppercase tracking-[0.1em] text-[var(--color-primary)]">
-                  Applied AI Engineer · AI Strategy
-                </p>
-
-                <div className="mt-4 flex items-center gap-2 text-[var(--color-text-subtle)]">
-                  <MapPin size={13} className="flex-shrink-0 text-[var(--color-primary)] opacity-70" />
-                  <span className="font-mono text-xs tracking-[0.06em]">United States</span>
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <a
-                    href="https://github.com/omshewale30"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="GitHub profile"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-border-muted)] text-[var(--color-text-subtle)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
-                  >
-                    <Github size={16} />
-                  </a>
-                  <a
-                    href="https://instagram.com/omshewale3000"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Instagram profile"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-border-muted)] text-[var(--color-text-subtle)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
-                  >
-                    <Instagram size={16} />
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/in/omshewale/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="LinkedIn profile"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-border-muted)] text-[var(--color-text-subtle)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
-                  >
-                    <Linkedin size={16} />
-                  </a>
-                  <span className="flex select-all items-center gap-2 font-mono text-xs tracking-[0.06em] text-[var(--color-text-subtle)]">
-                    <Mail size={13} className="flex-shrink-0 text-[var(--color-primary)] opacity-70" />
-                    omshewale030@gmail.com
+            </motion.p>
+            <motion.div variants={fadeInUp} className="flex items-baseline gap-3">
+              <span className="shrink-0 font-mono text-[13px] text-[var(--color-text-meta)]">
+                query://{pad(promptIndex + 1)}
+              </span>
+              <p className="prompt-stack m-0 grid min-w-0 text-lg tracking-[-0.01em] text-[var(--color-text-muted)] sm:text-xl">
+                {PROMPTS.map((prompt, index) => (
+                  <span key={prompt} data-active={index === promptIndex} aria-hidden={index !== promptIndex}>
+                    {prompt}
                   </span>
-                </div>
-              </div>
-            </div>
+                ))}
+              </p>
+            </motion.div>
           </div>
 
+          {/* Identity card: who, what and where over the portrait; how to reach me underneath.
+              Stacked layouts centre it; phones let it fill the column so its edges match the
+              headline and the Jarvis panel. */}
+          <motion.div
+            variants={cardReveal}
+            className="w-full max-w-[340px] overflow-hidden rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] max-lg:justify-self-center max-sm:max-w-none"
+          >
+            {/* Phones take the portrait's own 1938×2361 shape so the full-width card shows the whole
+                photo; a fixed height there crops it into a close-up. */}
+            <div className="relative h-[360px] max-sm:aspect-[1938/2361] max-sm:h-auto lg:h-[380px]">
+              <img
+                src="/assets/Hero.webp"
+                alt="Portrait of Om Shewale"
+                width="1938"
+                height="2361"
+                fetchPriority="high"
+                className="absolute inset-0 h-full w-full object-cover object-[center_18%] [mask-image:linear-gradient(to_bottom,#000_50%,transparent_86%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_50%,transparent_86%)]"
+              />
+              <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-[18px]">
+                <span className="text-xl text-[var(--color-text-primary)]">Om Shewale</span>
+                <span className="text-xs text-[var(--color-text-subtle)]">
+                  Applied AI Engineer · UNC Finance &amp; Operations
+                </span>
+                <span className="font-mono text-[11px] text-[var(--color-text-meta)]">{LOCATION}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 border-t border-[var(--color-border-subtle)] py-1.5 pl-[18px] pr-2">
+              <span className="mr-auto min-w-0 select-all truncate font-mono text-[11px] text-[var(--color-text-subtle)]">
+                {EMAIL}
+              </span>
+              <a
+                href={socials.linkedin.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="nav-icon-btn shrink-0"
+              >
+                <Linkedin size={14} aria-hidden="true" />
+              </a>
+              <a
+                href={socials.github.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="nav-icon-btn shrink-0"
+              >
+                <Github size={14} aria-hidden="true" />
+              </a>
+            </div>
+          </motion.div>
         </div>
-      </div>
+
+        <motion.div variants={fadeInUp} id="jarvis" className="scroll-mt-24 pb-14">
+          <ChatBot />
+        </motion.div>
+      </motion.div>
     </section>
   );
 };

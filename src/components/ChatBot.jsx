@@ -1,11 +1,19 @@
-import { useRef, useEffect, useState, useCallback } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import { Send, Terminal, Sparkles, Minus, Maximize2, X } from "lucide-react";
+import { ArrowRight, Check, Circle, LoaderCircle, RotateCcw, Waypoints, X } from "lucide-react";
 import { submitChat } from "../chat.js";
 import SourceDetails from "./SourceDetails.jsx";
 
-const CHAT_STORAGE_KEY = "portfolio-jarvis-chat-v2";
+const CHAT_STORAGE_KEY = "portfolio-jarvis-chat-v3";
+const STEP_MS = 560;
+const TYPE_MS = 18;
+const TYPE_CHARS = 3;
+
+const SAMPLE_QUESTIONS = [
+    "What is Om building right now?",
+    "Why does most enterprise AI disappoint?",
+    "Can a model decide without reasoning?",
+];
 
 const newSessionId = () => {
     if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
@@ -13,23 +21,30 @@ const newSessionId = () => {
 };
 
 const loadChatSession = () => {
-    const fallback = { sessionId: newSessionId(), messages: [], previousResponseId: null };
+    const fallback = { sessionId: newSessionId(), previousResponseId: null, exchange: null };
     if (typeof window === "undefined") return fallback;
 
     try {
         const stored = window.sessionStorage.getItem(CHAT_STORAGE_KEY);
         if (!stored) return fallback;
         const parsed = JSON.parse(stored);
+        const exchange = parsed.exchange;
         return {
             sessionId: typeof parsed.sessionId === "string" ? parsed.sessionId : fallback.sessionId,
-            messages: Array.isArray(parsed.messages) ? parsed.messages : [],
             previousResponseId:
                 typeof parsed.previousResponseId === "string" ? parsed.previousResponseId : null,
+            exchange:
+                exchange && typeof exchange.question === "string" && typeof exchange.answer === "string"
+                    ? exchange
+                    : null,
         };
     } catch {
         return fallback;
     }
 };
+
+const prefersReducedMotion = () =>
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const formatLatency = (latencyMs) => {
     if (!Number.isFinite(latencyMs)) return null;
@@ -37,534 +52,407 @@ const formatLatency = (latencyMs) => {
 };
 
 const formatCost = (costUsd) => {
-    if (!Number.isFinite(costUsd)) return "cost unavailable";
+    if (!Number.isFinite(costUsd)) return "cost n/a";
     if (costUsd > 0 && costUsd < 0.0001) return "<$0.0001";
     return `$${costUsd.toFixed(4)}`;
 };
 
-const MessageEvidence = ({ message }) => {
-    const sources = Array.isArray(message.sources) ? message.sources : [];
-    const latency = formatLatency(message.latencyMs);
-    if (sources.length === 0 && latency === null) return null;
+const truncate = (text, max) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
 
-    const usage = message.usage;
-    const hasCompleteUsage = [
-        usage?.input_tokens,
-        usage?.output_tokens,
-        usage?.total_tokens,
-    ].every(Number.isFinite);
-    const usageLabel = hasCompleteUsage
-        ? `${usage.total_tokens.toLocaleString()} tokens (${usage.input_tokens.toLocaleString()} input, ${usage.output_tokens.toLocaleString()} output)`
-        : undefined;
+const countWords = (text) => text.trim().split(/\s+/).filter(Boolean).length;
+
+// The steps before the API answers: what we know is happening while the request is in flight.
+const requestSteps = (question, isFollowUp) => [
+    {
+        label: "Parse intent",
+        detail: `${countWords(question)} words · ${isFollowUp ? "follow-up" : "new thread"}`,
+    },
+    { label: "Search knowledge base", detail: "file search · Om's documents" },
+];
+
+// The steps the response lets us show: each cited document, then the answer itself.
+const responseSteps = (exchange) => {
+    const sources = exchange.sources ?? [];
+    const reads = sources.length
+        ? sources.slice(0, 3).map((source) => ({
+              label: `Read ${source.filename}`,
+              detail: source.quote ? `“${truncate(source.quote, 44)}”` : "cited",
+          }))
+        : [{ label: "Draw on context", detail: "no documents cited" }];
+    const extra = sources.length > 3 ? ` (+${sources.length - 3} more)` : "";
+    return [
+        ...reads,
+        {
+            label: "Compose answer",
+            detail: `${sources.length} source${sources.length === 1 ? "" : "s"}${extra} · ${
+                sources.length ? "grounded" : "ungrounded"
+            }`,
+        },
+    ];
+};
+
+const allSteps = (exchange, isFollowUp) =>
+    exchange.error
+        ? requestSteps(exchange.question, isFollowUp)
+        : [...requestSteps(exchange.question, isFollowUp), ...responseSteps(exchange)];
+
+const STATUS_LABEL = {
+    idle: "ready",
+    thinking: "thinking…",
+    reading: "reading…",
+    answering: "writing…",
+    done: "answered",
+    error: "error",
+};
+
+const StepMark = ({ state }) => {
+    const ring = {
+        done: "border-[var(--color-accent)] text-[var(--color-accent)]",
+        active: "border-[var(--color-border-hover)] text-[var(--color-text-primary)]",
+        failed: "border-[var(--color-border-hover)] text-[var(--color-text-subtle)]",
+        pending: "border-[var(--color-border-subtle)] text-[var(--color-text-meta)]",
+    }[state];
 
     return (
-        <div className="mt-3 border-t border-[var(--color-border-muted)] pt-2.5">
-            {sources.length > 0 ? (
-                <div className="mb-2 flex flex-col items-start gap-1.5" aria-label="Sources">
-                    {sources.map((source, index) => (
-                        <SourceDetails key={source.id} source={source} index={index} />
-                    ))}
-                </div>
-            ) : null}
-            {latency !== null ? (
-                <p
-                    className="m-0 font-mono text-xs leading-relaxed text-[var(--color-text-meta)]"
-                    title={usageLabel}
-                    aria-label={`Response metadata: ${latency}, ${formatCost(message.costUsd)}, ${message.model || "model unavailable"}${usageLabel ? `, ${usageLabel}` : ""}`}
-                >
-                    <span aria-hidden="true">
-                        ⋯ {latency} · {formatCost(message.costUsd)} · {message.model || "model unavailable"}
-                    </span>
-                </p>
-            ) : null}
-        </div>
+        <span className={`flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border ${ring}`}>
+            {state === "done" ? <Check size={12} aria-hidden="true" /> : null}
+            {state === "active" ? <LoaderCircle size={12} className="spin-step" aria-hidden="true" /> : null}
+            {state === "failed" ? <X size={12} aria-hidden="true" /> : null}
+            {state === "pending" ? <Circle size={10} aria-hidden="true" /> : null}
+        </span>
     );
 };
 
-MessageEvidence.propTypes = {
-    message: PropTypes.shape({
-        sources: PropTypes.arrayOf(
-            PropTypes.shape({
-                id: PropTypes.string.isRequired,
-                filename: PropTypes.string.isRequired,
-                quote: PropTypes.string,
-            }),
-        ),
-        latencyMs: PropTypes.number,
-        costUsd: PropTypes.number,
-        model: PropTypes.string,
-        usage: PropTypes.shape({
-            input_tokens: PropTypes.number.isRequired,
-            output_tokens: PropTypes.number.isRequired,
-            total_tokens: PropTypes.number.isRequired,
-        }),
-    }).isRequired,
+StepMark.propTypes = {
+    state: PropTypes.oneOf(["done", "active", "failed", "pending"]).isRequired,
 };
 
-const Chatbot = ({ onClose, embedded = false, terminal = false, className = "" }) => {
+const Chatbot = ({ className = "" }) => {
     const [initialSession] = useState(loadChatSession);
     const [sessionId] = useState(initialSession.sessionId);
-    const [messages, setMessages] = useState(initialSession.messages);
     const [previousResponseId, setPreviousResponseId] = useState(initialSession.previousResponseId);
+    const [exchange, setExchange] = useState(initialSession.exchange);
+    const [isFollowUp, setIsFollowUp] = useState(false);
+    const [phase, setPhase] = useState(
+        initialSession.exchange ? (initialSession.exchange.error ? "error" : "done") : "idle",
+    );
+    const [doneCount, setDoneCount] = useState(
+        initialSession.exchange ? allSteps(initialSession.exchange, false).length : 0,
+    );
+    const [shown, setShown] = useState(initialSession.exchange?.answer.length ?? 0);
     const [input, setInput] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    
-    const [isExpanded, setIsExpanded] = useState(initialSession.messages.length > 0);
-    const [isDetached, setIsDetached] = useState(false);
-    const [isMinimized, setIsMinimized] = useState(false);
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [isDragging, setIsDragging] = useState(false);
-    const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-    
-    const messagesContainerRef = useRef(null);
-    const inputRef = useRef(null);
-    const floatingRef = useRef(null);
-    const placeholderRef = useRef(null);
 
-    const sampleQuestions = [
-        "What are Om's AI/ML skills?",
-        "Tell me about his projects",
-        "Work experience?",
-    ];
+    const timers = useRef([]);
+    const requestId = useRef(0);
 
-    const hasInteracted = messages.length > 0 || isLoading;
-
-    useEffect(() => {
-        window.sessionStorage.setItem(
-            CHAT_STORAGE_KEY,
-            JSON.stringify({ sessionId, messages, previousResponseId }),
-        );
-    }, [sessionId, messages, previousResponseId]);
-
-    useEffect(() => {
-        if (messagesContainerRef.current && isExpanded && !isMinimized) {
-            const container = messagesContainerRef.current;
-            container.scrollTo({
-                top: container.scrollHeight,
-                behavior: "smooth",
-            });
-        }
-    }, [messages, isExpanded, isMinimized]);
-
-    useEffect(() => {
-        if (hasInteracted && !isExpanded) {
-            setIsExpanded(true);
-        }
-    }, [hasInteracted, isExpanded]);
-
-    useEffect(() => {
-        if (isDetached && placeholderRef.current) {
-            const rect = placeholderRef.current.getBoundingClientRect();
-            setPosition({
-                x: window.innerWidth - 460,
-                y: Math.max(80, rect.top),
-            });
-        }
-    }, [isDetached]);
-
-    const handleMouseDown = useCallback((e) => {
-        if (!floatingRef.current) return;
-        const rect = floatingRef.current.getBoundingClientRect();
-        setDragOffset({
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top,
+    const clearTimers = useCallback(() => {
+        timers.current.forEach((timer) => {
+            window.clearTimeout(timer);
+            window.clearInterval(timer);
         });
-        setIsDragging(true);
+        timers.current = [];
     }, []);
 
-    const handleMouseMove = useCallback((e) => {
-        if (!isDragging) return;
-        const newX = Math.max(0, Math.min(window.innerWidth - 440, e.clientX - dragOffset.x));
-        const newY = Math.max(0, Math.min(window.innerHeight - 100, e.clientY - dragOffset.y));
-        setPosition({ x: newX, y: newY });
-    }, [isDragging, dragOffset]);
-
-    const handleMouseUp = useCallback(() => {
-        setIsDragging(false);
-    }, []);
+    useEffect(() => clearTimers, [clearTimers]);
 
     useEffect(() => {
-        if (isDragging) {
-            window.addEventListener("mousemove", handleMouseMove);
-            window.addEventListener("mouseup", handleMouseUp);
-            return () => {
-                window.removeEventListener("mousemove", handleMouseMove);
-                window.removeEventListener("mouseup", handleMouseUp);
-            };
+        try {
+            window.sessionStorage.setItem(
+                CHAT_STORAGE_KEY,
+                JSON.stringify({
+                    sessionId,
+                    previousResponseId,
+                    exchange: phase === "done" || phase === "error" ? exchange : null,
+                }),
+            );
+        } catch {
+            // Storage can be unavailable (private mode); the chat still works without persistence.
         }
-    }, [isDragging, handleMouseMove, handleMouseUp]);
+    }, [sessionId, previousResponseId, exchange, phase]);
 
-    const handleDetach = () => {
-        if (isDetached) {
-            setIsDetached(false);
-            setIsMinimized(false);
-        } else {
-            setIsDetached(true);
-            setIsMinimized(false);
-        }
-    };
+    const typeAnswer = useCallback(
+        (answer) => {
+            if (prefersReducedMotion()) {
+                setShown(answer.length);
+                setPhase("done");
+                return;
+            }
+            setPhase("answering");
+            setShown(0);
+            let count = 0;
+            const interval = window.setInterval(() => {
+                count = Math.min(answer.length, count + TYPE_CHARS);
+                setShown(count);
+                if (count >= answer.length) {
+                    window.clearInterval(interval);
+                    setPhase("done");
+                }
+            }, TYPE_MS);
+            timers.current.push(interval);
+        },
+        [],
+    );
 
-    const handleMinimize = () => {
-        setIsMinimized((prev) => !prev);
-    };
+    // Walk the reasoning graph from its current position to the end, then type the answer.
+    const revealResponse = useCallback(
+        (next, followUp) => {
+            const total = allSteps(next, followUp).length;
+            const start = requestSteps(next.question, followUp).length;
+            if (prefersReducedMotion()) {
+                setDoneCount(total);
+                typeAnswer(next.answer);
+                return;
+            }
+            for (let index = start + 1; index <= total; index += 1) {
+                timers.current.push(
+                    window.setTimeout(() => setDoneCount(index), (index - start) * STEP_MS),
+                );
+            }
+            timers.current.push(
+                window.setTimeout(() => typeAnswer(next.answer), (total - start) * STEP_MS + 250),
+            );
+        },
+        [typeAnswer],
+    );
 
-    const handleCloseTerminal = () => {
-        setMessages([]);
-        setPreviousResponseId(null);
+    const ask = async (rawQuestion) => {
+        const question = rawQuestion.trim();
+        if (!question || phase === "thinking" || phase === "reading" || phase === "answering") return;
+
+        clearTimers();
+        const id = (requestId.current += 1);
+        const followUp = Boolean(previousResponseId);
+        setIsFollowUp(followUp);
         setInput("");
-        setIsExpanded(false);
-        setIsDetached(false);
-        setIsMinimized(false);
-        window.sessionStorage.removeItem(CHAT_STORAGE_KEY);
-    };
-
-    const handleClose = () => {
-        handleCloseTerminal();
-        onClose?.();
-    };
-
-    const handleSendMessage = async () => {
-        if (!input.trim() || isLoading) return;
-
-        const messageText = input.trim();
-        const userMessage = { role: "user", content: messageText };
-        setMessages((prev) => [...prev, userMessage]);
-        setInput("");
-        setIsLoading(true);
-        setIsExpanded(true);
+        setShown(0);
+        setExchange({ question, answer: "", sources: [] });
+        setPhase("thinking");
+        setDoneCount(1);
 
         try {
-            const response = await submitChat(sessionId, messageText, previousResponseId);
+            const response = await submitChat(sessionId, question, previousResponseId);
+            if (id !== requestId.current) return;
 
-            const modelMessage = {
-                role: "model",
-                content: response.response,
+            const next = {
+                question,
+                answer: typeof response.response === "string" ? response.response : "",
                 sources: Array.isArray(response.sources) ? response.sources : [],
                 latencyMs: Number.isFinite(response.latency_ms) ? response.latency_ms : null,
                 costUsd: Number.isFinite(response.cost_usd) ? response.cost_usd : null,
                 usage: response.usage ?? null,
                 model: typeof response.model === "string" ? response.model : null,
             };
-            setPreviousResponseId(response.response_id);
-            setMessages((prev) => [...prev, modelMessage]);
+            setPreviousResponseId(response.response_id ?? null);
+            setExchange(next);
+            setDoneCount(requestSteps(question, followUp).length);
+            setPhase("reading");
+            revealResponse(next, followUp);
         } catch (error) {
+            if (id !== requestId.current) return;
             console.error("Error sending message:", error);
-            if (error.code === "conversation_expired") {
-                setPreviousResponseId(null);
-                setMessages([
-                    {
-                        role: "model",
-                        content: "That conversation expired. I cleared it—please send your question again.",
-                    },
-                ]);
-                return;
-            }
-            setMessages((prev) => [
-                ...prev,
-                { role: "model", content: "Sorry, something went wrong. Please try again." },
-            ]);
-        } finally {
-            setIsLoading(false);
+            const expired = error.code === "conversation_expired";
+            if (expired) setPreviousResponseId(null);
+            setExchange({
+                question,
+                answer: expired
+                    ? "That conversation expired. I cleared it, so please ask again."
+                    : "Something went wrong reaching Jarvis. Please try again.",
+                sources: [],
+                error: true,
+            });
+            setDoneCount(1);
+            setShown(Number.MAX_SAFE_INTEGER);
+            setPhase("error");
         }
     };
 
-    const handleSampleQuestionClick = (question) => {
-        setInput(question);
-        inputRef.current?.focus();
+    const reset = () => {
+        clearTimers();
+        requestId.current += 1;
+        setPreviousResponseId(null);
+        setExchange(null);
+        setPhase("idle");
+        setDoneCount(0);
+        setShown(0);
+        setInput("");
     };
 
-    const handleKeyPress = (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
-        }
+    const busy = phase === "thinking" || phase === "reading" || phase === "answering";
+    const steps = exchange ? (phase === "thinking" ? requestSteps(exchange.question, isFollowUp) : allSteps(exchange, isFollowUp)) : [];
+    const visibleSteps = phase === "thinking" || phase === "error" ? steps : steps.slice(0, Math.min(doneCount + 1, steps.length));
+    const stepState = (index) => {
+        if (phase === "error" && index === 1) return "failed";
+        if (index < doneCount) return "done";
+        if (busy && index === doneCount) return "active";
+        return "pending";
     };
-
-    if (terminal) {
-        const terminalContent = (
-            <div
-                ref={isDetached ? floatingRef : null}
-                className={`overflow-hidden rounded-xl border border-[var(--color-border-subtle)] bg-[rgba(22,18,13,0.95)] shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all duration-300 ${
-                    isDetached ? "w-[420px]" : "w-full"
-                } ${isDragging ? "cursor-grabbing" : ""}`}
-                style={
-                    isDetached
-                        ? {
-                              position: "fixed",
-                              left: position.x,
-                              top: position.y,
-                              zIndex: 9999,
-                              transform: isDragging ? "scale(1.02)" : "scale(1)",
-                          }
-                        : {}
-                }
-            >
-                {/* Terminal header - draggable when detached */}
-                <div
-                    className={`flex items-center justify-between border-b border-[var(--color-border-muted)] bg-[rgba(30,24,16,0.98)] px-4 py-2.5 ${
-                        isDetached ? "cursor-grab active:cursor-grabbing" : ""
-                    }`}
-                    onMouseDown={isDetached ? handleMouseDown : undefined}
-                >
-                    <div className="flex items-center gap-2">
-                        <div className="flex gap-1.5">
-                            <button
-                                onClick={handleCloseTerminal}
-                                className="group relative h-3 w-3 rounded-full bg-[#ff5f57] transition-all hover:brightness-110"
-                                title="Close"
-                            >
-                                <X
-                                    size={8}
-                                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[#4a0002] opacity-0 transition-opacity group-hover:opacity-100"
-                                />
-                            </button>
-                            <button
-                                onClick={handleMinimize}
-                                className="group relative h-3 w-3 rounded-full bg-[#febc2e] transition-all hover:brightness-110"
-                                title={isMinimized ? "Expand" : "Minimize"}
-                            >
-                                <Minus
-                                    size={8}
-                                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[#985700] opacity-0 transition-opacity group-hover:opacity-100"
-                                />
-                            </button>
-                            <button
-                                onClick={handleDetach}
-                                className="group relative h-3 w-3 rounded-full bg-[#28c840] transition-all hover:brightness-110"
-                                title={isDetached ? "Dock" : "Pop out"}
-                            >
-                                <Maximize2
-                                    size={7}
-                                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[#006500] opacity-0 transition-opacity group-hover:opacity-100"
-                                />
-                            </button>
-                        </div>
-                        <div className="ml-2 flex items-center gap-1.5">
-                            <Terminal size={12} className="text-[var(--color-primary)] opacity-70" />
-                            <span className="font-mono text-xs tracking-wide text-[var(--color-text-meta)]">
-                                jarvis ~ {isDetached ? "floating" : "docked"}
-                            </span>
-                        </div>
-                    </div>
-                    {isDetached && (
-                        <span className="font-mono text-xs text-[var(--color-text-subtle)] opacity-60">
-                            drag to move
-                        </span>
-                    )}
-                </div>
-
-                {/* Messages area - animated height */}
-                <div
-                    className="transition-all duration-500 ease-out"
-                    style={{
-                        maxHeight: isMinimized ? "0px" : isExpanded ? (isDetached ? "400px" : "320px") : "0px",
-                        opacity: isMinimized ? 0 : isExpanded ? 1 : 0,
-                    }}
-                >
-                    <div
-                        ref={messagesContainerRef}
-                        className={`flex flex-col gap-3 overflow-y-auto px-4 py-4 ${
-                            isDetached ? "max-h-[400px]" : "max-h-[320px]"
-                        }`}
-                    >
-                        {messages.map((msg, index) => (
-                            <div
-                                key={index}
-                                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                            >
-                                <div
-                                    className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed ${
-                                        msg.role === "user"
-                                            ? "bg-[var(--color-primary)] text-[var(--color-bg-base)]"
-                                            : "border border-[var(--color-border-subtle)] bg-[rgba(40,32,22,0.8)] text-[var(--color-text-muted)]"
-                                    }`}
-                                >
-                                    <p className="m-0 whitespace-pre-wrap">{msg.content}</p>
-                                    {msg.role === "model" ? <MessageEvidence message={msg} /> : null}
-                                </div>
-                            </div>
-                        ))}
-                        {isLoading && (
-                            <div className="flex justify-start">
-                                <div className="flex items-center gap-2 rounded-2xl border border-[var(--color-border-subtle)] bg-[rgba(40,32,22,0.8)] px-5 py-3.5">
-                                    <div className="flex gap-1">
-                                        <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:0ms]" />
-                                        <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:150ms]" />
-                                        <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:300ms]" />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Input area */}
-                <div
-                    className="border-t border-[var(--color-border-muted)] bg-[rgba(26,21,14,0.98)] p-3 transition-all duration-300"
-                    style={{
-                        maxHeight: isMinimized ? "0px" : "200px",
-                        opacity: isMinimized ? 0 : 1,
-                        padding: isMinimized ? "0 12px" : "12px",
-                        overflow: "hidden",
-                    }}
-                >
-                    <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm text-[var(--color-primary)]">›</span>
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleKeyPress}
-                            placeholder="Ask me anything about Om..."
-                            disabled={isLoading}
-                            className="flex-1 bg-transparent font-mono text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-subtle)] outline-none disabled:opacity-50"
-                        />
-                        <button
-                            onClick={handleSendMessage}
-                            disabled={!input.trim() || isLoading}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary)] text-[var(--color-bg-base)] transition-all hover:scale-105 hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:hover:scale-100"
-                        >
-                            <Send size={14} />
-                        </button>
-                    </div>
-
-                    {/* Quick prompts - visible when not expanded */}
-                    <div
-                        className="mt-3 flex flex-wrap gap-2 transition-all duration-300"
-                        style={{
-                            maxHeight: !isExpanded ? "100px" : "0px",
-                            opacity: !isExpanded ? 1 : 0,
-                            overflow: "hidden",
-                        }}
-                    >
-                        {sampleQuestions.map((question, index) => (
-                            <button
-                                key={index}
-                                onClick={() => handleSampleQuestionClick(question)}
-                                className="group flex items-center gap-1.5 rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.06)] px-3 py-1.5 font-mono text-xs text-[var(--color-text-muted)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
-                            >
-                                <Sparkles size={10} className="opacity-50 group-hover:opacity-100" />
-                                {question}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-            </div>
-        );
-
-        return (
-            <div ref={placeholderRef} className={`relative w-full ${className}`.trim()}>
-                {isDetached ? (
-                    <>
-                        {/* Placeholder when detached */}
-                        <div className="flex items-center justify-between rounded-xl border border-dashed border-[var(--color-border-subtle)] bg-[rgba(22,18,13,0.4)] px-4 py-3">
-                            <div className="flex items-center gap-2">
-                                <Terminal size={14} className="text-[var(--color-primary)] opacity-50" />
-                                <span className="font-mono text-xs text-[var(--color-text-subtle)]">
-                                    Terminal floating — click green button to dock
-                                </span>
-                            </div>
-                            <button
-                                onClick={handleDetach}
-                                className="rounded-lg border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.1)] px-3 py-1.5 font-mono text-xs text-[var(--color-primary)] transition-all hover:border-[var(--color-primary)] hover:bg-[rgba(200,168,130,0.15)]"
-                            >
-                                Dock Terminal
-                            </button>
-                        </div>
-                        {createPortal(terminalContent, document.body)}
-                    </>
-                ) : (
-                    terminalContent
-                )}
-            </div>
-        );
-    }
-
-    const containerClassName = embedded
-        ? "relative z-10 flex h-[460px] w-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-glass)] md:h-[500px]"
-        : "fixed bottom-24 right-4 z-[1100] flex h-[70vh] w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-glass-strong)] sm:right-5 sm:h-[600px] sm:w-[400px]";
+    const showAnswer = phase === "answering" || phase === "done" || phase === "error";
+    const usage = exchange?.usage;
+    const meta = exchange && !exchange.error
+        ? [
+              formatLatency(exchange.latencyMs),
+              formatCost(exchange.costUsd),
+              Number.isFinite(usage?.total_tokens) ? `${usage.total_tokens.toLocaleString()} tok` : null,
+          ]
+              .filter(Boolean)
+              .join(" · ")
+        : "";
 
     return (
-        <div className={`${containerClassName} ${className}`.trim()}>
-            <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-3 text-[var(--color-text-primary)]">
-                <h3 className="m-0 font-display text-[1.3rem] italic">Jarvis</h3>
-                {onClose ? (
-                    <button
-                        className="text-2xl text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)]"
-                        onClick={handleClose}
-                    >
-                        ×
-                    </button>
-                ) : null}
-            </div>
-            <div ref={messagesContainerRef} className="flex min-h-[200px] flex-1 flex-col gap-3 overflow-y-auto bg-[var(--color-bg-base)] px-4 pb-2 pt-4">
-                {messages.map((msg, index) => (
-                    <div
-                        key={index}
-                        className={`my-1 max-w-[90%] rounded-3xl border px-5 py-4 text-sm shadow-sm ${
-                            msg.role === "user"
-                                ? "self-end border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-bg-base)]"
-                                : "self-start border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]"
-                        }`}
-                    >
-                        <p className="m-0">{msg.content}</p>
-                        {msg.role === "model" ? <MessageEvidence message={msg} /> : null}
-                    </div>
-                ))}
-                {isLoading && (
-                    <div className="my-1 flex max-w-[90%] items-center gap-2 self-start rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-5 py-4">
-                        <div className="flex gap-1">
-                            <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:0ms]" />
-                            <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:150ms]" />
-                            <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-primary)] [animation-delay:300ms]" />
-                        </div>
-                    </div>
-                )}
-            </div>
-            <div className="flex gap-2 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-3">
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    placeholder="Ask me anything about Om.."
-                    disabled={isLoading}
-                    className="flex-1 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none transition focus:border-[var(--color-border-focus)] focus:ring-2 focus:ring-[rgba(200,168,130,0.2)] disabled:opacity-50"
-                />
-                <button
-                    onClick={handleSendMessage}
-                    disabled={!input.trim() || isLoading}
-                    className="rounded-xl bg-[var(--color-primary)] px-4 py-2 font-mono text-sm font-medium uppercase tracking-[0.06em] text-[var(--color-bg-base)] shadow-[var(--shadow-button)] transition hover:-translate-y-0.5 hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:hover:translate-y-0"
-                >
-                    Send
-                </button>
-            </div>
-            {!hasInteracted && (
-                <div className="relative flex min-h-[120px] flex-col gap-1 overflow-y-auto border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-3 shadow-[0_-2px_12px_rgba(0,0,0,0.25)] sm:min-h-[150px]">
-                    <p className="m-0 font-mono text-sm uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
-                        Try asking:
-                    </p>
-                    {sampleQuestions.map((question, index) => (
+        <div
+            className={`grid overflow-hidden rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] lg:grid-cols-[300px_minmax(0,1fr)_minmax(0,1.1fr)] ${className}`.trim()}
+        >
+            {/* Ask */}
+            <div className="flex flex-col gap-3.5 border-b border-[var(--color-border-subtle)] p-[22px] lg:border-b-0 lg:border-r">
+                <h2 className="m-0 flex items-center gap-2 text-[13px] font-normal text-[var(--color-text-primary)]">
+                    <Waypoints size={17} className="text-[var(--color-text-subtle)]" aria-hidden="true" />
+                    Jarvis
+                    <span className="ml-auto font-mono text-[11px] text-[var(--color-text-meta)]" aria-live="polite">
+                        {STATUS_LABEL[phase]}
+                    </span>
+                </h2>
+                <p className="m-0 text-[13px] leading-normal text-[var(--color-text-subtle)]">
+                    Ask anything about my work. The middle panel shows how the answer is assembled.
+                </p>
+                <div className="flex flex-col gap-1.5">
+                    {SAMPLE_QUESTIONS.map((question) => (
                         <button
-                            key={index}
-                            className="w-fit rounded-xl border border-[var(--color-border-muted)] bg-[var(--color-bg-surface)] px-3 py-1 text-left text-xs text-[var(--color-text-muted)] transition-all hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
-                            onClick={() => handleSampleQuestionClick(question)}
+                            key={question}
+                            type="button"
+                            onClick={() => ask(question)}
+                            disabled={busy}
+                            className="rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-[11px] py-[9px] text-left text-[13px] leading-[1.35] text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-border-hover)] hover:bg-[var(--color-bg-elevated)] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {question}
                         </button>
                     ))}
                 </div>
-            )}
+                <form
+                    className="mt-auto flex gap-1.5 pt-2"
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        ask(input);
+                    }}
+                >
+                    <label htmlFor="jarvis-input" className="sr-only">
+                        Ask Jarvis a question
+                    </label>
+                    <input
+                        id="jarvis-input"
+                        type="text"
+                        value={input}
+                        onChange={(event) => setInput(event.target.value)}
+                        placeholder={previousResponseId ? "Ask a follow-up…" : "Or type a question…"}
+                        maxLength={2000}
+                        disabled={busy}
+                        className="field-input h-9 min-w-0 flex-1 text-[13px] disabled:opacity-60"
+                    />
+                    <button
+                        type="submit"
+                        disabled={!input.trim() || busy}
+                        aria-label="Send question"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[7px] border border-[var(--color-accent)] bg-transparent text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-accent-hover)] hover:bg-[var(--color-bg-elevated)] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <ArrowRight size={15} aria-hidden="true" />
+                    </button>
+                </form>
+            </div>
+
+            {/* Reasoning graph */}
+            <div className="flex min-h-[260px] flex-col border-b border-[var(--color-border-subtle)] px-[26px] py-[22px] lg:min-h-[340px] lg:border-b-0 lg:border-r">
+                <span className="pb-4 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-meta)]">
+                    Reasoning graph · {Math.min(doneCount, steps.length)}/{phase === "thinking" ? "…" : steps.length}
+                </span>
+                {phase === "idle" ? (
+                    <span className="text-[13px] text-[var(--color-text-meta)]">Waiting for a question.</span>
+                ) : (
+                    <ol className="m-0 list-none p-0" aria-label="Reasoning steps">
+                        {visibleSteps.map((step, index) => {
+                            const state = stepState(index);
+                            const lit = state === "done" || state === "active";
+                            return (
+                                <li key={`${step.label}-${index}`} className="grid grid-cols-[22px_minmax(0,1fr)] gap-3">
+                                    <div className="flex flex-col items-center">
+                                        <StepMark state={state} />
+                                        <span
+                                            aria-hidden="true"
+                                            className="min-h-3.5 w-px flex-1 transition-colors duration-300"
+                                            style={{
+                                                background:
+                                                    state === "done" ? "var(--color-accent)" : "var(--color-border-subtle)",
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="flex min-w-0 flex-col gap-0.5 pb-3.5">
+                                        <span
+                                            className="truncate text-[13px]"
+                                            style={{ color: lit ? "var(--color-text-primary)" : "var(--color-text-meta)" }}
+                                        >
+                                            {step.label}
+                                        </span>
+                                        <span className="truncate font-mono text-[11px] text-[var(--color-text-meta)]">
+                                            {step.detail}
+                                        </span>
+                                    </div>
+                                </li>
+                            );
+                        })}
+                    </ol>
+                )}
+            </div>
+
+            {/* Answer */}
+            <div className="flex min-w-0 flex-col gap-3.5 px-[26px] py-[22px]">
+                <span className="flex items-center font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-meta)]">
+                    Answer
+                    {exchange && !busy ? (
+                        <button
+                            type="button"
+                            onClick={reset}
+                            className="ml-auto inline-flex items-center gap-1.5 rounded-[5px] px-1.5 py-0.5 normal-case tracking-normal text-[var(--color-text-meta)] transition-colors hover:text-[var(--color-text-primary)]"
+                        >
+                            <RotateCcw size={11} aria-hidden="true" />
+                            new thread
+                        </button>
+                    ) : null}
+                </span>
+                {exchange ? (
+                    <span className="text-sm text-[var(--color-text-subtle)]">{exchange.question}</span>
+                ) : (
+                    <span className="text-[13px] text-[var(--color-text-meta)]">
+                        Answers cite the documents they draw on.
+                    </span>
+                )}
+                {showAnswer && exchange ? (
+                    <p
+                        className="m-0 max-h-[360px] overflow-y-auto whitespace-pre-wrap text-base leading-relaxed text-[var(--color-text-muted)] [text-wrap:pretty]"
+                        aria-live="polite"
+                    >
+                        {exchange.answer.slice(0, shown)}
+                        {phase === "answering" ? <span className="type-caret" aria-hidden="true" /> : null}
+                    </p>
+                ) : null}
+                {phase === "done" && exchange && !exchange.error ? (
+                    <div className="mt-auto flex flex-wrap items-start gap-1.5">
+                        {exchange.sources.map((source, index) => (
+                            <SourceDetails key={source.id ?? index} source={source} index={index} />
+                        ))}
+                        {meta ? (
+                            <span
+                                className="ml-auto self-center font-mono text-[11px] text-[var(--color-text-meta)]"
+                                title={exchange.model ?? undefined}
+                            >
+                                {meta}
+                            </span>
+                        ) : null}
+                    </div>
+                ) : null}
+            </div>
         </div>
     );
 };
 
 Chatbot.propTypes = {
-    onClose: PropTypes.func,
-    embedded: PropTypes.bool,
-    terminal: PropTypes.bool,
     className: PropTypes.string,
 };
 

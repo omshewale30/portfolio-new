@@ -19,10 +19,10 @@ export const TocRail = ({ items, activeId }) => (
             <a
               href={`#${item.id}`}
               aria-current={active ? "true" : undefined}
-              className={`note-interactive block border-l-2 py-1.5 pl-3 text-[0.8125rem] leading-snug transition-colors ${
+              className={`note-interactive block border-l py-1.5 pl-3 text-[0.8125rem] leading-snug transition-colors ${
                 active
-                  ? "border-[var(--color-primary)] text-[var(--color-primary)]"
-                  : "border-[var(--color-border-subtle)] text-[var(--color-text-subtle)] hover:border-[var(--color-border-focus)] hover:text-[var(--color-text-primary)]"
+                  ? "border-[var(--color-text-primary)] text-[var(--color-text-primary)]"
+                  : "border-[var(--color-border-subtle)] text-[var(--color-text-subtle)] hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)]"
               }`}
             >
               {item.label}

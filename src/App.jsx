@@ -1,26 +1,27 @@
 import { lazy, Suspense, useEffect, useRef } from 'react'
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { MotionConfig, motion } from "framer-motion";
 
 import './App.css'
 import { trackPageView } from "./analytics.js";
 import Hero from "./components/Hero.jsx";
+import ParticleField from "./components/ParticleField.jsx";
 import Navbar from "./components/Navbar.jsx";
-import TechMarquee from "./components/TechMarquee.jsx";
+import JarvisCTA from "./components/JarvisCTA.jsx";
 import ProofStrip from "./components/ProofStrip.jsx";
 import SelectedWork from "./components/SelectedWork.jsx";
 import RecentNotes from "./components/RecentNotes.jsx";
 import CurrentRoleSummary from "./components/CurrentRoleSummary.jsx";
-import JarvisCTA from "./components/JarvisCTA.jsx";
 import ContactSection from "./components/ContactSection.jsx";
 import EducationSection from "./components/EducationSection.jsx";
+import SiteFooter from "./components/SiteFooter.jsx";
+import { cardReveal, revealOnView, staggerContainer } from "./utils/animations.js";
+import { preferredScrollBehavior, scrollToJarvis } from "./utils/scroll.js";
 const ProjectSection = lazy(() => import("./components/ProjectSection.jsx"));
 const Experience = lazy(() => import("./components/Experience.jsx"));
 const CaseStudy = lazy(() => import("./pages/CaseStudy.jsx"));
 const NotesIndex = lazy(() => import("./pages/NotesIndex.jsx"));
 const NoteDetail = lazy(() => import("./pages/NoteDetail.jsx"));
-
-const preferredScrollBehavior = () =>
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 
 const RouteLoadingFallback = () => (
     <main
@@ -64,8 +65,11 @@ function AppContent() {
         const sectionId = location.state.scrollTo;
         const timer = requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                const el = document.getElementById(sectionId);
-                if (el) el.scrollIntoView({ behavior: preferredScrollBehavior(), block: "start" });
+                if (sectionId === "jarvis") {
+                    scrollToJarvis();
+                } else {
+                    document.getElementById(sectionId)?.scrollIntoView({ behavior: preferredScrollBehavior(), block: "start" });
+                }
                 navigate(".", { replace: true, state: {} });
             });
         });
@@ -78,58 +82,66 @@ function AppContent() {
             <Navbar />
             <div id="main-content" tabIndex="-1">
                 <Suspense fallback={<RouteLoadingFallback />}>
-                    <Routes>
-                    {/* Home Page */}
-                    <Route
-                        path="/"
-                        element={
-                            <main>
-                                <Hero />
-                                <ProofStrip />
-                                <div className="section-transition section-transition-delay-1">
+                    {/* Keyed by path so every route change replays the fade-in. */}
+                    <div key={location.pathname} className="page-enter">
+                        <Routes>
+                        {/* Home Page */}
+                        <Route
+                            path="/"
+                            element={
+                                <main>
+                                    <ParticleField />
+                                    <Hero />
+                                    <ProofStrip />
                                     <SelectedWork />
-                                </div>
-                                <div className="section-transition section-transition-delay-2">
-                                    <RecentNotes />
-                                </div>
-                                <div className="section-transition section-transition-delay-3">
-                                    <CurrentRoleSummary />
-                                </div>
-                                <div className="section-transition section-transition-delay-3">
-                                    <EducationSection compact />
-                                </div>
-                                <TechMarquee />
-                                <div className="section-transition section-transition-delay-3">
+                                    {/* Now: the latest writing beside a short CV column (current role, then education). */}
+                                    <section id="now" aria-label="Now" className="scroll-mt-20">
+                                        <motion.div
+                                            className="mx-auto grid max-w-[var(--container-max)] gap-4 px-4 pb-20 sm:px-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:px-12 lg:pb-[88px]"
+                                            variants={staggerContainer}
+                                            {...revealOnView}
+                                        >
+                                            <motion.div variants={cardReveal} className="flex min-w-0 flex-col">
+                                                <RecentNotes />
+                                            </motion.div>
+                                            <motion.div variants={cardReveal} className="flex min-w-0 flex-col gap-2">
+                                                <CurrentRoleSummary />
+                                                <EducationSection compact />
+                                            </motion.div>
+                                        </motion.div>
+                                    </section>
                                     <JarvisCTA />
-                                </div>
-                                <div className="section-transition section-transition-delay-3">
                                     <ContactSection />
-                                </div>
-                            </main>
-                        }
-                    />
-                    {/* Projects Page */}
-                    <Route path="/projects" element={<ProjectSection />} />
-                    {/* Experience Page */}
-                    <Route path="/experience" element={<Experience />} />
-                    {/* Case Study Page */}
-                    <Route path="/work/:slug" element={<CaseStudy />} />
-                    {/* Notes */}
-                    <Route path="/notes" element={<NotesIndex />} />
-                    <Route path="/notes/:slug" element={<NoteDetail />} />
+                                </main>
+                            }
+                        />
+                        {/* Projects Page */}
+                        <Route path="/projects" element={<ProjectSection />} />
+                        {/* Experience Page */}
+                        <Route path="/experience" element={<Experience />} />
+                        {/* Case Study Page */}
+                        <Route path="/work/:slug" element={<CaseStudy />} />
+                        {/* Notes */}
+                        <Route path="/notes" element={<NotesIndex />} />
+                        <Route path="/notes/:slug" element={<NoteDetail />} />
 
-                    </Routes>
+                        </Routes>
+                    </div>
                 </Suspense>
             </div>
+            <SiteFooter />
         </div>
     );
 }
 
 function App() {
     return (
-        <Router>
-            <AppContent />
-        </Router>
+        // reducedMotion="user": Framer drops movement for readers who ask for less of it.
+        <MotionConfig reducedMotion="user">
+            <Router>
+                <AppContent />
+            </Router>
+        </MotionConfig>
     );
 }
 

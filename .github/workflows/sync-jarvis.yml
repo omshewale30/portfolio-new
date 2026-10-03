@@ -1,0 +1,34 @@
+name: Sync Jarvis knowledge
+
+# Re-indexes the site's content into Jarvis's vector store whenever it changes on main.
+# Only main: preview branches must not push unmerged content into the production store.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/data/**"
+      - "scripts/build-jarvis-corpus.mjs"
+      - "scripts/sync-jarvis-corpus.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-jarvis
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run jarvis:sync
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_VECTOR_STORE_ID: ${{ secrets.OPENAI_VECTOR_STORE_ID }}

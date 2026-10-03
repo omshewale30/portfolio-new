@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useLayoutEffect, useState } from "react";
 import PropTypes from "prop-types";
 
 const ThemeContext = createContext(null);
@@ -8,7 +8,8 @@ export function ThemeProvider({ children }) {
     () => localStorage.getItem("theme") || "dark"
   );
 
-  useEffect(() => {
+  // Layout effect so the attribute is set before children's effects read theme tokens.
+  useLayoutEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);

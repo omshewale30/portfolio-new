@@ -7,7 +7,7 @@ import FigureButton from "./FigureButton";
 const AnalysisSection = ({ section, onOpenFigure, className = "" }) => (
   <section id={section.id} aria-labelledby={`${section.id}-heading`} className={`case-flow scroll-mt-28 ${className}`}>
     <header className="text-center">
-      {section.eyebrow ? <p className="eyebrow-label mb-3">{`// ${section.eyebrow}`}</p> : null}
+      {section.eyebrow ? <p className="eyebrow-label eyebrow-pill mb-3">{section.eyebrow}</p> : null}
       <h2
         id={`${section.id}-heading`}
         className="m-0 text-balance font-display text-2xl text-[var(--color-text-primary)] md:text-3xl"
@@ -24,7 +24,7 @@ const AnalysisSection = ({ section, onOpenFigure, className = "" }) => (
           </p>
         ))}
         {section.list?.length ? (
-          <ol className="m-0 flex list-decimal flex-col gap-3 pl-6 text-base leading-relaxed text-[var(--color-text-muted)] marker:text-[var(--color-primary)]">
+          <ol className="m-0 flex list-decimal flex-col gap-3 pl-6 text-base leading-relaxed text-[var(--color-text-muted)] marker:font-mono marker:text-xs marker:text-[var(--color-text-meta)]">
             {section.list.map((item) => (
               <li key={item} className="pl-1">
                 {item}

@@ -8,7 +8,9 @@
     "build": "npm run validate:notes && vite build && node scripts/prerender-notes.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
-    "validate:notes": "node scripts/validate-notes.mjs"
+    "validate:notes": "node scripts/validate-notes.mjs",
+    "jarvis:corpus": "node scripts/build-jarvis-corpus.mjs",
+    "jarvis:sync": "node scripts/sync-jarvis-corpus.mjs"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

@@ -1,9 +1,9 @@
-"use client"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { experienceDetails } from "../data/experience"
-import { fadeInUp } from "../utils/animations"
+import { easing, fadeInUp, revealOnView } from "../utils/animations"
 import EducationSection from "./EducationSection"
+import SectionHeading from "./SectionHeading"
 
 const Experience = () => {
   const [expandedCards, setExpandedCards] = useState({})
@@ -42,180 +42,164 @@ const Experience = () => {
   }
 
   return (
-    <>
-    <section id="experience" className="relative overflow-hidden bg-[var(--color-bg-base)] py-20 sm:py-32">
-      <div className="section-shell relative z-10 max-w-6xl mx-auto px-6 sm:px-10">
-        <motion.div
-          className="mb-16 md:mb-24"
-          variants={fadeInUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          style={{ marginBottom: "2rem" }}
-        >
-          <p className="eyebrow-label mb-3">{"// Experience"}</p>
-          <h2 className="font-display text-4xl tracking-tight text-[var(--color-text-primary)] sm:text-5xl md:text-6xl">
-            Where I’ve Built.
-          </h2>
-        </motion.div>
+    <main id="experience" className="bg-[var(--color-bg-base)]">
+      <div className="section-shell page-shell">
+        <SectionHeading as="h1" eyebrow="Experience" title="Where I’ve worked." className="mb-12 md:mb-16" />
 
-        {/* The group/list class enables the "dim other items on hover" effect on desktop */}
-        <div className="group/list flex flex-col gap-12 sm:gap-16">
+        {/* A timeline: each company logo is a node on one rail, so every role starts visibly.
+            Phones: [node | title, company, dates, details]. sm+: [dates | node | title, details].
+            group/list drives the dim-the-other-roles-on-hover effect on desktop. */}
+        <ol className="group/list m-0 flex list-none flex-col gap-12 p-0 sm:gap-16">
           {experienceDetails.map((exp, index) => {
             const isExpanded = Boolean(expandedCards[index])
+            const isLast = index === experienceDetails.length - 1
             const firstTwoContributions = exp.contributions.slice(0, 2)
             const remainingContributions = exp.contributions.slice(2)
 
             return (
-              <motion.article
-                key={index}
-                variants={fadeInUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-                className="group relative flex flex-col items-start gap-4 transition-all duration-300 sm:flex-row sm:gap-8 lg:hover:!opacity-100 lg:group-hover/list:opacity-50"
-              >
-                {/* Desktop hover background block (subtle glass/glow effect) */}
-                <div className="absolute -inset-x-4 -inset-y-6 z-0 hidden rounded-2xl transition motion-reduce:transition-none lg:-inset-x-6 lg:block lg:group-hover:bg-[var(--color-bg-surface)] lg:group-hover:shadow-[inset_0_1px_0_0_var(--color-border-subtle)] lg:group-hover:ring-1 lg:group-hover:ring-[var(--color-border-focus)]/30" />
-
-                {/* Left Column: Meta & Timeline */}
-                <header className="z-10 mt-1 flex sm:w-1/4 sm:shrink-0 flex-col gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-text-meta)]">
-                  <div className="font-mono text-[var(--color-text-muted)] group-hover:text-[var(--color-primary)] transition-colors">
-                    {exp.duration}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-subtle)]">
-                    <span className="shrink-0">{getTypeIcon(exp.type)}</span>
-                    {exp.location}
-                  </div>
-
-                  {/* Company Logo Image (hidden on smallest screens, visible on hover context) */}
-                  {exp.image && (
-                    <div className="mt-4 hidden sm:block">
-                      <div className="h-14 w-14 overflow-hidden rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-1.5 opacity-60 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 group-hover:border-[var(--color-primary)]/50">
-                        <img 
-                          src={exp.image} 
-                          alt=""
-                          className="h-full w-full object-contain rounded-lg" 
-                          loading="lazy" 
-                        />
-                      </div>
-                    </div>
-                  )}
-                </header>
-
-                {/* Right Column: Details */}
-                <div className="z-10 sm:w-3/4">
-                  <h3 className="font-display text-2xl font-medium leading-tight text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)] transition-colors">
-                    {exp.title}
-                  </h3>
-                  <div className="mt-1 text-lg font-medium text-[var(--color-text-muted)]">
-                    {exp.company}
+              // The reveal sits on this wrapper: Framer leaves an inline opacity behind, which would
+              // otherwise override the article's dim-the-others-on-hover opacity.
+              <motion.li key={index} variants={fadeInUp} {...revealOnView}>
+                <article
+                  aria-labelledby={`role-${index}`}
+                  className="group grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-4 transition-opacity duration-300 sm:grid-cols-[12.5rem_2.75rem_minmax(0,1fr)] sm:gap-x-6 lg:hover:!opacity-100 lg:group-hover/list:opacity-50"
+                >
+                  {/* Node: the company logo on the rail, with the line running down to the next role */}
+                  <div className="relative col-start-1 row-span-3 row-start-1 sm:col-start-2 sm:row-span-2">
+                    <span className="relative z-[1] flex h-10 w-10 items-center justify-center overflow-hidden rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-1 transition-colors duration-300 group-hover:border-[var(--color-border-hover)] sm:h-11 sm:w-11">
+                      {exp.image ? (
+                        <img src={exp.image} alt="" className="h-full w-full rounded-[4px] object-contain" loading="lazy" />
+                      ) : (
+                        <span className="h-2 w-2 rounded-full bg-[var(--color-text-meta)]" />
+                      )}
+                    </span>
+                    {isLast ? null : (
+                      <span
+                        aria-hidden="true"
+                        className="absolute -bottom-10 left-1/2 top-[3.25rem] w-px -translate-x-1/2 bg-[var(--color-border-hover)] sm:-bottom-14 sm:top-14"
+                      />
+                    )}
                   </div>
 
-                  <div className="mt-5 flex flex-col gap-3">
-                    <ul className="space-y-3">
-                      {firstTwoContributions.map((contribution, cIdx) => (
-                        <li
-                          key={`visible-${cIdx}`}
-                          className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]/80 transition-colors"
+                  <header className="col-start-2 row-start-1 min-w-0 sm:col-start-3">
+                    <h2 id={`role-${index}`} className="m-0 font-display text-xl leading-tight text-[var(--color-text-primary)] sm:text-2xl">
+                      {exp.title}
+                    </h2>
+                    <p className="m-0 mt-1 text-[15px] leading-snug text-[var(--color-text-muted)] sm:text-lg">{exp.company}</p>
+                  </header>
+
+                  {/* Dates and place: under the title on phones, their own column beside the rail on sm+ */}
+                  <div className="col-start-2 row-start-2 mt-2.5 flex flex-col items-start gap-1 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-subtle)] sm:col-start-1 sm:row-span-2 sm:row-start-1 sm:mt-1.5 sm:items-end sm:gap-1.5 sm:text-right">
+                    <span className={exp.current ? "text-[var(--color-text-primary)]" : undefined}>{exp.duration}</span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="shrink-0 text-[var(--color-text-meta)]">{getTypeIcon(exp.type)}</span>
+                      {exp.location}
+                    </span>
+                  </div>
+
+                  <div className="col-start-2 row-start-3 min-w-0 sm:col-start-3 sm:row-start-2">
+                    <div className="mt-4 flex flex-col gap-3 sm:mt-5">
+                      <ul className="space-y-3">
+                        {firstTwoContributions.map((contribution, cIdx) => (
+                          <li
+                            key={`visible-${cIdx}`}
+                            className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-subtle)] group-hover:text-[var(--color-text-muted)] transition-colors"
+                          >
+                            <span className="mt-[0.6rem] h-px w-2 shrink-0 bg-[var(--color-text-meta)]" aria-hidden="true" />
+                            <span>{contribution}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* Remaining contributions open beneath the first two */}
+                      <AnimatePresence initial={false}>
+                        {isExpanded && remainingContributions.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3, ease: easing }}
+                            className="overflow-hidden"
+                          >
+                            <ul className="flex flex-col gap-3 pt-3">
+                              {remainingContributions.map((contribution, cIdx) => (
+                                <li
+                                  key={`hidden-${cIdx}`}
+                                  className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-subtle)] group-hover:text-[var(--color-text-muted)] transition-colors"
+                                >
+                                  <span className="mt-[0.6rem] h-px w-2 shrink-0 bg-[var(--color-text-meta)]" aria-hidden="true" />
+                                  <span>{contribution}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {remainingContributions.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => toggleContributions(index)}
+                          className="group/btn mt-2 inline-flex w-fit items-center gap-1.5 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-text-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)] rounded-[5px]"
+                          aria-expanded={isExpanded}
                         >
-                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-primary)] opacity-40 group-hover:opacity-100 transition-opacity" />
-                          <span>{contribution}</span>
+                          {isExpanded ? "Show less" : "Read more"}
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            className={`transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
+                          >
+                            <path
+                              d="M6 9L12 15L18 9"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Tech Stack */}
+                    <ul className="mt-6 flex flex-wrap gap-1.5" aria-label="Technologies used">
+                      {exp.technologies.map((tech) => (
+                        <li key={tech} className="ai-badge">
+                          {tech}
                         </li>
                       ))}
                     </ul>
 
-                    {/* Smooth expanding area for remaining contributions */}
-                    <AnimatePresence>
-                      {isExpanded && remainingContributions.length > 0 && (
-                        <motion.ul
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="space-y-3 overflow-hidden"
+                    {/* Optional Report Link */}
+                    {exp.report && (
+                      <div className="mt-5">
+                        <a
+                          href={exp.report}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.08em] text-[var(--color-text-subtle)] transition-colors hover:text-[var(--color-text-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)] rounded-[5px]"
                         >
-                          <div className="pt-3 flex flex-col gap-3">
-                            {remainingContributions.map((contribution, cIdx) => (
-                              <li
-                                key={`hidden-${cIdx}`}
-                                className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]/80 transition-colors"
-                              >
-                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-primary)] opacity-40 group-hover:opacity-100 transition-opacity" />
-                                <span>{contribution}</span>
-                              </li>
-                            ))}
-                          </div>
-                        </motion.ul>
-                      )}
-                    </AnimatePresence>
-
-                    {remainingContributions.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => toggleContributions(index)}
-                        className="group/btn mt-2 inline-flex w-fit items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-wider text-[var(--color-primary)] transition-colors hover:text-[var(--color-primary-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)] rounded-sm"
-                        aria-expanded={isExpanded}
-                      >
-                        {isExpanded ? "Show less" : "Read more"}
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          className={`transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
-                        >
-                          <path
-                            d="M6 9L12 15L18 9"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </button>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M10 6H6C4.89543 6 4 6.89543 4 8V18C4 19.1046 4.89543 20 6 20H16C17.1046 20 18 19.1046 18 18V14M14 4H20M20 4V10M20 4L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          View Report
+                        </a>
+                      </div>
                     )}
                   </div>
-
-                  {/* Tech Stack */}
-                  <ul className="mt-6 flex flex-wrap gap-2" aria-label="Technologies used">
-                    {exp.technologies.map((tech, techIndex) => (
-                      <li
-                        key={techIndex}
-                        className="rounded-full border border-[var(--color-border-subtle)] bg-[rgba(200,168,130,0.03)] font-mono text-xs uppercase tracking-wider text-[var(--color-text-subtle)] transition-colors duration-300 group-hover:border-[var(--color-border-focus)] group-hover:bg-[rgba(200,168,130,0.1)] group-hover:text-[var(--color-primary)]"
-                        style={{ padding: "0.1rem 0.1rem" }}
-                      >
-                        {tech}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Optional Report Link */}
-                  {exp.report && (
-                    <div className="mt-5">
-                      <a
-                        href={exp.report}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-sm"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <path d="M10 6H6C4.89543 6 4 6.89543 4 8V18C4 19.1046 4.89543 20 6 20H16C17.1046 20 18 19.1046 18 18V14M14 4H20M20 4V10M20 4L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                        View Report
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </motion.article>
+                </article>
+              </motion.li>
             )
           })}
+        </ol>
+
+        <div className="mt-24 lg:mt-32">
+          <EducationSection />
         </div>
       </div>
-    </section>
-
-    <EducationSection />
-    </>
+    </main>
   )
 }
 

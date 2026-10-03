@@ -1,46 +1,39 @@
-import { MessageCircle } from "lucide-react";
-
-const preferredScrollBehavior = () =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+import { motion } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
+import { fadeInUp, revealOnView } from "../utils/animations";
+import { scrollToJarvis } from "../utils/scroll";
 
 export default function JarvisCTA() {
   const handleClick = (event) => {
-    const jarvis = document.getElementById("jarvis");
-    if (!jarvis) return;
-
-    event.preventDefault();
-    jarvis.scrollIntoView({ behavior: preferredScrollBehavior(), block: "start" });
+    if (scrollToJarvis()) event.preventDefault();
   };
 
   return (
-    <section
-      className="bg-[var(--color-bg-base)]"
-      aria-labelledby="jarvis-cta-heading"
-    >
-      <div className="section-shell">
-        <div className="surface-card flex items-center justify-between gap-8 overflow-hidden px-8 py-9 max-md:flex-col max-md:items-start max-md:gap-6 max-md:px-6 max-md:py-8">
-          <div className="max-w-3xl">
-            <p className="eyebrow-label mb-3">{"// Skip the keyword wall"}</p>
+    <section aria-labelledby="jarvis-cta-heading">
+      <div className="mx-auto max-w-[var(--container-max)] px-4 sm:px-6 lg:px-12">
+        <motion.div
+          className="flex flex-wrap items-center justify-between gap-6 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 sm:p-8"
+          variants={fadeInUp}
+          {...revealOnView}
+        >
+          <div className="flex max-w-3xl flex-col gap-2">
+            <p className="eyebrow-label eyebrow-pill m-0">Skip the keyword wall</p>
             <h2
               id="jarvis-cta-heading"
-              className="font-display text-4xl font-normal tracking-[-0.02em] text-[var(--color-text-primary)] max-md:text-3xl"
+              className="headline m-0 text-[28px] leading-tight text-[var(--color-text-primary)] sm:text-[34px]"
             >
               Still looking for a skills matrix?
             </h2>
-            <p className="mt-3 text-lg leading-relaxed text-[var(--color-text-muted)] max-md:text-base">
+            <p className="m-0 text-[15px] leading-relaxed text-[var(--color-text-subtle)]">
               Fair. Ask Jarvis what I build, how I build it, and where I’ve used the tools that matter.
             </p>
           </div>
 
-          <a
-            href="#jarvis"
-            onClick={handleClick}
-            className="btn-primary inline-flex shrink-0 items-center justify-center gap-2 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-primary)] max-md:w-full"
-          >
-            <MessageCircle size={17} aria-hidden="true" />
+          <a href="#jarvis" onClick={handleClick} className="btn-primary shrink-0 max-sm:w-full">
             Just ask Jarvis
+            <ArrowUpRight size={14} aria-hidden="true" />
           </a>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
