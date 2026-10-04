@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Github, Linkedin } from "lucide-react";
+import { Github, Instagram, Linkedin } from "lucide-react";
 import ChatBot from "./ChatBot";
 import { EMAIL, LOCATION, socials } from "../data/contact";
 import { cardReveal, fadeInUp } from "../utils/animations";
@@ -122,6 +122,15 @@ const Hero = () => {
                 className="nav-icon-btn shrink-0"
               >
                 <Github size={14} aria-hidden="true" />
+              </a>
+              <a
+                href={socials.instagram.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="nav-icon-btn shrink-0"
+              >
+                <Instagram size={14} aria-hidden="true" />
               </a>
             </div>
           </motion.div>
