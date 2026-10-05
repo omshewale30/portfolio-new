@@ -96,7 +96,7 @@ const Hero = () => {
               <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-[18px]">
                 <span className="text-xl text-[var(--color-text-primary)]">Om Shewale</span>
                 <span className="text-xs text-[var(--color-text-subtle)]">
-                  Applied AI Engineer · UNC Finance &amp; Operations
+                  Applied AI Engineer @ Office of the Chief Financial Officer, UNC Chapel Hill
                 </span>
                 <span className="font-mono text-[11px] text-[var(--color-text-meta)]">{LOCATION}</span>
               </div>
