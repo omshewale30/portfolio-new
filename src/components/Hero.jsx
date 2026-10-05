@@ -93,13 +93,14 @@ const Hero = () => {
                 fetchPriority="high"
                 className="absolute inset-0 h-full w-full object-cover object-[center_18%] [mask-image:linear-gradient(to_bottom,#000_50%,transparent_86%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_50%,transparent_86%)]"
               />
-              <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-[18px]">
-                <span className="text-xl text-[var(--color-text-primary)]">Om Shewale</span>
-                <span className="text-xs text-[var(--color-text-subtle)]">
-                  Applied AI Engineer @ Office of the Chief Financial Officer, UNC Chapel Hill
-                </span>
-                <span className="font-mono text-[11px] text-[var(--color-text-meta)]">{LOCATION}</span>
-              </div>
+            </div>
+            {/* Sits in the card's black area below the portrait's fade, not over the photo. */}
+            <div className="flex flex-col gap-1 px-[18px] pb-[18px] pt-1">
+              <span className="text-xl text-[var(--color-text-primary)]">Om Shewale</span>
+              <span className="text-xs text-[var(--color-text-subtle)]">
+                Applied AI Engineer @ Office of the Chief Financial Officer, UNC Chapel Hill
+              </span>
+              <span className="font-mono text-[11px] text-[var(--color-text-meta)]">{LOCATION}</span>
             </div>
             <div className="flex items-center gap-1 border-t border-[var(--color-border-subtle)] py-1.5 pl-[18px] pr-2">
               <span className="mr-auto min-w-0 select-all truncate font-mono text-[11px] text-[var(--color-text-subtle)]">
