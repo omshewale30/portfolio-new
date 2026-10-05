@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef } from 'react'
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { MotionConfig, motion } from "framer-motion";
+import { Analytics } from '@vercel/analytics/react';
 
 import './App.css'
 import { trackPageView } from "./analytics.js";
@@ -141,6 +142,7 @@ function App() {
             <Router>
                 <AppContent />
             </Router>
+            <Analytics />
         </MotionConfig>
     );
 }
