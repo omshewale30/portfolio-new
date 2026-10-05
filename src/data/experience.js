@@ -1,7 +1,7 @@
 export const experienceDetails = [
   {
     title: "Applied AI Engineer",
-    company: "Office of the Vice Chancellor for Finance and Operations, UNC-Chapel Hill",
+    company: "Office of the Chief Financial Officer, UNC Chapel Hill",
     location: "Chapel Hill, NC, USA",
     duration: "06/2026 – Present",
     current: true,
