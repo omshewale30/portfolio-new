@@ -75,31 +75,31 @@ const Hero = () => {
             </motion.div>
           </div>
 
-          {/* Identity card: who, what and where over the portrait; how to reach me underneath.
-              Stacked layouts centre it; phones let it fill the column so its edges match the
-              headline and the Jarvis panel. */}
+          {/* Identity card: portrait on top, who/what/where in the black below its fade, and how
+              to reach me underneath. Stacked layouts centre it; phones let it fill the column so
+              its edges match the headline and the Jarvis panel. */}
           <motion.div
             variants={cardReveal}
             className="w-full max-w-[340px] overflow-hidden rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] max-lg:justify-self-center max-sm:max-w-none"
           >
             {/* Phones take the portrait's own 1938×2361 shape so the full-width card shows the whole
-                photo; a fixed height there crops it into a close-up. */}
-            <div className="relative h-[360px] max-sm:aspect-[1938/2361] max-sm:h-auto lg:h-[380px]">
+                photo; a fixed height there crops it into a close-up. The fade runs all the way to
+                the bottom edge so the text below starts where the photo ends, with no dead band. */}
+            <div className="relative h-[340px] max-sm:aspect-[1938/2361] max-sm:h-auto lg:h-[350px]">
               <img
                 src="/assets/Hero.webp"
                 alt="Portrait of Om Shewale"
                 width="1938"
                 height="2361"
                 fetchPriority="high"
-                className="absolute inset-0 h-full w-full object-cover object-[center_18%] [mask-image:linear-gradient(to_bottom,#000_50%,transparent_86%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_50%,transparent_86%)]"
+                className="absolute inset-0 h-full w-full object-cover object-[center_18%] [mask-image:linear-gradient(to_bottom,#000_62%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_62%,transparent_100%)]"
               />
-              <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-[18px]">
-                <span className="text-xl text-[var(--color-text-primary)]">Om Shewale</span>
-                <span className="text-xs text-[var(--color-text-subtle)]">
-                  Applied AI Engineer @ Office of the Chief Financial Officer, UNC Chapel Hill
-                </span>
-                <span className="font-mono text-[11px] text-[var(--color-text-meta)]">{LOCATION}</span>
-              </div>
+            </div>
+            <div className="flex flex-col px-[18px] pb-4">
+              <span className="text-xl leading-tight text-[var(--color-text-primary)]">Om Shewale</span>
+              <span className="mt-1.5 text-sm text-[var(--color-text-muted)]">Applied AI Engineer</span>
+              <span className="text-xs text-[var(--color-text-subtle)]">Office of the Chief Financial Officer</span>
+              <span className="mt-2 font-mono text-[11px] text-[var(--color-text-meta)]">UNC · {LOCATION}</span>
             </div>
             <div className="flex items-center gap-1 border-t border-[var(--color-border-subtle)] py-1.5 pl-[18px] pr-2">
               <span className="mr-auto min-w-0 select-all truncate font-mono text-[11px] text-[var(--color-text-subtle)]">
