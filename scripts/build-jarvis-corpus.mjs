@@ -12,7 +12,7 @@ import { load as loadYaml } from "js-yaml";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dataDirectory = path.join(projectRoot, "src/data");
-const siteUrl = "https://omshewale.me";
+const siteUrl = "https://www.omshewale.com";
 
 const importData = (relativePath) => import(pathToFileURL(path.join(dataDirectory, relativePath)).href);
 
@@ -175,7 +175,7 @@ const educationDocument = (educationDetails) =>
     body: educationDetails.map((edu) =>
       section(
         `${edu.degree}, ${edu.institution}`,
-        [field("Years", edu.years), field("GPA", edu.gpa), edu.description].filter(present).join("\n"),
+        [field("Years", edu.years), field("Graduated", edu.graduated), field("GPA", edu.gpa), edu.description].filter(present).join("\n"),
       ),
     ),
   });
@@ -198,7 +198,7 @@ const firstSentence = (text) => text.split(/(?<=\.)\s/)[0];
 const overviewDocument = ({ caseStudies, projects, notes, experienceDetails }) =>
   makeDocument({
     id: "site-overview",
-    title: "Site overview: everything on omshewale.me",
+    title: "Site overview: everything on omshewale.com",
     url: siteUrl,
     type: "Overview of all case studies, projects, notes, and roles",
     maxChunkTokens: 1600,

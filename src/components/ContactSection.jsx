@@ -90,7 +90,7 @@ const ContactSection = () => {
               <input type="email" name="from_email" placeholder="Email" autoComplete="email" required className="field-input" />
             </label>
           </div>
-          <input type="hidden" name="subject" value="New message from omshewale.me" />
+          <input type="hidden" name="subject" value="New message from omshewale.com" />
           <label className="flex flex-col">
             <span className="sr-only">Message</span>
             <textarea name="message" placeholder="What are you curious about?" rows="5" required className="field-input min-h-[120px]" />

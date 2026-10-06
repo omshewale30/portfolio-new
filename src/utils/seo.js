@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const SITE_NAME = "Om Shewale";
-const SITE_URL = "https://omshewale.me";
+const SITE_URL = "https://www.omshewale.com";
 const DEFAULT_IMAGE = `${SITE_URL}/assets/Hero.webp`;
 const EMPTY_TAGS = [];
 

@@ -7,7 +7,7 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 const distDirectory = path.join(projectRoot, "dist");
 const notesDirectory = path.join(projectRoot, "src/data/notes");
 const baseHtml = fs.readFileSync(path.join(distDirectory, "index.html"), "utf8");
-const siteUrl = "https://omshewale.me";
+const siteUrl = "https://www.omshewale.com";
 
 const escapeHtml = (value) => String(value)
   .replaceAll("&", "&amp;")

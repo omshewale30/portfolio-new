@@ -78,7 +78,7 @@ class PublicApiContractTests(unittest.TestCase):
             patch.object(main.settings, "openai_api_key", "test-key"),
             patch.object(main.settings, "openai_vector_store_id", "vs_public"),
             patch.object(main.settings, "openai_chat_model", "gpt-4o"),
-            patch.object(main, "PUBLIC_JARVIS_INSTRUCTIONS", "Test public instructions"),
+            patch.object(main, "jarvis_instructions", lambda today: "Test public instructions"),
         ]
         for setting_patch in self.setting_patches:
             setting_patch.start()

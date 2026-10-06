@@ -1,3 +1,4 @@
+from datetime import date
 from time import perf_counter
 from typing import Any
 
@@ -8,7 +9,7 @@ from fastapi.responses import JSONResponse
 from openai import APIError, AsyncOpenAI, BadRequestError, NotFoundError
 from open_ai_client import OpenAIClient
 from settings import settings
-from prompts import PUBLIC_JARVIS_INSTRUCTIONS
+from prompts import jarvis_instructions
 from logging_config import configure_logging, get_logger
 from analytics_router import router as analytics_router
 from notes_router import router as notes_router
@@ -177,7 +178,7 @@ async def chat(request: ChatRequest, http_request: Request, response: Response):
         settings.openai_api_key,
         settings.openai_vector_store_id,
         settings.openai_chat_model,
-        PUBLIC_JARVIS_INSTRUCTIONS,
+        jarvis_instructions(date.today()),
     )
     if not vector_store_id:
         raise HTTPException(

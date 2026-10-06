@@ -4,8 +4,9 @@ export const educationDetails = [
     degree: "M.S. Computer Science",
     institution: "University of North Carolina at Chapel Hill",
     years: "2024 – 2026",
+    graduated: "May 2026",
     gpa: "4.0",
-    description: "Focusing on LLMs and computer vision.",
+    description: "Focused on LLMs and computer vision.",
     icon: "rocket",
   },
   {

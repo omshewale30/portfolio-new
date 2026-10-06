@@ -12,6 +12,9 @@ It uses the OpenAI Responses API directly with the hosted `file_search` tool.
 Create a public-only vector store, upload reviewed portfolio material, and set
 `OPENAI_VECTOR_STORE_ID`. The service sends the public instructions on every
 request because instructions are not inherited through `previous_response_id`.
+They carry today's date and Om's current status (`CURRENT_STATUS` in
+`prompts.py`), which override older or undated uploaded files. Update
+`CURRENT_STATUS` when Om's role changes.
 
 The site's own content (`src/data`: case studies, notes, projects, experience,
 education) is indexed into the same store alongside the hand-uploaded files.
@@ -37,7 +40,7 @@ Required runtime configuration:
 
 - `OPENAI_API_KEY`
 - `OPENAI_VECTOR_STORE_ID`
-- `OPENAI_CHAT_MODEL` (defaults to `gpt-4o`)
+- `OPENAI_CHAT_MODEL` (defaults to `gpt-5.4`, which runs with no reasoning by default)
 - `CORS_ALLOWED_ORIGINS`
 - `CHAT_RATE_LIMIT_REQUESTS` (defaults to `10`)
 - `CHAT_RATE_LIMIT_WINDOW_SECONDS` (defaults to `60`)

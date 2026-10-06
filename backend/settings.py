@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     openai_api_key: str = ""
     openai_vector_store_id: str = ""
-    openai_chat_model: str = "gpt-4o"
+    openai_chat_model: str = "gpt-5.4"
     cors_allowed_origins: str = ""
     chat_rate_limit_requests: int = 10
     chat_rate_limit_window_seconds: int = 60
