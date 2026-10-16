@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Link as LinkIcon, ThumbsDown, ThumbsUp } from "l
 import PropTypes from "prop-types";
 import ReactMarkdown from "react-markdown";
 import { notes } from "../data/notes";
+import { DIAGRAMS } from "../components/diagrams";
 import { getAnonId } from "../utils/anonId";
 import { getReactions, submitReaction, getComments, submitComment } from "../notesApi";
 import { getNoteViewCount } from "../analytics";
@@ -67,6 +68,20 @@ MarkdownImage.propTypes = {
   title: PropTypes.string,
 };
 
+// A ```diagram fence names a registered diagram component; any other code block renders as-is.
+const MarkdownPre = ({ node, children, ...props }) => {
+  const code = node?.children?.[0];
+  const isDiagram = code?.tagName === "code" && code.properties?.className?.includes("language-diagram");
+  const Diagram = isDiagram ? DIAGRAMS[code.children?.[0]?.value?.trim()] : null;
+
+  return Diagram ? <Diagram /> : <pre {...props}>{children}</pre>;
+};
+
+MarkdownPre.propTypes = {
+  node: PropTypes.object,
+  children: PropTypes.node,
+};
+
 const NoteDetail = () => {
   const { slug } = useParams();
   const note = notes.find((item) => item.slug === slug);
@@ -110,6 +125,7 @@ const NoteDetail = () => {
       h3: (props) => <MarkdownHeading {...props} level={3} headings={headings} />,
       h4: (props) => <MarkdownHeading {...props} level={4} headings={headings} />,
       img: MarkdownImage,
+      pre: MarkdownPre,
     };
   }, [note?.headings]);
 
