@@ -18,6 +18,7 @@ from rate_limiter import SlidingWindowRateLimiter
 from request_utils import client_identifier
 from schemas import ChatRequest, ChatResponse, error_detail
 from schemas.chat import ChatUsage, SourceRef
+from scope_classifier import classify_scope
 
 configure_logging()
 logger = get_logger(__name__)
@@ -184,6 +185,22 @@ async def chat(request: ChatRequest, http_request: Request, response: Response):
         raise HTTPException(
             status_code=503,
             detail=error_detail("configuration_error", "Jarvis is not configured."),
+        )
+
+    scope = await classify_scope(
+        request.user_input, in_conversation=bool(request.previous_response_id)
+    )
+    if scope is not None and scope.blocked:
+        logger.info(
+            "chat_rejected reason=out_of_scope p_out=%.2f", scope.out_of_scope_probability
+        )
+        raise HTTPException(
+            status_code=400,
+            detail=error_detail(
+                "out_of_scope",
+                "I can only answer questions about Om and his work. "
+                "Try asking about his projects, experience, or skills.",
+            ),
         )
 
     call: dict[str, Any] = {

@@ -7,7 +7,9 @@ from fastapi.testclient import TestClient
 from openai import NotFoundError
 
 import main
+import scope_classifier
 from rate_limiter import SlidingWindowRateLimiter
+from scope_classifier import ScopeDecision
 
 
 class FakeResponses:
@@ -79,6 +81,7 @@ class PublicApiContractTests(unittest.TestCase):
             patch.object(main.settings, "openai_vector_store_id", "vs_public"),
             patch.object(main.settings, "openai_chat_model", "gpt-4o"),
             patch.object(main, "jarvis_instructions", lambda today: "Test public instructions"),
+            patch.object(main.settings, "jev_api_key", ""),
         ]
         for setting_patch in self.setting_patches:
             setting_patch.start()
@@ -299,6 +302,40 @@ class PublicApiContractTests(unittest.TestCase):
         self.assertEqual(other_client.status_code, 200)
         self.assertEqual(len(self.fake.responses.calls), 3)
 
+    def _post_with_scope(self, scope):
+        async def fake_classify(*_, **__):
+            return scope
+
+        with patch.object(main, "classify_scope", fake_classify):
+            return self.client.post(
+                "/chat", json={"user_id": "browser", "user_input": "Write me a poem"}
+            )
+
+    def test_out_of_scope_message_is_blocked_before_openai(self):
+        response = self._post_with_scope(ScopeDecision("out_of_scope", 0.99))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["detail"]["code"], "out_of_scope")
+        self.assertEqual(self.fake.responses.calls, [])
+
+    def test_uncertain_out_of_scope_message_is_allowed(self):
+        response = self._post_with_scope(ScopeDecision("out_of_scope", 0.6))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(self.fake.responses.calls), 1)
+
+    def test_in_scope_message_is_allowed(self):
+        response = self._post_with_scope(ScopeDecision("about_om", 0.0))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(self.fake.responses.calls), 1)
+
+    def test_classifier_failure_fails_open(self):
+        response = self._post_with_scope(None)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(self.fake.responses.calls), 1)
+
 
 class SlidingWindowRateLimiterTests(unittest.TestCase):
     def test_requests_are_allowed_again_after_the_window(self):
@@ -315,3 +352,48 @@ class SlidingWindowRateLimiterTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ScopeClassifierTests(unittest.IsolatedAsyncioTestCase):
+    async def test_jev_error_returns_none(self):
+        def handler(request):
+            return httpx.Response(529, request=request)
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        with (
+            patch.object(scope_classifier.settings, "jev_api_key", "test-key"),
+            patch.object(scope_classifier, "_http_client", client),
+        ):
+            self.assertIsNone(await scope_classifier.classify_scope("Hi"))
+
+    async def test_parses_out_of_scope_probability(self):
+        def handler(request):
+            return httpx.Response(
+                200,
+                json={
+                    "model": "jev-1.13.0",
+                    "answers": {
+                        "scope": {
+                            "type": "choice",
+                            "choice": "out_of_scope",
+                            "confidence": 0.97,
+                            "probabilities": {
+                                "about_om": 0.01,
+                                "conversational": 0.01,
+                                "out_of_scope": 0.98,
+                            },
+                        }
+                    },
+                    "usage": {"input_tokens": 500, "output_tokens": 30},
+                },
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        with (
+            patch.object(scope_classifier.settings, "jev_api_key", "test-key"),
+            patch.object(scope_classifier, "_http_client", client),
+        ):
+            decision = await scope_classifier.classify_scope("Write me a poem")
+
+        self.assertEqual(decision, ScopeDecision("out_of_scope", 0.98))
+        self.assertTrue(decision.blocked)

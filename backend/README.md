@@ -45,6 +45,22 @@ Required runtime configuration:
 - `CHAT_RATE_LIMIT_REQUESTS` (defaults to `10`)
 - `CHAT_RATE_LIMIT_WINDOW_SECONDS` (defaults to `60`)
 
+Optional scope classifier:
+
+- `JEV_API_KEY` (TypeSafe key; empty disables the classifier)
+- `JEV_MODEL` (defaults to `jev-1.13.0`; keep it pinned while the threshold is tuned)
+- `JEV_TIMEOUT_SECONDS` (defaults to `2`)
+- `JEV_BLOCK_THRESHOLD` (defaults to `0.8`)
+
+Before calling OpenAI, `POST /chat` asks Jev (`scope_classifier.py`) whether the
+message is about Om, a follow-up or greeting, or out of scope. A message is
+blocked with `400` and code `out_of_scope` only when Jev puts at least
+`JEV_BLOCK_THRESHOLD` probability on out of scope. The check fails open: if Jev
+is not configured, times out, or errors, the message goes to OpenAI (errors and
+timeouts log `scope_check_failed`). The request tells Jev whether the message
+continues a conversation, so a concept question after an answer is allowed. Jev cannot know
+Om's project names, so `OM_WORK_NAMES` lists them; add new ones there.
+
 `POST /chat` applies a per-client-IP sliding-window rate limit. Successful
 responses include `RateLimit-*` headers; rejected requests return `429` with a
 `Retry-After` header. The limiter is process-local, which is appropriate for a

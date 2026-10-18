@@ -292,7 +292,9 @@ const Chatbot = ({ className = "" }) => {
                 question,
                 answer: expired
                     ? "That conversation expired. I cleared it, so please ask again."
-                    : "Something went wrong reaching Jarvis. Please try again.",
+                    : error.code === "out_of_scope"
+                      ? error.message
+                      : "Something went wrong reaching Jarvis. Please try again.",
                 sources: [],
                 error: true,
             });

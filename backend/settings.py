@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     chat_rate_limit_requests: int = 10
     chat_rate_limit_window_seconds: int = 60
 
+    jev_api_key: str = ""
+    jev_api_url: str = "https://api.typesafe.ai/v1/systemone"
+    jev_model: str = "jev-1.13.0"
+    jev_timeout_seconds: float = 2.0
+    jev_block_threshold: float = 0.8
+
     supabase_url: str = ""
     supabase_key: str = ""
     comment_max_length: int = 1000
