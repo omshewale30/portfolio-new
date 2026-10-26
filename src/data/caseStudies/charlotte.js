@@ -2,8 +2,9 @@ export default {
   title: "Charlotte — Enterprise AI Platform",
   category: "Enterprise AI",
   year: "2025",
+  resultLine: "Projected to eliminate 200+ hours of manual research a year.",
   summary:
-    "A production RAG system that turns sprawling policy manuals, EDI reports, and transaction data into grounded answers for UNC operational teams.",
+    "Charlotte is projected to eliminate more than 200 hours of manual research a year for UNC operational teams, and gives them a consistent way to query operational knowledge. It's a production RAG system that turns policy manuals (~600 pages), EDI reports, and transaction data into grounded answers.",
   before: {
     title: "Answers were buried in fragmented operational data",
     description:

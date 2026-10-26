@@ -2,8 +2,10 @@ export default {
   title: "No Chain of Thought Required",
   category: "Systems Research",
   year: "2026",
+  resultLine:
+    "Matched a reasoning LLM on formal logic (0.837) at ~10× the speed, with no reasoning step.",
   summary:
-    "I benchmarked Jev, a “System One” model that returns decisions and probabilities instead of text, against GPT-6 Luna and Sol on 1,973 items spanning intent routing, email triage, and formal logic. With no reasoning step it matched a reasoning LLM on logic at a tenth of the latency, and it lost where the task demanded fine-grained distinctions, and this was expected. The goal of this case study is to show that models like Jev can be substituted for 'one-shot' tasks with near frontier level accuracy for a fraction of the frontier cost, and that too in real time.",
+    "With no reasoning step, Jev, a “System One” model that returns decisions and probabilities instead of text, matched a reasoning LLM on formal logic at a tenth of the latency. It lost where the task demanded fine-grained distinctions, and this was expected. So models like Jev can be substituted for 'one-shot' tasks with near frontier level accuracy for a fraction of the frontier cost, and that too in real time. I benchmarked it against GPT-6 Luna and Sol on 1,973 items spanning intent routing, email triage, and formal logic.",
   before: {
     title: "Every classification paid for a text generator",
     description:
@@ -18,8 +20,10 @@ export default {
     title:
       "Reasoning-model accuracy on logic at ~10× the speed; beaten on 77-way intents",
     description:
-      "Across 1,973 calls Jev's p99 latency stayed at or below 350 ms on every task, against 6.5–22 s for the LLMs. On FOLIO it tied GPT-6 Luna with high reasoning (0.837 each) at a seventh of the cost, and it led both LLMs on my inbox. It lost to GPT-6 Sol on Banking77's 77 fine-grained intents, and to prompt-cached Luna on cost there.",
+      "Across 1,973 calls Jev's p99 latency stayed at or below 350 ms on every task, against 6.5–22 s for the LLMs. On FOLIO it tied GPT-6 Luna with high reasoning (0.837 each) at a seventh of the cost, and it led both LLMs on my inbox.",
   },
+  resultsNote:
+    "It lost to GPT-6 Sol on Banking77's 77 fine-grained intents, and to prompt-cached Luna on cost there.",
   constraints: [
     "Identical instructions and label definitions for every model",
     "Pinned model versions; list prices verified on 2026-09-22",
@@ -46,6 +50,87 @@ export default {
     { label: "Faster than reasoning LLMs", value: "~10×" },
     { label: "Cheaper than Sol-high", value: "102×" },
   ],
+  resultsTable: {
+    caption:
+      "Accuracy on each full sample, cost per 1,000 items at list price, and median client-side latency. Luna and Sol ran with reasoning off; FOLIO's high-reasoning results are in the next section.",
+    columns: [
+      "Task",
+      "Jev",
+      "Luna",
+      "Sol",
+      "Jev $/1K",
+      "Luna $/1K",
+      "Sol $/1K",
+      "Jev p50",
+      "LLM p50",
+    ],
+    columnGroups: [
+      { label: "Accuracy", columns: ["Jev", "Luna", "Sol"] },
+      { label: "Cost", columns: ["Jev $/1K", "Luna $/1K", "Sol $/1K"] },
+      { label: "Latency", columns: ["Jev p50", "LLM p50"] },
+    ],
+    rows: [
+      [
+        "FOLIO logic · 3 labels",
+        "0.837",
+        "0.576",
+        "0.754",
+        "$0.020",
+        "$0.037",
+        "$0.747",
+        "221 ms",
+        "1.3–1.4 s",
+      ],
+      [
+        "My inbox · 7 categories",
+        "0.693",
+        "0.675",
+        "0.662",
+        "$0.048",
+        "$0.101",
+        "$2.03",
+        "200 ms",
+        "1.3–1.5 s",
+      ],
+      [
+        "Banking77 · 77 intents",
+        "0.786",
+        "0.805",
+        "0.831",
+        "$0.072",
+        "$0.030",
+        "$0.585",
+        "202 ms",
+        "1.2–1.5 s",
+      ],
+    ],
+  },
+  lessons: [
+    {
+      claim:
+        "Across 1,973 calls Jev's median stayed at 200–221 ms whether the input was 473 tokens or 1,706.",
+      detail:
+        "Its p99 never exceeded 350 ms, and it needed zero retries. The LLMs' p99 ranged from 6.5 to 22 s, their slowest calls took 9 to 59 s, and they needed six retries after timeouts; one email was also blocked by the content filter for both GPT models. Without reasoning the LLMs emit only ~20 tokens, so decode length doesn't explain the gap. Because this is client-side wall time from one machine to different providers, I can't attribute it to serving either. The gap is largest in the tail, which is what an inline decision in a request path has to budget for.",
+    },
+    {
+      claim:
+        "Jev wins when unique content dominates the prompt (emails, FOLIO premises) or when the alternative needs reasoning tokens billed as output (102× against Sol-high).",
+      detail:
+        "It bills input only and makes output free, but on every run its request encoded 1.3–1.7× more input tokens than the equivalent LLM prompt. It loses when a large fixed prefix can be cached, as with Banking77's label list.",
+    },
+    {
+      claim:
+        "RLCD-trained probabilities beat verbalized confidence on FOLIO (ECE 0.036 against 0.15–0.41) and on my inbox (0.22 against 0.30), tied Luna on Banking77 (0.101), and trailed Sol there (0.073).",
+      detail:
+        "The comparison is against the confidence these APIs return as prompted, not against logprobs, so it measures the interface as much as the model. But the interface is what production code consumes, and Jev's probability is the signal both routers in this study were built on.",
+    },
+    {
+      claim:
+        "No chain of thought is required for decisions that one careful read can settle, and that covered more of FOLIO than I expected (0.837 with no reasoning step, tied with Luna-high).",
+      detail:
+        "When the boundary is subtle and the label set is large, or when proving a negative takes several hops, the generalist with a scratchpad still wins. The architecture that follows is a router: Jev in the request path, with its probability deciding what escalates.",
+    },
+  ],
   tags: [
     "LLM Evaluation",
     "System One",
@@ -57,69 +142,16 @@ export default {
   sections: [
     {
       heading: "Two contracts: decide versus generate",
+      part: "context",
       paragraphs: [
         "Jev is TypeSafe's first “System One” model. Its API has no text output: you send a state and a set of options, and it “returns decisions and probabilities.” TypeSafe documents two properties that matter here. It is “trained with RLCD to return calibrated decisions,” and it “ingests the state once and evaluates every question against it in parallel.” The billing reflects that shape. Output tokens are FREE, thats right it's freeee!, and the reported output count scaled with the number of options (41 for FOLIO's 3 labels, 72 for Gmail's 7, 828 for Banking77's 77), consistent with scoring options rather than writing an answer.",
         "GPT-6 Luna and Sol are general-purpose generators. In the harness they receive byte-identical instructions and the same label list, and return JSON with a label and a confidence. That confidence is text the model writes, a verbalized number rather than a probability read off the network. Reasoning effort buys them a hidden scratchpad, billed as output tokens.",
         "Those contracts make testable predictions. Jev's cost and latency should not grow with task difficulty. Its probabilities should be more usable than verbalized ones. And it should struggle where TypeSafe's own notes say it does: “multiple hops of reasoning cost accuracy,” and it “answers the question you wrote, not the one you meant.” The runs below test each one.",
       ],
-      table: {
-        caption:
-          "Accuracy on each full sample, cost per 1,000 items at list price, and median client-side latency. Luna and Sol ran with reasoning off; FOLIO's high-reasoning results are in the next section.",
-        columns: [
-          "Task",
-          "Jev",
-          "Luna",
-          "Sol",
-          "Jev $/1K",
-          "Luna $/1K",
-          "Sol $/1K",
-          "Jev p50",
-          "LLM p50",
-        ],
-        columnGroups: [
-          { label: "Accuracy", columns: ["Jev", "Luna", "Sol"] },
-          { label: "Cost", columns: ["Jev $/1K", "Luna $/1K", "Sol $/1K"] },
-          { label: "Latency", columns: ["Jev p50", "LLM p50"] },
-        ],
-        rows: [
-          [
-            "FOLIO logic · 3 labels",
-            "0.837",
-            "0.576",
-            "0.754",
-            "$0.020",
-            "$0.037",
-            "$0.747",
-            "221 ms",
-            "1.3–1.4 s",
-          ],
-          [
-            "My inbox · 7 categories",
-            "0.693",
-            "0.675",
-            "0.662",
-            "$0.048",
-            "$0.101",
-            "$2.03",
-            "200 ms",
-            "1.3–1.5 s",
-          ],
-          [
-            "Banking77 · 77 intents",
-            "0.786",
-            "0.805",
-            "0.831",
-            "$0.072",
-            "$0.030",
-            "$0.585",
-            "202 ms",
-            "1.2–1.5 s",
-          ],
-        ],
-      },
     },
     {
       heading: "No chain of thought required, up to a point",
+      part: "results",
       paragraphs: [
         "FOLIO asks whether a conclusion is True, False, or Uncertain given a set of first-order-logic premises. It is the task a System One model should lose. Denied a scratchpad, GPT-6 Luna scored 0.576, not far above the one-in-three baseline, because it retreated to the safe answer: it predicted “Uncertain” for 141 of 203 items. Jev, also with no reasoning step, scored 0.837.",
         "With high reasoning effort the LLMs caught up but did not pass it. Luna-high also scored 0.837, and the paired comparison is exactly 20 items each way (McNemar p = 1.0). Sol-high scored 0.823 (p = 0.76). Jev reached that accuracy for $0.020 per 1,000 items at a 221 ms median. Luna-high spent ~188 reasoning tokens per item to get there, at $0.132 (6.6×) and 2.25 s; Sol-high cost $2.04 (102×) at 2.15 s. Against the no-reasoning LLMs Jev's lead is significant: 68 items to 15 over Luna, and 30 to 13 over Sol (p = 0.014).",
@@ -205,6 +237,7 @@ export default {
     {
       heading:
         "One of my seven personal inboxs (yeah, I have 7 personal inboxes): real cost gap",
+      part: "results",
       paragraphs: [
         "The second run sorted 1,000 emails from my own inbox into Gmail's seven categories. The ground truth is the category Gmail itself assigned, so the run measures how well each model reproduces Gmail's sorting. Jev scored 0.693 against 0.675 for Luna (40 vs 22 discordant items, p = 0.03) and 0.662 for Sol (52 vs 21, p = 0.0004). Most of the gap sits on Gmail's hardest boundary: Jev recovered 43% of true “updates” emails, against 38% and 37%.",
         "The lead is modest, and I would not assign it a mechanism. All three models miss the same 280 emails, and on 296 emails Luna and Sol agree with each other but not with Gmail. The largest single pattern, about 130 errors per model, is automated mail Gmail filed as updates that the models read as promotions. That puts a practical ceiling near 0.7, set by the labels rather than the models.",
@@ -239,6 +272,7 @@ export default {
     },
     {
       heading: "Where Jev loses: 77 near-synonymous intents",
+      part: "results",
       paragraphs: [
         "Banking77 is short customer messages across 77 intents, many of them near-neighbours such as pending_transfer and transfer_timing. Here GPT-6 Sol was clearly better: 0.831 against Jev's 0.786, and 51 items to 16 in the paired comparison (p = 2×10⁻⁵). Jev and Luna were statistically tied (0.786 vs 0.805, p = 0.09).",
         "Two architectural facts line up with the loss. First, Jev reads literally, and in this run every label was defined only by its name (“Card arrival”). A 77-way boundary drawn from names alone rewards the broader prior of a large generalist. Second, Jev's errors were near-misses: its top-two accuracy is 0.879, so 43% of its mistakes ranked the right intent second. Those are fine distinctions that a single scoring pass blurs. TypeSafe recommends hierarchical Choice for large taxonomies. I tested neither that nor richer definitions, so they remain the open variables.",
@@ -274,19 +308,9 @@ export default {
     },
 
     {
-      heading: "Synthesis",
-      paragraphs: [
-        "Across 1,973 calls Jev's median stayed at 200–221 ms whether the input was 473 tokens or 1,706. Its p99 never exceeded 350 ms, and it needed zero retries. The LLMs' p99 ranged from 6.5 to 22 s, their slowest calls took 9 to 59 s, and they needed six retries after timeouts; one email was also blocked by the content filter for both GPT models. Without reasoning the LLMs emit only ~20 tokens, so decode length doesn't explain the gap. Because this is client-side wall time from one machine to different providers, I can't attribute it to serving either. The gap is largest in the tail, which is what an inline decision in a request path has to budget for.",
-        "Jev bills input only and makes output free, but on every run its request encoded 1.3–1.7× more input tokens than the equivalent LLM prompt. It wins when unique content dominates the prompt (emails, FOLIO premises) or when the alternative needs reasoning tokens billed as output (102× against Sol-high). It loses when a large fixed prefix can be cached, as with Banking77's label list.",
-        "RLCD-trained probabilities beat verbalized confidence on FOLIO (ECE 0.036 against 0.15–0.41) and on my inbox (0.22 against 0.30), tied Luna on Banking77 (0.101), and trailed Sol there (0.073). The comparison is against the confidence these APIs return as prompted, not against logprobs, so it measures the interface as much as the model. But the interface is what production code consumes, and Jev's probability is the signal both routers in this study were built on.",
-        "No chain of thought is required for decisions that one careful read can settle, and that covered more of FOLIO than I expected. When the boundary is subtle and the label set is large, or when proving a negative takes several hops, the generalist with a scratchpad still wins. The architecture that follows is a router: Jev in the request path, with its probability deciding what escalates.",
-      ],
-    },
-
-
-    {
 
       heading: "Threats to validity",
+      part: "limits",
       paragraphs: [
         "Latency was measured in throughput mode (six requests in flight, models run one after another) rather than the harness's interleaved latency mode. It is client-side wall time from one machine and includes network paths to different providers.",
         "The OpenAI models sampled at temperature 1.0, and every run used a single seed, so the close results (Jev against Luna on Banking77 and FOLIO) could move on a rerun.",
@@ -297,6 +321,7 @@ export default {
     },
         {
       heading: "My two cents:",
+      part: "limits",
       paragraphs: [
         "Swap out existing decision/gate/classification services for System One models. Defer 'multi-hop', high-stakes tasks to generative models, where they can use their internal scratchpads for 'thinking'",
 

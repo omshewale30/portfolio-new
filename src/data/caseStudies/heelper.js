@@ -2,8 +2,9 @@ export default {
   title: "Heelper — AI Email Assistant",
   category: "Agentic Workflow",
   year: "2025",
+  resultLine: "Reduced manual email triage for the UNC Cashier's Office.",
   summary:
-    "An agentic email workflow for the UNC Cashier's Office that classifies, routes, and drafts contextual responses for high-volume inbound communication.",
+    "Heelper reduces the repetitive manual triage of high-volume inbound email at the UNC Cashier's Office. It's an agentic workflow that classifies, routes, and drafts context-aware responses, with human review kept for consequential communication.",
   before: {
     title: "High-volume email required repetitive manual triage",
     description:
