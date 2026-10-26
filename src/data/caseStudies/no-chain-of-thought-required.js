@@ -5,7 +5,7 @@ export default {
   resultLine:
     "Matched a reasoning LLM on formal logic (0.837) at ~10× the speed, with no reasoning step.",
   summary:
-    "With no reasoning step, Jev, a “System One” model that returns decisions and probabilities instead of text, matched a reasoning LLM on formal logic at a tenth of the latency. It lost where the task demanded fine-grained distinctions, and this was expected. So models like Jev can be substituted for 'one-shot' tasks with near frontier level accuracy for a fraction of the frontier cost, and that too in real time. I benchmarked it against GPT-6 Luna and Sol on 1,973 items spanning intent routing, email triage, and formal logic.",
+    "Jev is a “System One” model that returns decisions and probabilities instead of text. Models like it can be substituted for 'one-shot' tasks with near frontier level accuracy for a fraction of the frontier cost, and that too in real time. It lost where the task demanded fine-grained distinctions, and this was expected. I benchmarked it against GPT-6 Luna and Sol on 1,973 items spanning intent routing, email triage, and formal logic.",
   before: {
     title: "Every classification paid for a text generator",
     description:

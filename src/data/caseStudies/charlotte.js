@@ -4,7 +4,7 @@ export default {
   year: "2025",
   resultLine: "Projected to eliminate 200+ hours of manual research a year.",
   summary:
-    "Charlotte is projected to eliminate more than 200 hours of manual research a year for UNC operational teams, and gives them a consistent way to query operational knowledge. It's a production RAG system that turns policy manuals (~600 pages), EDI reports, and transaction data into grounded answers.",
+    "Charlotte gives UNC operational teams a consistent way to query operational knowledge. It's a production RAG system that turns policy manuals (~600 pages), EDI reports, and transaction data into grounded answers.",
   before: {
     title: "Answers were buried in fragmented operational data",
     description:

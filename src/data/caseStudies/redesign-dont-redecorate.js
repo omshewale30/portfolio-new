@@ -4,7 +4,7 @@ export default {
   year: "2025",
   resultLine: "A quantitative framework connecting task elimination to organizational ROI, applied to 2 production systems.",
   summary:
-    "Enterprise AI creates value when it redesigns a workflow instead of decorating the existing process. This systems research paper makes that case by evaluating Charlotte and Heelper through a human-in-the-loop lens, and develops a quantitative framework connecting task elimination to organizational ROI.",
+    "Enterprise AI creates value when it redesigns a workflow instead of decorating the existing process. This systems research paper makes that case by evaluating Charlotte and Heelper through a human-in-the-loop lens.",
   before: {
     title: "AI adoption was framed as a model-selection problem",
     description:
