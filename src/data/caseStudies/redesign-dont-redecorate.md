@@ -1,7 +1,7 @@
 ---
 title: Redesign, Don't Redecorate
 category: Systems Research
-year: '2025'
+date: '2026-05-01'
 resultLine: A quantitative framework connecting task elimination to organizational ROI, applied to 2 production systems.
 tags:
   - Research

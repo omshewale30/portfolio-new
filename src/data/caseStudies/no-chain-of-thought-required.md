@@ -1,7 +1,8 @@
 ---
 title: No Chain of Thought Required
 category: Systems Research
-year: '2026'
+date: '2026-09-24'
+pinned: true
 resultLine: Matched a reasoning LLM on formal logic (0.837) at ~10× the speed, with no reasoning step.
 tags:
   - LLM Evaluation

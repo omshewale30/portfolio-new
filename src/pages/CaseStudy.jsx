@@ -411,7 +411,7 @@ const CaseStudy = () => {
     [],
   );
 
-  if (!study) return <Navigate to="/projects" replace />;
+  if (!study) return <Navigate to="/writing" replace />;
 
   const reflectionItems = study.whatIdDoDifferently ? toListItems(study.whatIdDoDifferently) : [];
   const renderSections = (part) =>
@@ -434,9 +434,9 @@ const CaseStudy = () => {
           ) : null}
 
           <article key={study.slug} ref={articleRef} aria-labelledby="case-study-title" className="case-flow">
-            <Link to="/projects" className="note-back-link note-interactive justify-self-start">
+            <Link to="/writing" className="note-back-link note-interactive justify-self-start">
               <ArrowLeft size={14} aria-hidden="true" />
-              Back to projects
+              Back to writing
             </Link>
 
             {/* ── Header ── */}
@@ -567,8 +567,8 @@ const CaseStudy = () => {
             ) : null}
 
             <div className="mt-10 text-center">
-              <Link to="/projects" className="btn-ghost note-interactive inline-flex items-center gap-2 no-underline">
-                Browse the full project archive
+              <Link to="/writing" className="btn-ghost note-interactive inline-flex items-center gap-2 no-underline">
+                Browse all writing
                 <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
             </div>

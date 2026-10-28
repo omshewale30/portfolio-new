@@ -1,8 +1,8 @@
-// The flagships live in caseStudies/ (one file per study) because they carry a richer shape.
+// Case studies live in caseStudies/ and show on /writing, not here.
 // Every other project is maintained once here and grouped by its tier at export.
 export const projects = [
   {
-    tier: "supporting",
+    tier: "featured",
     title: "Image to LaTeX",
     description:
       "Developed a robust equation-to-LaTeX conversion system combining Optical Character Recognition (OCR) with Natural Language Processing (NLP) to accurately transcribe mathematical expressions. Leveraged Vision Transformers (ViT) for visual feature extraction and decoder LLMs for LaTeX generation, improving performance on low-quality and handwritten equations.",
@@ -12,7 +12,7 @@ export const projects = [
     linkText: "Report",
   },
   {
-    tier: "supporting",
+    tier: "featured",
     title: "Career Copilot AI",
     description:
       "Engineered Career Copilot AI, a full-stack intelligent platform providing personalized career advice, resume analysis, and job search assistance. Leveraged React for the frontend and FastAPI with LangChain/OpenAI for backend AI capabilities, featuring an interactive chat interface and Stripe integration for premium services.",
@@ -22,7 +22,7 @@ export const projects = [
     linkText: "Try it out",
   },
   {
-    tier: "supporting",
+    tier: "featured",
     title: "Jarvis - RAG Chatbot",
     description:
       "Developed Jarvis, a RAG-based chatbot that uses LangChain and OpenAI to provide personalized responses to user queries about me. It uses a vector database to store the data like my resume, projects, github, certifications, linkedin, etc and a chat interface to interact with the bot.",
@@ -32,7 +32,7 @@ export const projects = [
     linkText: "Chat with Jarvis",
   },
   {
-    tier: "supporting",
+    tier: "featured",
     title: "TaskFlow AI",
     description:
       "Developed TaskFlow AI, a full-stack intelligent platform providing personalized task management, scheduling, and productivity tips. Leveraged Next.js for the frontend and FastAPI with LangChain/OpenAI for backend AI capabilities",
@@ -115,5 +115,5 @@ export const projects = [
   },
 ];
 
-export const supportingProjects = projects.filter((project) => project.tier === "supporting");
+export const featuredProjects = projects.filter((project) => project.tier === "featured");
 export const archivedProjects = projects.filter((project) => project.tier === "archive");

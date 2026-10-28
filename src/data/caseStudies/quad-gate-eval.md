@@ -1,7 +1,8 @@
 ---
 title: 'Blocking 90% of Wasted Messages and 0 Real Questions: Gating a Pay-per-Message Agent'
 category: AI Cost Engineering
-year: '2026'
+date: '2026-10-29'
+pinned: true
 resultLine: On 129 scored test messages, Luna blocked 90% of wasted messages and the embedding gate blocked 71%. Decision-1 blocked 86% at 149 ms, within noise of Luna. No gate blocked a real question.
 tags:
   - LLM Evaluation

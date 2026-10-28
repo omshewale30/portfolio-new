@@ -1,6 +1,6 @@
 // Case studies are authored one per file in ./caseStudies/ as *.md (YAML frontmatter + body; see
 // ./caseStudyMarkdown.js for the format), with the slug taken from the filename. This module
-// parses them, checks the fields every page relies on, and orders them newest first.
+// parses them, checks the fields every page relies on, and orders them newest first by date.
 //
 // The detail page reads top to bottom as: title + resultLine, summary, stats,
 // context (before), constraints, failedApproaches, approach (intervention),
@@ -11,7 +11,7 @@
 // shipping (string[], paragraphs), resultsTable (same shape as sections[].table),
 // resultsNote, lessons ({claim, detail?}[]), sections[].part (one of SECTION_PARTS,
 // default "approach"), sections[].list (string[], numbered), sections[].table.columnGroups.
-import { WORDS_PER_MINUTE, countWords } from "../utils/text";
+import { WORDS_PER_MINUTE, countWords, formatDate } from "../utils/text";
 import { parseCaseStudyMarkdown } from "./caseStudyMarkdown";
 
 const markdownFiles = import.meta.glob("./caseStudies/*.md", {
@@ -24,7 +24,7 @@ const slugOf = (path) => path.replace(/^.*\/([^/]+)\.md$/, "$1");
 
 const files = Object.entries(markdownFiles).map(([path, raw]) => [slugOf(path), parseCaseStudyMarkdown(raw, slugOf(path))]);
 
-const REQUIRED_FIELDS = ["title", "category", "year", "summary", "before", "intervention", "after", "tags", "images"];
+const REQUIRED_FIELDS = ["title", "category", "date", "summary", "before", "intervention", "after", "tags", "images"];
 
 // Where a long-form section sits on the page: after the fixed section of the same name.
 export const SECTION_PARTS = ["context", "approach", "results", "limits"];
@@ -64,6 +64,8 @@ const collectText = (value) => {
 // Shape problems in the optional fields, as messages; an empty list means the study is fine.
 const findProblems = (study) => {
   const problems = [];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(study.date)) problems.push(`date "${study.date}" must be YYYY-MM-DD`);
+  if (study.pinned !== undefined && typeof study.pinned !== "boolean") problems.push("pinned must be true or false");
   study.stats?.forEach((stat, statIndex) => {
     if (typeof stat.value !== "string") problems.push(`stats[${statIndex}].value must be a string (quote it in YAML)`);
   });
@@ -107,8 +109,10 @@ export const caseStudies = files
     return {
       slug,
       ...study,
+      publishedAt: study.date,
+      date: formatDate(study.date),
       wordCount,
       readingMinutes: Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE)),
     };
   })
-  .sort((a, b) => Number(b.year) - Number(a.year) || a.slug.localeCompare(b.slug));
+  .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.slug.localeCompare(b.slug));
