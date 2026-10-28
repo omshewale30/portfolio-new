@@ -61,14 +61,15 @@ const writeRoute = (routePath, html) => {
   fs.writeFileSync(path.join(outputDirectory, "index.html"), html);
 };
 
-const notesIndexHtml = renderHead({
-  title: "Notes — Om Shewale",
-  description: "Longer essays and shorter working notes on building and evaluating AI systems.",
-  path: "/notes",
+// /notes redirects here (vercel.json), so the list page's metadata lives at /writing.
+const writingIndexHtml = renderHead({
+  title: "Writing — Om Shewale",
+  description: "Case studies, essays and notes on building and evaluating AI systems.",
+  path: "/writing",
   image: "/assets/Hero.webp",
   type: "website",
 });
-writeRoute("/notes", notesIndexHtml);
+writeRoute("/writing", writingIndexHtml);
 
 const noteFiles = fs.readdirSync(notesDirectory).filter((filename) => filename.endsWith(".md"));
 
@@ -93,4 +94,4 @@ noteFiles.forEach((filename) => {
   writeRoute(`/notes/${slug}`, html);
 });
 
-console.log(`Generated static metadata for /notes and ${noteFiles.length} note route${noteFiles.length === 1 ? "" : "s"}.`);
+console.log(`Generated static metadata for /writing and ${noteFiles.length} note route${noteFiles.length === 1 ? "" : "s"}.`);

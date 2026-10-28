@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef } from 'react'
-import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { MotionConfig, motion } from "framer-motion";
 import { Analytics } from '@vercel/analytics/react';
 
@@ -21,7 +21,7 @@ import { preferredScrollBehavior, scrollToJarvis } from "./utils/scroll.js";
 const ProjectSection = lazy(() => import("./components/ProjectSection.jsx"));
 const Experience = lazy(() => import("./components/Experience.jsx"));
 const CaseStudy = lazy(() => import("./pages/CaseStudy.jsx"));
-const NotesIndex = lazy(() => import("./pages/NotesIndex.jsx"));
+const WritingIndex = lazy(() => import("./pages/WritingIndex.jsx"));
 const NoteDetail = lazy(() => import("./pages/NoteDetail.jsx"));
 
 const RouteLoadingFallback = () => (
@@ -122,8 +122,9 @@ function AppContent() {
                         <Route path="/experience" element={<Experience />} />
                         {/* Case Study Page */}
                         <Route path="/work/:slug" element={<CaseStudy />} />
-                        {/* Notes */}
-                        <Route path="/notes" element={<NotesIndex />} />
+                        {/* Writing: case studies and notes in one list */}
+                        <Route path="/writing" element={<WritingIndex />} />
+                        <Route path="/notes" element={<Navigate to="/writing" replace />} />
                         <Route path="/notes/:slug" element={<NoteDetail />} />
 
                         </Routes>

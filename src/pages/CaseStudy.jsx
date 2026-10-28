@@ -3,50 +3,64 @@ import { useParams, Navigate, Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import PropTypes from "prop-types";
 import { motion, useReducedMotion } from "framer-motion";
-import { caseStudies } from "../data/caseStudies";
+import { SECTION_PARTS, caseStudies } from "../data/caseStudies";
 import { easing, staggerContainer } from "../utils/animations";
 import { useReadingProgress } from "../utils/readingProgress";
 import { useScrollSpy } from "../utils/scrollSpy";
 import { slugifyHeading } from "../utils/text";
 import AnalysisSection from "../components/caseStudy/AnalysisSection";
 import CountUpValue from "../components/caseStudy/CountUpValue";
+import DataTable from "../components/caseStudy/DataTable";
 import FigureButton from "../components/caseStudy/FigureButton";
 import Lightbox from "../components/caseStudy/Lightbox";
-import StoryStepper from "../components/caseStudy/StoryStepper";
 import { TocDetails, TocRail } from "../components/caseStudy/Toc";
 
-// Short studies (story, constraints, decisions) read fine without a table of contents.
-const TOC_MIN_SECTIONS = 4;
+// Short studies (context, constraints, approach, results) read fine without a table of contents.
+const TOC_MIN_SECTIONS = 5;
 
 const FIXED_IDS = {
-  story: "the-story",
-  takeaways: "key-takeaways",
+  context: "context-and-problem",
   constraints: "constraints",
-  decisions: "decisions-defended",
+  failed: "what-didnt-work",
+  approach: "the-approach",
+  shipping: "how-it-shipped",
+  results: "results",
+  lessons: "lessons",
   reflection: "what-id-do-differently",
 };
 
-// The page outline: fixed sections around the study's own `sections`, each with a unique anchor id.
+const DEFAULT_PART = "approach";
+
+// The page outline: fixed sections in reading order, each followed by the study's own `sections`
+// for that part, all with unique anchor ids.
 const buildOutline = (study) => {
   const used = new Set(Object.values(FIXED_IDS));
-  const sections = (study.sections ?? []).map((section) => {
+  const byPart = Object.fromEntries(SECTION_PARTS.map((part) => [part, []]));
+  (study.sections ?? []).forEach((section) => {
     const base = slugifyHeading(section.heading);
     let id = base;
     for (let suffix = 1; used.has(id); suffix += 1) id = `${base}-${suffix}`;
     used.add(id);
-    return { ...section, id };
+    byPart[section.part ?? DEFAULT_PART].push({ ...section, id });
   });
+  const sectionItems = (part) => byPart[part].map((section) => ({ id: section.id, label: section.heading }));
 
   const items = [
-    { id: FIXED_IDS.story, label: "The story" },
-    study.keyTakeaways?.length && { id: FIXED_IDS.takeaways, label: "Key takeaways" },
-    study.constraints?.length && { id: FIXED_IDS.constraints, label: "Constraints" },
-    study.decisionsDefended?.length && { id: FIXED_IDS.decisions, label: "Decisions defended" },
-    ...sections.map((section) => ({ id: section.id, label: section.heading })),
+    { id: FIXED_IDS.context, label: "Context and problem" },
+    ...sectionItems("context"),
+    (study.constraints?.length || study.outOfScope?.length) && { id: FIXED_IDS.constraints, label: "Constraints" },
+    study.failedApproaches?.length && { id: FIXED_IDS.failed, label: "What didn't work" },
+    { id: FIXED_IDS.approach, label: "The approach" },
+    ...sectionItems("approach"),
+    study.shipping?.length && { id: FIXED_IDS.shipping, label: "How it shipped" },
+    { id: FIXED_IDS.results, label: "Results" },
+    ...sectionItems("results"),
+    study.lessons?.length && { id: FIXED_IDS.lessons, label: "Lessons" },
+    ...sectionItems("limits"),
     study.whatIdDoDifferently && { id: FIXED_IDS.reflection, label: "What I'd do differently" },
   ].filter(Boolean);
 
-  return { items, sections };
+  return { items, byPart };
 };
 
 // "Do a; do b; and do c." → ["Do a", "Do b", "Do c"]
@@ -76,12 +90,19 @@ const BulletList = ({ items, reveal = false }) => {
     >
       {items.map((item) => (
         <motion.li
-          key={item}
+          key={item.claim ?? item}
           variants={animate ? revealItem : undefined}
           className="case-reveal flex items-start gap-3 text-base leading-relaxed text-[var(--color-text-muted)]"
         >
           <span aria-hidden="true" className="mt-[0.8rem] h-px w-2 flex-shrink-0 bg-[var(--color-text-meta)]" />
-          <span>{item}</span>
+          {typeof item === "string" ? (
+            <span>{item}</span>
+          ) : (
+            <span>
+              <strong className="font-medium text-[var(--color-text-primary)]">{item.claim}</strong>
+              {item.detail ? ` ${item.detail}` : null}
+            </span>
+          )}
         </motion.li>
       ))}
     </motion.ul>
@@ -89,12 +110,19 @@ const BulletList = ({ items, reveal = false }) => {
 };
 
 BulletList.propTypes = {
-  items: PropTypes.arrayOf(PropTypes.string).isRequired,
+  // Strings, or lessons: a claim shown in bold, then its supporting detail.
+  items: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({ claim: PropTypes.string.isRequired, detail: PropTypes.string }),
+    ]),
+  ).isRequired,
   reveal: PropTypes.bool,
 };
 
+// Children sit in the reading column; a `.case-breakout` child (a table) spans the full width.
 const PageSection = ({ id, eyebrow, title, className = "mt-20", children }) => (
-  <section id={id} aria-labelledby={`${id}-heading`} className={`scroll-mt-28 ${className}`}>
+  <section id={id} aria-labelledby={`${id}-heading`} className={`case-flow scroll-mt-28 ${className}`}>
     <header className="text-center">
       {eyebrow ? <p className="eyebrow-label eyebrow-pill mb-3">{eyebrow}</p> : null}
       <h2
@@ -104,7 +132,7 @@ const PageSection = ({ id, eyebrow, title, className = "mt-20", children }) => (
         {title}
       </h2>
     </header>
-    <div className="mt-6">{children}</div>
+    {children}
   </section>
 );
 
@@ -114,6 +142,47 @@ PageSection.propTypes = {
   title: PropTypes.string.isRequired,
   className: PropTypes.string,
   children: PropTypes.node.isRequired,
+};
+
+// A section's opening beat: the study's before / intervention / after, as an h3 and its paragraph.
+// The result is set in a card, as the end of the story.
+const StoryLead = ({ part, card = false }) => (
+  <div
+    className={`mt-6 ${
+      card ? "rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 md:p-6" : ""
+    }`}
+  >
+    <h3 className="m-0 font-display text-xl leading-snug text-[var(--color-text-primary)] md:text-2xl">{part.title}</h3>
+    <p className="mb-0 mt-3 text-base leading-relaxed text-[var(--color-text-muted)]">{part.description}</p>
+  </div>
+);
+
+StoryLead.propTypes = {
+  part: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+  }).isRequired,
+  card: PropTypes.bool,
+};
+
+const SubHeading = ({ children }) => <h3 className="eyebrow-label m-0 mb-4 mt-10">{children}</h3>;
+
+SubHeading.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+const Paragraphs = ({ items }) => (
+  <div className="mt-6 flex flex-col gap-4">
+    {items.map((paragraph) => (
+      <p key={paragraph} className="m-0 text-base leading-relaxed text-[var(--color-text-muted)]">
+        {paragraph}
+      </p>
+    ))}
+  </div>
+);
+
+Paragraphs.propTypes = {
+  items: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 const GLANCE_COLUMNS = { 3: "sm:grid-cols-3", 4: "sm:grid-cols-4", 5: "sm:grid-cols-5" };
@@ -317,7 +386,7 @@ const CaseStudy = () => {
   const previous = caseStudies[index - 1];
   const next = index >= 0 ? caseStudies[index + 1] : undefined;
 
-  const outline = useMemo(() => (study ? buildOutline(study) : { items: [], sections: [] }), [study]);
+  const outline = useMemo(() => (study ? buildOutline(study) : { items: [], byPart: {} }), [study]);
   const showToc = outline.items.length >= TOC_MIN_SECTIONS;
 
   const articleRef = useRef(null);
@@ -342,9 +411,13 @@ const CaseStudy = () => {
     [],
   );
 
-  if (!study) return <Navigate to="/projects" replace />;
+  if (!study) return <Navigate to="/writing" replace />;
 
   const reflectionItems = study.whatIdDoDifferently ? toListItems(study.whatIdDoDifferently) : [];
+  const renderSections = (part) =>
+    outline.byPart[part].map((section) => (
+      <AnalysisSection key={section.id} section={section} onOpenFigure={openFigure} className="mt-20" />
+    ));
 
   return (
     <main className="bg-[var(--color-bg-base)]">
@@ -361,9 +434,9 @@ const CaseStudy = () => {
           ) : null}
 
           <article key={study.slug} ref={articleRef} aria-labelledby="case-study-title" className="case-flow">
-            <Link to="/projects" className="note-back-link note-interactive justify-self-start">
+            <Link to="/writing" className="note-back-link note-interactive justify-self-start">
               <ArrowLeft size={14} aria-hidden="true" />
-              Back to projects
+              Back to writing
             </Link>
 
             {/* ── Header ── */}
@@ -375,6 +448,11 @@ const CaseStudy = () => {
               >
                 {study.title}
               </h1>
+              {study.resultLine ? (
+                <p className="mx-auto mb-0 mt-5 max-w-[40rem] text-balance font-display text-xl leading-snug text-[var(--color-text-primary)] md:text-2xl">
+                  {study.resultLine}
+                </p>
+              ) : null}
               <p className="mx-auto mb-0 mt-5 max-w-[40rem] text-pretty text-lg leading-relaxed text-[var(--color-text-muted)]">
                 {study.summary}
               </p>
@@ -393,55 +471,90 @@ const CaseStudy = () => {
             </header>
 
             <GlanceStrip study={study} />
-            <HeroMedia images={study.images} onOpenFigure={openFigure} />
             {study.stats?.length ? <StatsRow stats={study.stats} /> : null}
+            <HeroMedia images={study.images} onOpenFigure={openFigure} />
             {showToc ? <TocDetails items={outline.items} /> : null}
 
-            {/* ── Problem → intervention → result ── */}
-            <PageSection id={FIXED_IDS.story} title="The story">
-              <StoryStepper study={study} />
+            {/* ── Context → constraints → what didn't work ── */}
+            <PageSection id={FIXED_IDS.context} title="Context and problem">
+              <StoryLead part={study.before} />
             </PageSection>
+            {renderSections("context")}
 
-            {study.keyTakeaways?.length ? (
-              <PageSection id={FIXED_IDS.takeaways} title="Key takeaways">
-                <BulletList items={study.keyTakeaways} />
-              </PageSection>
-            ) : null}
-
-            {study.constraints?.length ? (
+            {study.constraints?.length || study.outOfScope?.length ? (
               <PageSection id={FIXED_IDS.constraints} title="Constraints">
-                <BulletList items={study.constraints} reveal />
+                {study.constraints?.length ? (
+                  <div className="mt-6">
+                    <BulletList items={study.constraints} reveal />
+                  </div>
+                ) : null}
+                {study.outOfScope?.length ? (
+                  <div className={study.constraints?.length ? undefined : "mt-6"}>
+                    <SubHeading>Out of scope</SubHeading>
+                    <BulletList items={study.outOfScope} reveal />
+                  </div>
+                ) : null}
               </PageSection>
             ) : null}
 
-            {study.decisionsDefended?.length ? (
-              <PageSection id={FIXED_IDS.decisions} title="Decisions defended" className="mt-16">
-                <BulletList items={study.decisionsDefended} reveal />
-              </PageSection>
-            ) : null}
-
-            {/* ── Long-form analysis (optional) ── */}
-            {outline.sections.length ? (
-              <>
-                <div className="divider-warm mt-20" />
-                {outline.sections.map((section, sectionIndex) => (
-                  <AnalysisSection
-                    key={section.id}
-                    section={section}
-                    onOpenFigure={openFigure}
-                    className={sectionIndex === 0 ? "mt-16" : "mt-20"}
-                  />
+            {study.failedApproaches?.length ? (
+              <PageSection id={FIXED_IDS.failed} title="What didn't work">
+                {study.failedApproaches.map((approach) => (
+                  <StoryLead key={approach.title} part={approach} />
                 ))}
-              </>
+              </PageSection>
             ) : null}
+
+            {/* ── The approach → how it shipped ── */}
+            <PageSection id={FIXED_IDS.approach} title="The approach">
+              <StoryLead part={study.intervention} />
+              {study.decisionsDefended?.length ? (
+                <div>
+                  <SubHeading>Decisions defended</SubHeading>
+                  <BulletList items={study.decisionsDefended} reveal />
+                </div>
+              ) : null}
+            </PageSection>
+            {renderSections("approach")}
+
+            {study.shipping?.length ? (
+              <PageSection id={FIXED_IDS.shipping} title="How it shipped">
+                <Paragraphs items={study.shipping} />
+              </PageSection>
+            ) : null}
+
+            {/* ── Results → lessons → limits ── */}
+            <PageSection id={FIXED_IDS.results} title="Results">
+              <StoryLead part={study.after} card />
+              {study.resultsTable ? <DataTable table={study.resultsTable} /> : null}
+              {study.resultsNote ? (
+                <div className="mt-8 border-l-2 border-[var(--color-border-hover)] pl-5">
+                  <p className="eyebrow-label m-0">Where it fell short</p>
+                  <p className="mb-0 mt-2 text-base leading-relaxed text-[var(--color-text-muted)]">{study.resultsNote}</p>
+                </div>
+              ) : null}
+            </PageSection>
+            {renderSections("results")}
+
+            {study.lessons?.length ? (
+              <PageSection id={FIXED_IDS.lessons} title="Lessons">
+                <div className="mt-6">
+                  <BulletList items={study.lessons} reveal />
+                </div>
+              </PageSection>
+            ) : null}
+
+            {renderSections("limits")}
 
             {study.whatIdDoDifferently ? (
               <PageSection id={FIXED_IDS.reflection} title="What I'd do differently">
-                {reflectionItems.length > 1 ? (
-                  <BulletList items={reflectionItems} />
-                ) : (
-                  <p className="m-0 text-base leading-relaxed text-[var(--color-text-muted)]">{study.whatIdDoDifferently}</p>
-                )}
+                <div className="mt-6">
+                  {reflectionItems.length > 1 ? (
+                    <BulletList items={reflectionItems} />
+                  ) : (
+                    <p className="m-0 text-base leading-relaxed text-[var(--color-text-muted)]">{study.whatIdDoDifferently}</p>
+                  )}
+                </div>
               </PageSection>
             ) : null}
 
@@ -454,8 +567,8 @@ const CaseStudy = () => {
             ) : null}
 
             <div className="mt-10 text-center">
-              <Link to="/projects" className="btn-ghost note-interactive inline-flex items-center gap-2 no-underline">
-                Browse the full project archive
+              <Link to="/writing" className="btn-ghost note-interactive inline-flex items-center gap-2 no-underline">
+                Browse all writing
                 <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
             </div>

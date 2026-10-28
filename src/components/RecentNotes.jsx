@@ -53,8 +53,8 @@ const RecentNotes = () => {
           ))}
         </ul>
       ) : null}
-      <Link to="/notes" className="self-start px-1 pt-1 font-mono text-[11px] text-[var(--color-text-meta)] transition-colors hover:text-[var(--color-text-primary)]">
-        all notes →
+      <Link to="/writing" className="self-start px-1 pt-1 font-mono text-[11px] text-[var(--color-text-meta)] transition-colors hover:text-[var(--color-text-primary)]">
+        all writing →
       </Link>
     </section>
   );

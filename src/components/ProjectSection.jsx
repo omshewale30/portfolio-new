@@ -1,10 +1,8 @@
 import { useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { Link } from "react-router-dom"
 import { ArrowUpRight, ChevronDown } from "lucide-react"
 import { cardReveal, easing, revealOnView, staggerContainer } from "../utils/animations"
-import { caseStudies } from "../data/caseStudies"
-import { supportingProjects, archivedProjects } from "../data/projects"
+import { featuredProjects, archivedProjects } from "../data/projects"
 import SectionHeading from "./SectionHeading"
 
 const ProjectsSection = () => {
@@ -15,56 +13,15 @@ const ProjectsSection = () => {
       <div className="section-shell page-shell">
         <SectionHeading as="h1" eyebrow="Projects" title="What I’ve built." className="mb-12 md:mb-14" />
 
-        {/* ── Tier 1: Flagships ── */}
-        <section aria-labelledby="flagships-heading" className="mb-16">
-          <h2 id="flagships-heading" className="eyebrow-label eyebrow-pill mb-4">Flagship case studies</h2>
-          <motion.div
-            className="grid grid-cols-1 gap-6 md:grid-cols-2"
-            variants={staggerContainer}
-            {...revealOnView}
-          >
-            {caseStudies.map((study) => (
-              <motion.div key={study.slug} variants={cardReveal}>
-                <Link
-                  to={`/work/${study.slug}`}
-                  className="group surface-hover flex h-full flex-col rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-6 text-[var(--color-text-primary)]"
-                >
-                  <div className="mb-3 flex items-center justify-between font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-meta)]">
-                    <span>{study.category}</span>
-                    <span>{study.year}</span>
-                  </div>
-                  <h3 className="font-display mb-3 text-2xl leading-snug text-[var(--color-text-primary)]">
-                    {study.title}
-                  </h3>
-                  <p className="mb-5 flex-1 text-sm leading-7 text-[var(--color-text-muted)]">{study.summary}</p>
-
-                  <div className="mb-5 flex flex-wrap gap-2">
-                    {study.tags.slice(0, 3).map((tag) => (
-                      <span key={tag} className="ai-badge">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-[var(--color-text-subtle)] transition-colors group-hover:text-[var(--color-text-primary)]">
-                    Read case study
-                    <ArrowUpRight size={14} aria-hidden="true" />
-                  </span>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </section>
-
-        {/* ── Tier 2: Supporting projects ── */}
-        <section aria-labelledby="supporting-heading" className="mb-16">
-          <h2 id="supporting-heading" className="eyebrow-label eyebrow-pill mb-4">Supporting projects</h2>
+        {/* ── Featured projects ── */}
+        <section aria-labelledby="featured-heading" className="mb-16">
+          <h2 id="featured-heading" className="eyebrow-label eyebrow-pill mb-4">Featured projects</h2>
           <motion.div
             className="flex flex-col gap-3"
             variants={staggerContainer}
             {...revealOnView}
           >
-            {supportingProjects.map((project) => (
+            {featuredProjects.map((project) => (
               <motion.a
                 key={project.title}
                 href={project.link}
@@ -97,7 +54,7 @@ const ProjectsSection = () => {
           </motion.div>
         </section>
 
-        {/* ── Tier 3: Archive ── */}
+        {/* ── Archive ── */}
         <section aria-labelledby="archive-heading">
           <h2 id="archive-heading" className="m-0 mb-4">
             <button

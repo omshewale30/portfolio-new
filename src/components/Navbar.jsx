@@ -13,8 +13,12 @@ const HOME_SECTIONS = ["jarvis", "selected-work"];
 
 // `spy` is the home section in view (null elsewhere).
 const NAV_ITEMS = [
-  { label: "projects", to: "/projects", match: (path) => path === "/projects" || path.startsWith("/work/") },
-  { label: "notes", to: "/notes", match: (path) => path.startsWith("/notes") },
+  {
+    label: "writing",
+    to: "/writing",
+    match: (path) => path === "/writing" || path.startsWith("/notes") || path.startsWith("/work/"),
+  },
+  { label: "projects", to: "/projects", match: (path) => path === "/projects" },
   { label: "experience", to: "/experience", match: (path) => path === "/experience" },
   { label: "jarvis", section: "jarvis", match: (path, spy) => spy === "jarvis" },
 ];

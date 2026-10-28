@@ -107,9 +107,9 @@ const NoteDetail = () => {
   const readingProgress = useReadingProgress(articleRef, { enabled: note?.tier === "essay", resetKey: slug });
 
   usePageMetadata({
-    title: note ? notePageTitle(note.title) : "Notes — Om Shewale",
+    title: note ? notePageTitle(note.title) : "Writing — Om Shewale",
     description: note?.excerpt || "Essays and working notes on building and evaluating AI systems.",
-    path: note ? `/notes/${note.slug}` : "/notes",
+    path: note ? `/notes/${note.slug}` : "/writing",
     image: note?.image,
     type: note ? "article" : "website",
     publishedAt: note?.publishedAt,
@@ -156,7 +156,7 @@ const NoteDetail = () => {
     };
   }, [slug, note]);
 
-  if (!note) return <Navigate to="/notes" replace />;
+  if (!note) return <Navigate to="/writing" replace />;
 
   const handleReaction = async (reaction) => {
     if (!reactions || isSubmittingReaction) return;
@@ -219,9 +219,9 @@ const NoteDetail = () => {
       ) : null}
 
       <div className="section-shell page-shell note-shell">
-        <Link to="/notes" className="note-back-link note-interactive">
+        <Link to="/writing" className="note-back-link note-interactive">
           <ArrowLeft size={14} aria-hidden="true" />
-          Back to notes
+          Back to writing
         </Link>
 
         <article ref={articleRef} aria-labelledby="note-title">
@@ -384,8 +384,8 @@ const NoteDetail = () => {
         </section>
 
         <nav className="note-continuation" aria-label="Continue reading">
-          <Link to="/notes" className="note-interactive note-continuation-link">
-            <ArrowLeft size={15} aria-hidden="true" /> All notes
+          <Link to="/writing" className="note-interactive note-continuation-link">
+            <ArrowLeft size={15} aria-hidden="true" /> All writing
           </Link>
           {olderNote ? (
             <Link to={`/notes/${olderNote.slug}`} className="note-interactive note-continuation-link">

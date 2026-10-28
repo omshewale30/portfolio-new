@@ -1,3 +1,4 @@
 {
+  "redirects": [{ "source": "/notes", "destination": "/writing", "permanent": true }],
   "rewrites": [{ "source": "/((?!notes).*)", "destination": "/index.html" }]
 }

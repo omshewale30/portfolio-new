@@ -15,8 +15,8 @@ const SelectedWork = () => (
         title="Systems built, then measured."
         lede="Measure the work removed, not the words generated."
         action={
-          <Link to="/projects" className="btn-ghost">
-            Archive
+          <Link to="/writing" className="btn-ghost">
+            All writing
             <ArrowUpRight size={14} aria-hidden="true" />
           </Link>
         }
