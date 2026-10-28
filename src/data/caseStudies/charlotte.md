@@ -1,7 +1,7 @@
 ---
 title: Charlotte — Enterprise AI Platform
 category: Enterprise AI
-date: '2026-11-11'
+date: '2025-11-11'
 pinned: true
 resultLine: Projected to eliminate 200+ hours of manual research a year.
 tags:
