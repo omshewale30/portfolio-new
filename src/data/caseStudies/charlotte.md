@@ -1,7 +1,8 @@
 ---
 title: Charlotte — Enterprise AI Platform
 category: Enterprise AI
-year: '2025'
+date: '2026-11-11'
+pinned: true
 resultLine: Projected to eliminate 200+ hours of manual research a year.
 tags:
   - RAG

@@ -1,9 +1,10 @@
 // Parses a case study written as markdown (./caseStudies/*.md) into the study object
 // the loader validates and the page renders.
 //
-// Frontmatter (YAML) holds the short structured fields: title, category, year, resultLine, tags,
-// stats, images, externalLink, role, timeline, stack. Any other field may also go there, e.g. a
-// resultsTable that needs columnGroups, but not in both places.
+// Frontmatter (YAML) holds the short structured fields: title, category, date (YYYY-MM-DD; the
+// year shown on the page comes from it), resultLine, tags, stats, images, externalLink, role,
+// timeline, stack, pinned (true shows the study under "Start here" on /writing). Any other field may also go there, e.g. a resultsTable that needs
+// columnGroups, but not in both places.
 //
 // The body is split by `#` headings, one per part of the page, in any order:
 //
@@ -284,7 +285,13 @@ export const parseCaseStudyMarkdown = (raw, slug) => {
   if (!match) throw new Error(`Case study "${slug}.md" needs YAML frontmatter between --- lines`);
   const [, frontmatter, body] = match;
   const data = loadYaml(frontmatter) ?? {};
-  if (data.year !== undefined) data.year = String(data.year);
+  if (data.year !== undefined) throw new Error(`Case study "${slug}.md": remove year; it comes from date`);
+  // YAML reads an unquoted 2026-03-01 as a Date; the page wants the ISO string.
+  if (data.date instanceof Date) data.date = data.date.toISOString().slice(0, 10);
+  if (data.date !== undefined) {
+    data.date = String(data.date);
+    data.year = data.date.slice(0, 4);
+  }
 
   const fields = {};
   const sections = [];

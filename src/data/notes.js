@@ -2,7 +2,7 @@
 // Notes are authored as markdown files with frontmatter in ./notes/*.md — this
 // module loads them at build time and shapes them into what the note pages expect.
 import { load as loadYaml } from "js-yaml";
-import { WORDS_PER_MINUTE, countWords, slugifyHeading } from "../utils/text";
+import { WORDS_PER_MINUTE, countWords, formatDate, normalizeDate, slugifyHeading } from "../utils/text";
 
 const files = import.meta.glob("./notes/*.md", {
   query: "?raw",
@@ -18,16 +18,6 @@ const parseNote = (raw) => {
   const [, frontmatter, body] = match;
   return { data: loadYaml(frontmatter) ?? {}, body: body.trim() };
 };
-
-const formatDate = (isoDate) =>
-  new Date(`${isoDate}T00:00:00`).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-
-const normalizeDate = (date) =>
-  date instanceof Date ? date.toISOString().slice(0, 10) : String(date);
 
 const headingText = (markdown) =>
   markdown

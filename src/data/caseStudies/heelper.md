@@ -1,7 +1,7 @@
 ---
 title: Heelper — AI Email Assistant
 category: Agentic Workflow
-year: '2025'
+date: '2026-03-01'
 resultLine: Reduced manual email triage for the UNC Cashier's Office.
 tags:
   - Agentic AI

@@ -221,13 +221,13 @@ export const buildCorpus = async () => {
     importData("education.js"),
   ]);
 
-  const caseStudyFiles = fs.readdirSync(path.join(dataDirectory, "caseStudies")).filter((file) => file.endsWith(".js"));
-  const caseStudies = await Promise.all(
-    caseStudyFiles.map(async (file) => ({
-      slug: file.replace(/\.js$/, ""),
-      study: (await importData(`caseStudies/${file}`)).default,
-    })),
-  );
+  const { parseCaseStudyMarkdown } = await importData("caseStudyMarkdown.js");
+  const caseStudyFiles = fs.readdirSync(path.join(dataDirectory, "caseStudies")).filter((file) => file.endsWith(".md"));
+  const caseStudies = caseStudyFiles.map((file) => {
+    const slug = file.replace(/\.md$/, "");
+    const raw = fs.readFileSync(path.join(dataDirectory, "caseStudies", file), "utf8");
+    return { slug, study: parseCaseStudyMarkdown(raw, slug) };
+  });
 
   const noteFiles = fs.readdirSync(path.join(dataDirectory, "notes")).filter((file) => file.endsWith(".md"));
   const notes = noteFiles.map((file) =>
