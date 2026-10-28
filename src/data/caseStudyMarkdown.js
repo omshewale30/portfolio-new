@@ -1,5 +1,5 @@
-// Parses a case study written as markdown (./caseStudies/*.md) into the same object a .js study
-// exports, so the loader and the page don't care which format a study is in.
+// Parses a case study written as markdown (./caseStudies/*.md) into the study object
+// the loader validates and the page renders.
 //
 // Frontmatter (YAML) holds the short structured fields: title, category, year, resultLine, tags,
 // stats, images, externalLink, role, timeline, stack. Any other field may also go there, e.g. a

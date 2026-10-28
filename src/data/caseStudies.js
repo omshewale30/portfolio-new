@@ -1,7 +1,6 @@
-// Case studies are authored one per file in ./caseStudies/, either as *.js (default export) or
-// as *.md (frontmatter + body, see ./caseStudyMarkdown.js for the format), with the slug taken
-// from the filename — this module loads them at build time, checks the fields every page relies
-// on, and orders them newest first.
+// Case studies are authored one per file in ./caseStudies/ as *.md (YAML frontmatter + body; see
+// ./caseStudyMarkdown.js for the format), with the slug taken from the filename. This module
+// parses them, checks the fields every page relies on, and orders them newest first.
 //
 // The detail page reads top to bottom as: title + resultLine, summary, stats,
 // context (before), constraints, failedApproaches, approach (intervention),
@@ -15,22 +14,15 @@
 import { WORDS_PER_MINUTE, countWords } from "../utils/text";
 import { parseCaseStudyMarkdown } from "./caseStudyMarkdown";
 
-const scriptFiles = import.meta.glob("./caseStudies/*.js", {
-  import: "default",
-  eager: true,
-});
 const markdownFiles = import.meta.glob("./caseStudies/*.md", {
   query: "?raw",
   import: "default",
   eager: true,
 });
 
-const slugOf = (path) => path.replace(/^.*\/([^/]+)\.(js|md)$/, "$1");
+const slugOf = (path) => path.replace(/^.*\/([^/]+)\.md$/, "$1");
 
-const files = [
-  ...Object.entries(scriptFiles).map(([path, study]) => [slugOf(path), study]),
-  ...Object.entries(markdownFiles).map(([path, raw]) => [slugOf(path), parseCaseStudyMarkdown(raw, slugOf(path))]),
-];
+const files = Object.entries(markdownFiles).map(([path, raw]) => [slugOf(path), parseCaseStudyMarkdown(raw, slugOf(path))]);
 
 const REQUIRED_FIELDS = ["title", "category", "year", "summary", "before", "intervention", "after", "tags", "images"];
 
@@ -100,9 +92,6 @@ const findProblems = (study) => {
   });
   return problems;
 };
-
-const duplicate = files.find(([slug], index) => files.findIndex(([other]) => other === slug) !== index);
-if (duplicate) throw new Error(`Case study "${duplicate[0]}" exists as both .js and .md; keep one`);
 
 export const caseStudies = files
   .map(([slug, study]) => {
