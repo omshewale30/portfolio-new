@@ -168,4 +168,4 @@ Nothing here measures production traffic. We do not know yet what percentage of 
 
 # What I'd do differently
 
-Score real shadow-mode traffic instead of synthetic test messages; have a person who has not read the prompts label the test set; run Luna and Decision-1 five or more times each and report the spread; measure latency from the production host; and tune the Decision-1 threshold on a held-out split.
+Score real shadow-mode traffic instead of synthetic test messages; have a person who has not read the prompts label the test set; measure latency from the production host; and tune the Decision-1 threshold on a held-out split.
