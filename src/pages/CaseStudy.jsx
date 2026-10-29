@@ -52,7 +52,7 @@ const buildOutline = (study) => {
     study.failedApproaches?.length && { id: FIXED_IDS.failed, label: "What didn't work" },
     { id: FIXED_IDS.approach, label: "The approach" },
     ...sectionItems("approach"),
-    study.shipping?.length && { id: FIXED_IDS.shipping, label: "How it shipped" },
+    study.shipping?.length && { id: FIXED_IDS.shipping, label: study.shippingTitle ?? "How it shipped" },
     { id: FIXED_IDS.results, label: "Results" },
     ...sectionItems("results"),
     study.lessons?.length && { id: FIXED_IDS.lessons, label: "Lessons" },
@@ -518,7 +518,7 @@ const CaseStudy = () => {
             {renderSections("approach")}
 
             {study.shipping?.length ? (
-              <PageSection id={FIXED_IDS.shipping} title="How it shipped">
+              <PageSection id={FIXED_IDS.shipping} title={study.shippingTitle ?? "How it shipped"}>
                 <Paragraphs items={study.shipping} />
               </PageSection>
             ) : null}

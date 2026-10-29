@@ -8,7 +8,7 @@
 //
 // Optional fields the detail page renders when present: resultLine, role, timeline,
 // stack (string[]), outOfScope (string[]), failedApproaches ({title, description}[]),
-// shipping (string[], paragraphs), resultsTable (same shape as sections[].table),
+// shipping (string[], paragraphs), shippingTitle (its heading), resultsTable (same shape as sections[].table),
 // resultsNote, lessons ({claim, detail?}[]), sections[].part (one of SECTION_PARTS,
 // default "approach"), sections[].list (string[], numbered), sections[].table.columnGroups.
 import { WORDS_PER_MINUTE, countWords, formatDate } from "../utils/text";

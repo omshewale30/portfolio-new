@@ -15,7 +15,8 @@
 //   # What didn't work         each `##` → failedApproaches (heading = title, one paragraph)
 //   # Approach                 first `##` → intervention; `## Decisions defended` bullet list →
 //                              decisionsDefended; further `##` → sections in the approach part
-//   # How it shipped           paragraphs → shipping
+//   # How it shipped           paragraphs → shipping; the heading as written → shippingTitle
+//                              (`# How it's designed to ship` also works, for work not live yet)
 //   # Results                  first `##` → after, and a table in it → resultsTable;
 //                              `## Where it fell short` one paragraph → resultsNote;
 //                              further `##` → sections in the results part
@@ -241,8 +242,10 @@ const PARTS = {
 
   "how it shipped": (part, where) => {
     take(part.groups.flatMap((group) => group.blocks), [], `${where} (no ## headings here)`);
-    return { shipping: take(part.intro, ["paragraph"], where).paragraphs };
+    return { shipping: take(part.intro, ["paragraph"], where).paragraphs, shippingTitle: part.name };
   },
+
+  "how it's designed to ship": (part, where) => PARTS["how it shipped"](part, where),
 
   results: (part, where) => {
     take(part.intro, [], where);
