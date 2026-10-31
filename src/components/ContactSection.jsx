@@ -1,12 +1,13 @@
 import { useRef, useState } from "react"
 import emailjs from "@emailjs/browser"
 import { motion } from "framer-motion"
-import { Check, Github, Instagram, Linkedin, LoaderCircle, Mail, MapPin, Send, TriangleAlert } from "lucide-react"
+import { Check, Github, Instagram, Linkedin, LoaderCircle, Mail, MapPin, Phone, Send, TriangleAlert } from "lucide-react"
 import { cardReveal, fadeInUp, revealOnView, staggerContainer } from "../utils/animations"
-import { EMAIL, LOCATION, mapsHref, socials } from "../data/contact"
+import { EMAIL, LOCATION, PHONE, PHONE_HREF, mapsHref, socials } from "../data/contact"
 
 const contactLinks = [
   { icon: Mail, value: EMAIL, href: `mailto:${EMAIL}` },
+  { icon: Phone, value: PHONE, href: PHONE_HREF },
   { icon: Linkedin, value: socials.linkedin.handle, href: socials.linkedin.href },
   { icon: Github, value: socials.github.handle, href: socials.github.href },
   { icon: Instagram, value: `@${socials.instagram.handle}`, href: socials.instagram.href },
