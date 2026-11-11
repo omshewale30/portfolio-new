@@ -1,7 +1,5 @@
 // One place for how to reach Om: the hero card, Contact section and footer all read from here.
 export const EMAIL = "omshewale030@gmail.com";
-export const PHONE = "206-637-8859";
-export const PHONE_HREF = "tel:+12066378859";
 export const LOCATION ="Chapel Hill, NC";
 
 export const socials = {
